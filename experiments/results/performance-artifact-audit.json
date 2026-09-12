@@ -1,0 +1,108 @@
+{
+  "kind": "OFFICIAL_PERFORMANCE_ARTIFACT_AUDIT",
+  "sourceTag": "b12-frozen-20260912-r2",
+  "completedAt": "2026-09-12T16:53:33.918Z",
+  "runs": [
+    {
+      "code": "official-20260912085122-n10-r1",
+      "size": 10,
+      "dbIssued": 10,
+      "manifestCount": 10,
+      "proofsChecked": 10,
+      "uniqueTargetHashes": 10,
+      "transactionCount": 1,
+      "merkleRootCount": 1,
+      "passed": true
+    },
+    {
+      "code": "official-20260912085122-n10-r2",
+      "size": 10,
+      "dbIssued": 10,
+      "manifestCount": 10,
+      "proofsChecked": 10,
+      "uniqueTargetHashes": 10,
+      "transactionCount": 1,
+      "merkleRootCount": 1,
+      "passed": true
+    },
+    {
+      "code": "official-20260912085122-n10-r3",
+      "size": 10,
+      "dbIssued": 10,
+      "manifestCount": 10,
+      "proofsChecked": 10,
+      "uniqueTargetHashes": 10,
+      "transactionCount": 1,
+      "merkleRootCount": 1,
+      "passed": true
+    },
+    {
+      "code": "official-20260912085122-n100-r1",
+      "size": 100,
+      "dbIssued": 100,
+      "manifestCount": 100,
+      "proofsChecked": 100,
+      "uniqueTargetHashes": 100,
+      "transactionCount": 1,
+      "merkleRootCount": 1,
+      "passed": true
+    },
+    {
+      "code": "official-20260912085122-n100-r2",
+      "size": 100,
+      "dbIssued": 100,
+      "manifestCount": 100,
+      "proofsChecked": 100,
+      "uniqueTargetHashes": 100,
+      "transactionCount": 1,
+      "merkleRootCount": 1,
+      "passed": true
+    },
+    {
+      "code": "official-20260912085122-n100-r3",
+      "size": 100,
+      "dbIssued": 100,
+      "manifestCount": 100,
+      "proofsChecked": 100,
+      "uniqueTargetHashes": 100,
+      "transactionCount": 1,
+      "merkleRootCount": 1,
+      "passed": true
+    },
+    {
+      "code": "official-20260912085122-n500-r1",
+      "size": 500,
+      "dbIssued": 500,
+      "manifestCount": 500,
+      "proofsChecked": 500,
+      "uniqueTargetHashes": 500,
+      "transactionCount": 1,
+      "merkleRootCount": 1,
+      "passed": true
+    },
+    {
+      "code": "official-20260912085122-n500-r2",
+      "size": 500,
+      "dbIssued": 500,
+      "manifestCount": 500,
+      "proofsChecked": 500,
+      "uniqueTargetHashes": 500,
+      "transactionCount": 1,
+      "merkleRootCount": 1,
+      "passed": true
+    },
+    {
+      "code": "official-20260912085122-n500-r3",
+      "size": 500,
+      "dbIssued": 500,
+      "manifestCount": 500,
+      "proofsChecked": 500,
+      "uniqueTargetHashes": 500,
+      "transactionCount": 1,
+      "merkleRootCount": 1,
+      "passed": true
+    }
+  ],
+  "totalProofsChecked": 1830,
+  "passed": true
+}

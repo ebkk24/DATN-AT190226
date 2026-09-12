@@ -1,0 +1,13 @@
+{
+  "name": "@datn/regtest-anchor-adapter",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Kiểm tra bằng chứng neo Blockcerts trên Bitcoin Core regtest",
+  "scripts": {
+    "verify": "node src/verify-anchor.mjs"
+  },
+  "dependencies": {
+    "jsonld-signatures-merkleproof2019": "2.20.3"
+  }
+}

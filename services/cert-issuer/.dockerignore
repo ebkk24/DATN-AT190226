@@ -1,0 +1,5 @@
+*
+!Dockerfile
+!docker-entrypoint.sh
+!requirements.lock
+!apply_upstream_patch.py

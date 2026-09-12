@@ -1,0 +1,7 @@
+{
+  "@context": "https://w3id.org/openbadges/v2",
+  "id": "http://localhost:3000/api/blockcerts/issuers/kma/revocation-list.json",
+  "type": "RevocationList",
+  "issuer": "http://localhost:3000/api/blockcerts/issuers/kma/profile.json",
+  "revokedAssertions": []
+}

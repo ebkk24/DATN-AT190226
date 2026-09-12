@@ -1,0 +1,33 @@
+# Lịch sử Git
+.git
+.gitignore
+
+# Bí mật và biến môi trường
+.env
+.env.*
+!.env.example
+storage/credentials
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Dữ liệu Blockchain và cơ sở dữ liệu
+blockcerts
+bitcoin-data
+postgres-data
+redis-data
+backups
+
+# Thư viện đã cài và sản phẩm biên dịch
+**/node_modules
+**/dist
+**/coverage
+**/.npm
+
+# Tệp tạm và nhật ký
+**/*.log
+**/__pycache__
+**/*.pyc
+.vscode
+.idea

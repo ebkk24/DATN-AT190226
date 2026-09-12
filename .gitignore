@@ -1,0 +1,67 @@
+# Bien moi truong va bi mat
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Du lieu dich vu
+bitcoin-data/
+postgres-data/
+redis-data/
+
+# Du lieu va ban san luu rieng tu
+storage/credentials/*
+storage/diplomas/*
+backups/
+!storage/credentials/.gitkeep
+!storage/diplomas/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Node.js
+node_modules/
+dist/
+coverage/
+.npm/
+
+# IDE va he dieu hanh
+.vscode/
+.idea/
+DS_Store
+
+# Nhat ky
+*.log
+logs/
+
+# Blockcerts runtime artifacts (giu local, khong commit)
+backend/.batch-work/
+backend/.verify-tmp/
+blockcerts/cert-tools/unsigned_certificates/*.json
+blockcerts/cert-tools/rosters/roster-*.csv
+!blockcerts/cert-tools/rosters/roster-demo.csv
+blockcerts/cert-issuer/signed_certificates/*.json
+blockcerts/cert-issuer/blockchain_certificates/*.json
+blockcerts/cert-issuer/work/**
+!blockcerts/cert-issuer/work/.gitkeep
+# B12 production runtime artifacts
+deploy/www/
+deploy/runtime/
+deploy/logs/
+# Thông tin xác thực thực nghiệm
+experiments/private/
+blockcerts/cert-tools/rosters/batch.csv
+.report-venv/
+
+# Snapshot công khai: dữ liệu nhạy cảm/artifact không hợp lệ
+experiments/results/account-bootstrap.json
+experiments/results/e2e-preflight-failed-attempts.json
+experiments/results/invalidated-r1-nginx-body-temp/
+experiments/freeze/b12-freeze.json
+report-work/

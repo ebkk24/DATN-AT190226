@@ -1,0 +1,20 @@
+[Unit]
+Description=DATN Blockcerts user-space Nginx
+After=network-online.target datn-blockcerts-backend.service
+Wants=network-online.target datn-blockcerts-backend.service
+
+[Service]
+Type=simple
+WorkingDirectory=/home/khai/DATN_work/datn-blockcerts/deploy
+UMask=0027
+ExecStartPre=/usr/bin/mkdir -p /home/khai/DATN_work/datn-blockcerts/deploy/runtime/client_body /home/khai/DATN_work/datn-blockcerts/deploy/runtime/proxy_temp
+ExecStartPre=/usr/sbin/nginx -p /home/khai/DATN_work/datn-blockcerts/deploy/ -t -c /home/khai/DATN_work/datn-blockcerts/deploy/nginx/nginx.conf
+ExecStart=/usr/sbin/nginx -p /home/khai/DATN_work/datn-blockcerts/deploy/ -c /home/khai/DATN_work/datn-blockcerts/deploy/nginx/nginx.conf -g "daemon off;"
+ExecReload=/usr/sbin/nginx -p /home/khai/DATN_work/datn-blockcerts/deploy/ -s reload -c /home/khai/DATN_work/datn-blockcerts/deploy/nginx/nginx.conf
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=default.target

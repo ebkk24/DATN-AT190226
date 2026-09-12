@@ -1,0 +1,9 @@
+{
+  "name": "@datn/verifier-service",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Dịch vụ xác minh tổng hợp chứng thư Blockcerts",
+  "scripts": {
+    "verify": "node src/verify-certificate.cjs"
+  }
+}

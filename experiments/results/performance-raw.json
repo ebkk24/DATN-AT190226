@@ -1,0 +1,466 @@
+{
+  "kind": "OFFICIAL_BATCH_PERFORMANCE",
+  "sourceTag": "b12-frozen-20260912-r2",
+  "sourceCommit": "4608fe3f37b1d6fb98e628aeef67711d7c321733",
+  "startedAt": "2026-09-12T08:52:24.153Z",
+  "repetitions": 3,
+  "sizes": [
+    10,
+    100,
+    500
+  ],
+  "runs": [
+    {
+      "code": "official-20260912085122-n10-r1",
+      "size": 10,
+      "repeat": 1,
+      "batchId": "316785af-eca5-4a8a-bb9c-1d9a724eaa80",
+      "jobId": "538",
+      "startedAt": "2026-09-12T08:52:25.068Z",
+      "completedAt": "2026-09-12T08:53:13.889Z",
+      "requestSeconds": 0.065,
+      "approvalToIssuedSeconds": 34.45,
+      "endToEndSeconds": 34.541,
+      "secondsPerCertificate": 3.4450000000000003,
+      "throughputCertificatesPerSecond": 0.29027576197387517,
+      "successRatePercent": 100,
+      "issued": 10,
+      "failed": 0,
+      "transactionCount": 1,
+      "txid": "de45a0825e4d1e8c4c6ed745f8d347dba55670f996550cfde37735be7a87a163",
+      "merkleRoot": "00c00c9e7ee5b962d6444e01f1eb740b6843871f3a7ef7900d19dd5565555acb",
+      "uniqueCertificateIds": 10,
+      "blockBefore": 177,
+      "blockAfter": 178,
+      "blockDelta": 1,
+      "confirmations": 1,
+      "samplesCount": 36,
+      "cpuAveragePercent": 6.787276647624542,
+      "cpuMaxPercent": 14.893617021276595,
+      "memoryUsedAverageMb": 2547.4333767361113,
+      "memoryUsedMaxMb": 2586.58984375,
+      "backendRssAverageMb": 124.27571614583333,
+      "backendRssMaxMb": 124.9296875,
+      "verificationSamples": [
+        {
+          "index": 0,
+          "certUid": "96ff6068-1ddb-44d3-9fdc-e7622c2b2f8a",
+          "status": "VALID"
+        },
+        {
+          "index": 5,
+          "certUid": "65863661-fee4-48a0-87b4-130e10a9e750",
+          "status": "VALID"
+        },
+        {
+          "index": 9,
+          "certUid": "011c75bd-f94e-48c2-9f4a-57b5f5de2cec",
+          "status": "VALID"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "code": "official-20260912085122-n10-r2",
+      "size": 10,
+      "repeat": 2,
+      "batchId": "60ca78e4-e1f8-4887-a362-e82202662a69",
+      "jobId": "539",
+      "startedAt": "2026-09-12T08:53:15.039Z",
+      "completedAt": "2026-09-12T08:54:02.247Z",
+      "requestSeconds": 0.05,
+      "approvalToIssuedSeconds": 32.406,
+      "endToEndSeconds": 32.475,
+      "secondsPerCertificate": 3.2405999999999997,
+      "throughputCertificatesPerSecond": 0.3085848299697587,
+      "successRatePercent": 100,
+      "issued": 10,
+      "failed": 0,
+      "transactionCount": 1,
+      "txid": "98a80e1dbf609c931085def96762c75064c7d33157d7c90ddaca1098169a424d",
+      "merkleRoot": "37916616877783e8ecc3fa85474dba8cefe82d35ddecc08ae78fd6641992e8ff",
+      "uniqueCertificateIds": 10,
+      "blockBefore": 178,
+      "blockAfter": 179,
+      "blockDelta": 1,
+      "confirmations": 1,
+      "samplesCount": 34,
+      "cpuAveragePercent": 7.3049021891401535,
+      "cpuMaxPercent": 18.14214463840399,
+      "memoryUsedAverageMb": 2566.5785845588234,
+      "memoryUsedMaxMb": 2602,
+      "backendRssAverageMb": 125.36374080882354,
+      "backendRssMaxMb": 125.90625,
+      "verificationSamples": [
+        {
+          "index": 0,
+          "certUid": "aea2324a-511f-407f-b5af-e0e7754a6b20",
+          "status": "VALID"
+        },
+        {
+          "index": 5,
+          "certUid": "ecdbb551-5dcf-4d24-af4d-b32cc156d18f",
+          "status": "VALID"
+        },
+        {
+          "index": 9,
+          "certUid": "6706fd60-1129-4a87-a551-4cc4c701bbff",
+          "status": "VALID"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "code": "official-20260912085122-n10-r3",
+      "size": 10,
+      "repeat": 3,
+      "batchId": "cb7c8b31-8edd-42c7-bc7f-247cf7904cba",
+      "jobId": "540",
+      "startedAt": "2026-09-12T08:54:03.093Z",
+      "completedAt": "2026-09-12T08:54:48.481Z",
+      "requestSeconds": 0.038,
+      "approvalToIssuedSeconds": 30.412,
+      "endToEndSeconds": 30.471,
+      "secondsPerCertificate": 3.0412,
+      "throughputCertificatesPerSecond": 0.3288175720110483,
+      "successRatePercent": 100,
+      "issued": 10,
+      "failed": 0,
+      "transactionCount": 1,
+      "txid": "e4be173cb788bedd018ea7c4ee258c178cd5ff45d4addbed4a6de968b8e81204",
+      "merkleRoot": "2122eac49f742f4ea4cce6321281d8dacf13901771f708b916cf5199817da8e7",
+      "uniqueCertificateIds": 10,
+      "blockBefore": 179,
+      "blockAfter": 180,
+      "blockDelta": 1,
+      "confirmations": 1,
+      "samplesCount": 32,
+      "cpuAveragePercent": 7.619303037500645,
+      "cpuMaxPercent": 14.893617021276595,
+      "memoryUsedAverageMb": 2569.1610107421875,
+      "memoryUsedMaxMb": 2609.48046875,
+      "backendRssAverageMb": 126.343505859375,
+      "backendRssMaxMb": 127.33984375,
+      "verificationSamples": [
+        {
+          "index": 0,
+          "certUid": "658da85a-53eb-405f-87fe-2a6f31cad2e4",
+          "status": "VALID"
+        },
+        {
+          "index": 5,
+          "certUid": "71309455-ffda-4495-a1a5-7e2061de0ba4",
+          "status": "VALID"
+        },
+        {
+          "index": 9,
+          "certUid": "c7796b6b-20d5-4490-a903-f8eb4a1a0929",
+          "status": "VALID"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "code": "official-20260912085122-n100-r1",
+      "size": 100,
+      "repeat": 1,
+      "batchId": "6a7b05a8-0775-4802-8315-482943168ea8",
+      "jobId": "541",
+      "startedAt": "2026-09-12T08:55:02.846Z",
+      "completedAt": "2026-09-12T08:55:56.539Z",
+      "requestSeconds": 0.11,
+      "approvalToIssuedSeconds": 38.794,
+      "endToEndSeconds": 38.923,
+      "secondsPerCertificate": 0.38793999999999995,
+      "throughputCertificatesPerSecond": 2.5777182038459556,
+      "successRatePercent": 100,
+      "issued": 100,
+      "failed": 0,
+      "transactionCount": 1,
+      "txid": "2124fa4a02261e80bb6359398527ecf3c29660ca82477399f79d6465b045d1cc",
+      "merkleRoot": "54886d1e68360ce00e4c2f78c877df5e1fe6950600fa541994fa826fa56a9317",
+      "uniqueCertificateIds": 100,
+      "blockBefore": 180,
+      "blockAfter": 181,
+      "blockDelta": 1,
+      "confirmations": 1,
+      "samplesCount": 40,
+      "cpuAveragePercent": 21.640179444795276,
+      "cpuMaxPercent": 81.35696821515893,
+      "memoryUsedAverageMb": 2881.57470703125,
+      "memoryUsedMaxMb": 3123.11328125,
+      "backendRssAverageMb": 134.29287109375,
+      "backendRssMaxMb": 136.7265625,
+      "verificationSamples": [
+        {
+          "index": 0,
+          "certUid": "8280e68f-786b-4180-920e-1bd95ba63069",
+          "status": "VALID"
+        },
+        {
+          "index": 50,
+          "certUid": "4c2120ec-acf0-42e2-a479-262999cd5ece",
+          "status": "VALID"
+        },
+        {
+          "index": 99,
+          "certUid": "2e31175e-7e7a-4d22-a0e4-5c8ea4bd6d43",
+          "status": "VALID"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "code": "official-20260912085122-n100-r2",
+      "size": 100,
+      "repeat": 2,
+      "batchId": "e02a1f68-3019-4316-886e-a4ab15d4129c",
+      "jobId": "542",
+      "startedAt": "2026-09-12T08:55:57.527Z",
+      "completedAt": "2026-09-12T08:56:51.875Z",
+      "requestSeconds": 0.127,
+      "approvalToIssuedSeconds": 38.841,
+      "endToEndSeconds": 38.993,
+      "secondsPerCertificate": 0.38841000000000003,
+      "throughputCertificatesPerSecond": 2.5745990062047834,
+      "successRatePercent": 100,
+      "issued": 100,
+      "failed": 0,
+      "transactionCount": 1,
+      "txid": "9a25f31dbd141f9ca4708520acd27115b8d3056d371ff58b5fc7533f41c2c8e8",
+      "merkleRoot": "cdae00de17f0c1d42cdc277ac4146ddb6a623ed0b2ede13dd7442f4ec099f005",
+      "uniqueCertificateIds": 100,
+      "blockBefore": 181,
+      "blockAfter": 182,
+      "blockDelta": 1,
+      "confirmations": 1,
+      "samplesCount": 40,
+      "cpuAveragePercent": 22.013131560117607,
+      "cpuMaxPercent": 81.3300793166565,
+      "memoryUsedAverageMb": 2887.08916015625,
+      "memoryUsedMaxMb": 3112.55078125,
+      "backendRssAverageMb": 137.20791015625,
+      "backendRssMaxMb": 138.3203125,
+      "verificationSamples": [
+        {
+          "index": 0,
+          "certUid": "29ced511-bad2-4638-b0f7-013a44b73a46",
+          "status": "VALID"
+        },
+        {
+          "index": 50,
+          "certUid": "a8d8fd33-1e96-42ac-9111-c025a290671e",
+          "status": "VALID"
+        },
+        {
+          "index": 99,
+          "certUid": "4cd62149-3df4-4571-8619-4cb937e9e3a7",
+          "status": "VALID"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "code": "official-20260912085122-n100-r3",
+      "size": 100,
+      "repeat": 3,
+      "batchId": "d1e728c6-8b21-4269-aa77-c8619e39c444",
+      "jobId": "543",
+      "startedAt": "2026-09-12T08:56:53.043Z",
+      "completedAt": "2026-09-12T08:57:48.540Z",
+      "requestSeconds": 0.12,
+      "approvalToIssuedSeconds": 40.965,
+      "endToEndSeconds": 41.111,
+      "secondsPerCertificate": 0.40965,
+      "throughputCertificatesPerSecond": 2.4411082631514707,
+      "successRatePercent": 100,
+      "issued": 100,
+      "failed": 0,
+      "transactionCount": 1,
+      "txid": "906b05e609a3adfa1b4ba115330cc06c66fd902608cbdd04b5dbd32c5d3832bf",
+      "merkleRoot": "45bda2279622ad233cc488a14f4aa04677671ed3884c72f9a34f46a2440f013a",
+      "uniqueCertificateIds": 100,
+      "blockBefore": 182,
+      "blockAfter": 183,
+      "blockDelta": 1,
+      "confirmations": 1,
+      "samplesCount": 43,
+      "cpuAveragePercent": 19.943935587601185,
+      "cpuMaxPercent": 73.19651741293532,
+      "memoryUsedAverageMb": 2864.0114462209303,
+      "memoryUsedMaxMb": 3154.58984375,
+      "backendRssAverageMb": 132.01535247093022,
+      "backendRssMaxMb": 139.18359375,
+      "verificationSamples": [
+        {
+          "index": 0,
+          "certUid": "a1b90ca0-6eea-40b6-bfbc-068b7ab93b1e",
+          "status": "VALID"
+        },
+        {
+          "index": 50,
+          "certUid": "235770b1-e2cb-40f5-aa04-fd05b7813d27",
+          "status": "VALID"
+        },
+        {
+          "index": 99,
+          "certUid": "a6faa508-c4a6-499b-b90c-281be9a55112",
+          "status": "VALID"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "code": "official-20260912085122-n500-r1",
+      "size": 500,
+      "repeat": 1,
+      "batchId": "97f83da2-8f51-4d06-ba49-8c27aa81870a",
+      "jobId": "544",
+      "startedAt": "2026-09-12T08:57:57.978Z",
+      "completedAt": "2026-09-12T09:00:22.835Z",
+      "requestSeconds": 0.431,
+      "approvalToIssuedSeconds": 129.673,
+      "endToEndSeconds": 130.128,
+      "secondsPerCertificate": 0.259346,
+      "throughputCertificatesPerSecond": 3.855852798963547,
+      "successRatePercent": 100,
+      "issued": 500,
+      "failed": 0,
+      "transactionCount": 1,
+      "txid": "3cd8017f463599441a98e5fd46dc4a6bcf3544503b2025186bf1ac36f46e2522",
+      "merkleRoot": "dc4579bed7826bfa7a2370c2c20282d17d0558789d4f343fd345c4ce0439a174",
+      "uniqueCertificateIds": 500,
+      "blockBefore": 183,
+      "blockAfter": 184,
+      "blockDelta": 1,
+      "confirmations": 1,
+      "samplesCount": 132,
+      "cpuAveragePercent": 31.09754057946128,
+      "cpuMaxPercent": 85.21472392638037,
+      "memoryUsedAverageMb": 3115.9038529829545,
+      "memoryUsedMaxMb": 3507.84375,
+      "backendRssAverageMb": 152.54299834280303,
+      "backendRssMaxMb": 160.1015625,
+      "verificationSamples": [
+        {
+          "index": 0,
+          "certUid": "1bb501b6-7e4b-48f3-afb4-a48fc1a44d86",
+          "status": "VALID"
+        },
+        {
+          "index": 250,
+          "certUid": "537072fc-988d-4b07-ab29-69076bede930",
+          "status": "VALID"
+        },
+        {
+          "index": 499,
+          "certUid": "91fd3c40-5f93-4bab-8323-fdb30f1d57b7",
+          "status": "VALID"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "code": "official-20260912085122-n500-r2",
+      "size": 500,
+      "repeat": 2,
+      "batchId": "0a5bcffb-fec2-4693-a89e-63d1279b01bc",
+      "jobId": "545",
+      "startedAt": "2026-09-12T09:00:35.281Z",
+      "completedAt": "2026-09-12T09:02:54.240Z",
+      "requestSeconds": 0.353,
+      "approvalToIssuedSeconds": 123.85,
+      "endToEndSeconds": 124.223,
+      "secondsPerCertificate": 0.24769999999999998,
+      "throughputCertificatesPerSecond": 4.037141703673799,
+      "successRatePercent": 100,
+      "issued": 500,
+      "failed": 0,
+      "transactionCount": 1,
+      "txid": "0e751adbb4bfc038ee05ac79ee428bdb220dff8885704b3c90f0b4ff8662b4ed",
+      "merkleRoot": "d9545b0d3572162f41bf8c8b95251dcd8e8ada7966acea55dcacfbcd16c4f8b5",
+      "uniqueCertificateIds": 500,
+      "blockBefore": 184,
+      "blockAfter": 185,
+      "blockDelta": 1,
+      "confirmations": 1,
+      "samplesCount": 126,
+      "cpuAveragePercent": 33.58761488029736,
+      "cpuMaxPercent": 85.16516516516516,
+      "memoryUsedAverageMb": 3153.142640128968,
+      "memoryUsedMaxMb": 3535.05078125,
+      "backendRssAverageMb": 161.2606956845238,
+      "backendRssMaxMb": 163.94921875,
+      "verificationSamples": [
+        {
+          "index": 0,
+          "certUid": "a6537d48-93aa-4ae0-a067-f08bfe25064a",
+          "status": "VALID"
+        },
+        {
+          "index": 250,
+          "certUid": "fdd8ec65-78b1-4d8b-b67e-98b6a6ab371d",
+          "status": "VALID"
+        },
+        {
+          "index": 499,
+          "certUid": "f057ad89-5dec-4fc4-bc20-7b393e265847",
+          "status": "VALID"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "code": "official-20260912085122-n500-r3",
+      "size": 500,
+      "repeat": 3,
+      "batchId": "2162cf43-019c-4462-8c31-2cb118877bf1",
+      "jobId": "546",
+      "startedAt": "2026-09-12T09:03:03.863Z",
+      "completedAt": "2026-09-12T09:05:26.898Z",
+      "requestSeconds": 0.359,
+      "approvalToIssuedSeconds": 127.889,
+      "endToEndSeconds": 128.274,
+      "secondsPerCertificate": 0.255778,
+      "throughputCertificatesPerSecond": 3.9096403912768105,
+      "successRatePercent": 100,
+      "issued": 500,
+      "failed": 0,
+      "transactionCount": 1,
+      "txid": "89324b3fdad0ddd10b67ab7925a6370c80c8d8f1f1e3da27d0cc1948ee225f37",
+      "merkleRoot": "2687786c94b425533c5d3eab5219806335d4fed89c2c70beb905613882d0ec30",
+      "uniqueCertificateIds": 500,
+      "blockBefore": 185,
+      "blockAfter": 186,
+      "blockDelta": 1,
+      "confirmations": 1,
+      "samplesCount": 130,
+      "cpuAveragePercent": 30.54348801044758,
+      "cpuMaxPercent": 76.52329749103943,
+      "memoryUsedAverageMb": 3164.4916466346153,
+      "memoryUsedMaxMb": 3550.46875,
+      "backendRssAverageMb": 165.31908052884614,
+      "backendRssMaxMb": 167.421875,
+      "verificationSamples": [
+        {
+          "index": 0,
+          "certUid": "29f5390e-4fb5-46b0-9731-a16dbe26afbe",
+          "status": "VALID"
+        },
+        {
+          "index": 250,
+          "certUid": "68a4dd13-75be-455d-89f4-a9785add00eb",
+          "status": "VALID"
+        },
+        {
+          "index": 499,
+          "certUid": "e33708da-05f5-43a7-ae59-064b8187d9d0",
+          "status": "VALID"
+        }
+      ],
+      "passed": true
+    }
+  ],
+  "updatedAt": "2026-09-12T09:05:26.900Z",
+  "complete": true
+}

@@ -1,0 +1,9 @@
+case,expected,observed,passed
+Trước thu hồi,VALID,VALID,True
+Student thu hồi,HTTP 403,403,True
+Maker thu hồi,HTTP 403,403,True
+Checker thu hồi,HTTP 201,201,True
+Sau thu hồi,REVOKED,REVOKED,True
+Tx thu hồi xác nhận,>=1,1,True
+Có trong Revocation List,true,true,True
+Audit đủ role/action,4 action,revoke/issue/approve/request,True

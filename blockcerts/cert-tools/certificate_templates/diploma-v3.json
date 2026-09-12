@@ -1,0 +1,30 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    {
+      "alumniOf": "https://schema.org/alumniOf"
+    },
+    "https://w3id.org/blockcerts/v3"
+  ],
+  "type": [
+    "VerifiableCredential",
+    "BlockcertsCredential"
+  ],
+  "issuer": "http://ebk.tailc30db9.ts.net:8088/api/blockcerts/issuers/kma/profile.json",
+  "issuanceDate": "*|DATE|*",
+  "id": "urn:uuid:*|CERTUID|*",
+  "credentialSubject": {
+    "id": "ecdsa-koblitz-pubkey:*|PUBKEY|*",
+    "alumniOf": {
+      "id": "https://actvn.edu.vn/"
+    },
+    "name": "*|RECIPIENT_NAME|*"
+  },
+  "name": "Văn bằng tốt nghiệp",
+  "description": "Văn bằng điện tử được phát hành và neo bằng Blockcerts trên mạng Bitcoin regtest.",
+  "display": {
+    "contentMediaType": "text/html",
+    "content": "<section><h1>Văn bằng tốt nghiệp</h1><p>Học viện Kỹ thuật Mật mã</p></section>"
+  },
+  "nonce": "*|NONCE|*"
+}

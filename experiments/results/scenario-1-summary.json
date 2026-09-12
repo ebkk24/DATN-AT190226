@@ -1,0 +1,44 @@
+{
+  "scenario": 1,
+  "passed": true,
+  "passedCases": 6,
+  "totalCases": 6,
+  "cases": [
+    {
+      "case": "Chứng thư gốc",
+      "expected": "VALID",
+      "observed": "VALID",
+      "passed": true
+    },
+    {
+      "case": "Sửa tên người nhận",
+      "expected": "Không VALID",
+      "observed": "INVALID",
+      "passed": true
+    },
+    {
+      "case": "Sửa tên văn bằng",
+      "expected": "Không VALID",
+      "observed": "INVALID",
+      "passed": true
+    },
+    {
+      "case": "Sửa proofValue",
+      "expected": "Không VALID",
+      "observed": "INDETERMINATE",
+      "passed": true
+    },
+    {
+      "case": "Sửa txid trong proof",
+      "expected": "Không VALID",
+      "observed": "INDETERMINATE",
+      "passed": true
+    },
+    {
+      "case": "Maker tự duyệt",
+      "expected": "HTTP 403",
+      "observed": "403",
+      "passed": true
+    }
+  ]
+}

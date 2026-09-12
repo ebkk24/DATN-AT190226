@@ -1,0 +1,21 @@
+[Unit]
+Description=DATN Blockcerts Backend and Worker
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/khai/DATN_work/datn-blockcerts/backend
+EnvironmentFile=/home/khai/DATN_work/datn-blockcerts/.env
+Environment=NODE_ENV=production
+UMask=0077
+ExecStartPre=/home/khai/.hermes/node/bin/npm run migration:run
+ExecStart=/home/khai/.hermes/node/bin/node dist/src/main.js
+Restart=on-failure
+RestartSec=5
+TimeoutStartSec=240
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=default.target

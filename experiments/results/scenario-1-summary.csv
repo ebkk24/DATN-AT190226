@@ -1,0 +1,7 @@
+case,expected,observed,passed
+Chứng thư gốc,VALID,VALID,True
+Sửa tên người nhận,Không VALID,INVALID,True
+Sửa tên văn bằng,Không VALID,INVALID,True
+Sửa proofValue,Không VALID,INDETERMINATE,True
+Sửa txid trong proof,Không VALID,INDETERMINATE,True
+Maker tự duyệt,HTTP 403,403,True

@@ -1,0 +1,75 @@
+{
+  "kind": "B12_E2E_PREFLIGHT",
+  "runId": "20260912085122",
+  "startedAt": "2026-09-12T08:51:24.671Z",
+  "completedAt": "2026-09-12T08:52:07.400Z",
+  "issuance": {
+    "id": "b371e215-dcb5-446f-aba9-3102be1dec3d",
+    "certUid": "aabd23c7-7e3c-4bc9-a3dd-3ab8462e3bf1",
+    "txid": "4a529f931f5a377d262b28c88b14060efa4ed86b14bdcb965092d54651fac089",
+    "merkleRoot": "66ceed8a410b8cbe78a75b427e75923dda3388f58ede397d887f98bdddf6b5a6",
+    "seconds": 12.314,
+    "confirmations": 2,
+    "profile": "http://ebk.tailc30db9.ts.net:8088/api/blockcerts/issuers/kma/profile.json"
+  },
+  "rbac": {
+    "makerSelfApprove": 403,
+    "studentRevoke": 403,
+    "makerRevoke": 403,
+    "checkerRevoke": 201
+  },
+  "verification": {
+    "original": "VALID",
+    "tampered": {
+      "recipientName": "INVALID",
+      "credentialName": "INVALID",
+      "proofValue": "INDETERMINATE",
+      "txid": "INDETERMINATE"
+    },
+    "afterRevoke": "REVOKED"
+  },
+  "revocation": {
+    "txid": "56838d4536c6b10b878a0b0a34eac3172bedc31dc428a4e8f69a0f3b2e3fd1d2",
+    "confirmations": 1,
+    "listed": true
+  },
+  "holder": {
+    "visible": true,
+    "returnedCount": 1
+  },
+  "audit": [
+    {
+      "action": "revoke",
+      "actor": "b12_checker_20260912085122",
+      "actorRole": "checker",
+      "targetId": "b371e215-dcb5-446f-aba9-3102be1dec3d",
+      "txid": "56838d4536c6b10b878a0b0a34eac3172bedc31dc428a4e8f69a0f3b2e3fd1d2",
+      "createdAt": "2026-09-12T01:52:02.310Z"
+    },
+    {
+      "action": "issue",
+      "actor": "b12_checker_20260912085122",
+      "actorRole": "checker",
+      "targetId": "b371e215-dcb5-446f-aba9-3102be1dec3d",
+      "txid": "4a529f931f5a377d262b28c88b14060efa4ed86b14bdcb965092d54651fac089",
+      "createdAt": "2026-09-12T01:51:37.095Z"
+    },
+    {
+      "action": "approve",
+      "actor": "b12_checker_20260912085122",
+      "actorRole": "checker",
+      "targetId": "b371e215-dcb5-446f-aba9-3102be1dec3d",
+      "txid": null,
+      "createdAt": "2026-09-12T01:51:25.800Z"
+    },
+    {
+      "action": "request",
+      "actor": "b12_maker_20260912085122",
+      "actorRole": "maker",
+      "targetId": "b371e215-dcb5-446f-aba9-3102be1dec3d",
+      "txid": null,
+      "createdAt": "2026-09-12T01:51:25.723Z"
+    }
+  ],
+  "passed": true
+}

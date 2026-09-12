@@ -1,0 +1,46 @@
+{
+  "kind": "OFFICIAL_POST_EXPERIMENT_STATE",
+  "capturedAt": "2026-09-12T16:11:05+07:00",
+  "sourceTag": "b12-frozen-20260912-r2",
+  "sourceCommit": "4608fe3f37b1d6fb98e628aeef67711d7c321733",
+  "systemFilesChangedAfterFreeze": [],
+  "services": {
+    "datn-blockcerts-backend.service": "active",
+    "datn-blockcerts-nginx.service": "active"
+  },
+  "healthCheck": "HEALTH_OK",
+  "database": {
+    "allCounts": {
+      "failed": 4,
+      "issued": 2383,
+      "revoked": 4
+    },
+    "officialPerformance": {
+      "status": "issued",
+      "count": 1830,
+      "transactions": 9,
+      "batches": 9
+    }
+  },
+  "queue": {
+    "waiting": 0,
+    "active": 0,
+    "completed": 80,
+    "failed": 2,
+    "delayed": 0
+  },
+  "bitcoin": {
+    "blocks": 186,
+    "bestblockhash": "61554ebbc9fb9a81fef7490f7a846c1a1dcf50d7a29b1951fbd618346a180f95",
+    "mempoolSize": 0,
+    "initialblockdownload": false
+  },
+  "experiments": {
+    "performanceRuns": 9,
+    "performanceComplete": true,
+    "officialCertificates": 1830,
+    "officialTransactions": 9,
+    "artifactAudit": true,
+    "scenario13": true
+  }
+}

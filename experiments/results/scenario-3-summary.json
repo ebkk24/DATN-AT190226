@@ -1,0 +1,56 @@
+{
+  "scenario": 3,
+  "passed": true,
+  "passedCases": 8,
+  "totalCases": 8,
+  "cases": [
+    {
+      "case": "Trước thu hồi",
+      "expected": "VALID",
+      "observed": "VALID",
+      "passed": true
+    },
+    {
+      "case": "Student thu hồi",
+      "expected": "HTTP 403",
+      "observed": "403",
+      "passed": true
+    },
+    {
+      "case": "Maker thu hồi",
+      "expected": "HTTP 403",
+      "observed": "403",
+      "passed": true
+    },
+    {
+      "case": "Checker thu hồi",
+      "expected": "HTTP 201",
+      "observed": "201",
+      "passed": true
+    },
+    {
+      "case": "Sau thu hồi",
+      "expected": "REVOKED",
+      "observed": "REVOKED",
+      "passed": true
+    },
+    {
+      "case": "Tx thu hồi xác nhận",
+      "expected": ">=1",
+      "observed": "1",
+      "passed": true
+    },
+    {
+      "case": "Có trong Revocation List",
+      "expected": "true",
+      "observed": "true",
+      "passed": true
+    },
+    {
+      "case": "Audit đủ role/action",
+      "expected": "4 action",
+      "observed": "revoke/issue/approve/request",
+      "passed": true
+    }
+  ]
+}

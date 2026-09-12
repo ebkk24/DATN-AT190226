@@ -1,0 +1,20 @@
+{
+  "batchId": "cb7c8b31-8edd-42c7-bc7f-247cf7904cba",
+  "count": 10,
+  "txids": [
+    "e4be173cb788bedd018ea7c4ee258c178cd5ff45d4addbed4a6de968b8e81204"
+  ],
+  "certificateIds": [
+    "658da85a-53eb-405f-87fe-2a6f31cad2e4",
+    "aeaa2ebc-b66a-4afe-9499-b295065ed094",
+    "c2662833-1785-44b2-b10a-0f1920237520",
+    "46d97dce-e6a7-45c5-8e4d-9471d19f3444",
+    "f754a8f7-f7a5-4d7e-b2a6-f4e5b91bab13",
+    "71309455-ffda-4495-a1a5-7e2061de0ba4",
+    "0f61312f-f8b0-4eac-bf97-b728035b37e6",
+    "9941fd3a-2107-43a6-8226-1e61d94e7835",
+    "f8f50c09-9cdb-40d4-975a-3dc1680beda4",
+    "c7796b6b-20d5-4490-a903-f8eb4a1a0929"
+  ],
+  "completedAt": "2026-09-12T08:54:32.859Z"
+}

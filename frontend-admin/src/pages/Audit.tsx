@@ -1,6 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { api, type AuditRecord } from "../api";
 
+const roleLabels: Record<string, string> = {
+  maker: "Maker",
+  checker: "Checker",
+  student: "Sinh viên",
+};
+
 const actionLabels: Record<string, string> = {
   register: "Tạo tài khoản",
   login: "Đăng nhập",
@@ -64,7 +70,7 @@ export default function Audit() {
             <div>
               <strong>{actionLabels[log.action] || log.action}</strong>
               <p className="muted small">
-                {log.actor || "Khách công khai"}{log.actorRole ? ` · ${log.actorRole}` : ""}
+                {log.actor || "Khách công khai"}{log.actorRole ? ` · ${roleLabels[log.actorRole] || log.actorRole}` : ""}
               </p>
               <p className="mono small break-word">
                 {log.targetId ? `Đối tượng: ${log.targetId}` : "Không có mã đối tượng"}

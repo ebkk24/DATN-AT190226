@@ -1,5 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
-import { api, type CertificateRecord, type Role } from "../api";
+import { api, type CertificateRecord, type IssuanceStatus, type Role } from "../api";
+
+const statusLabel: Record<IssuanceStatus, string> = {
+  pending_approval: "Chờ duyệt",
+  queued: "Trong hàng đợi",
+  processing: "Đang phát hành",
+  issued: "Đã cấp",
+  revoked: "Đã thu hồi",
+  rejected: "Đã từ chối",
+  failed: "Thất bại",
+};
 
 export default function Overview({ role }: { role: Role }) {
   const [records, setRecords] = useState<CertificateRecord[]>([]);
@@ -55,10 +65,13 @@ export default function Overview({ role }: { role: Role }) {
           <table>
             <thead><tr><th>Người nhận</th><th>Trạng thái</th><th>Maker</th><th>Checker</th><th>Thời gian</th></tr></thead>
             <tbody>
+              {!records.length && (
+                <tr><td colSpan={5}><div className="empty-state compact">Chưa có hồ sơ phát hành.</div></td></tr>
+              )}
               {records.slice(0, 10).map((record) => (
                 <tr key={record.id}>
                   <td><strong>{record.recipientName}</strong><span className="table-sub mono">{record.id.slice(0, 8)}</span></td>
-                  <td><span className={`status-chip ${record.status}`}>{record.status}</span></td>
+                  <td><span className={`status-chip ${record.status}`}>{statusLabel[record.status]}</span></td>
                   <td>{record.requestedBy || "—"}</td>
                   <td>{record.approvedBy || "—"}</td>
                   <td>{new Date(record.createdAt).toLocaleString("vi-VN")}</td>

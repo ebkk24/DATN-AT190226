@@ -44,7 +44,7 @@ export default function Users() {
         role,
         recipientName: role === "student" ? recipientName.trim() : undefined,
       });
-      setMessage(`Đã tạo tài khoản ${result.username} (${result.role}).`);
+      setMessage(`Đã tạo tài khoản ${result.username} (${roleLabel[result.role]}).`);
       setUsername("");
       setPassword("");
       setRecipientName("");
@@ -115,10 +115,13 @@ export default function Users() {
                 <tr><th>Tài khoản</th><th>Vai trò</th><th>Liên kết người nhận</th><th>Ngày tạo</th></tr>
               </thead>
               <tbody>
+                {!users.length && (
+                  <tr><td colSpan={4}><div className="empty-state compact">Chưa có tài khoản.</div></td></tr>
+                )}
                 {users.map((user) => (
                   <tr key={user.id}>
                     <td><strong>{user.username}</strong><span className="table-sub mono">{user.id.slice(0, 8)}</span></td>
-                    <td><span className={`role-chip ${user.role}`}>{user.role}</span></td>
+                    <td><span className={`role-chip ${user.role}`}>{roleLabel[user.role].split(" — ")[0]}</span></td>
                     <td>{user.recipientName || "—"}</td>
                     <td>{new Date(user.createdAt).toLocaleDateString("vi-VN")}</td>
                   </tr>

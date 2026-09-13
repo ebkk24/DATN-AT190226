@@ -4,11 +4,23 @@ const API = (
     ? window.location.origin
     : `${window.location.protocol}//${window.location.hostname}:4000`)
 ).replace(/\/$/, "");
-export async function verify(cert: any) {
-  const r = await fetch(`${API}/api/verify`, {
+
+export interface VerifyResult {
+  status: string;
+  txid?: string;
+  issuedOn?: string;
+  recipientName?: string;
+  certUid?: string;
+  message?: string;
+  revocationTxid?: string;
+  [key: string]: unknown;
+}
+
+export async function verify(certificate: unknown): Promise<VerifyResult> {
+  const response = await fetch(`${API}/api/verify`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ certificate: cert }),
+    body: JSON.stringify({ certificate }),
   });
-  return r.json();
+  return response.json() as Promise<VerifyResult>;
 }

@@ -110,6 +110,9 @@ export default function Records() {
               </tr>
             </thead>
             <tbody>
+              {!filtered.length && (
+                <tr><td colSpan={6}><div className="empty-state compact">Không tìm thấy văn bằng phù hợp.</div></td></tr>
+              )}
               {filtered.map((record) => (
                 <tr key={record.id}>
                   <td>

@@ -48,31 +48,35 @@ Blockchain hướng tới môi trường có nhiều chủ thể cùng duy trì 
 
 Giao dịch (Transaction) là đơn vị nguyên tử biểu diễn một yêu cầu thay đổi trạng thái trong hệ thống sổ cái phân tán [1], [10]. Tùy nền tảng, giao dịch có thể chứa định danh hoặc địa chỉ bên gửi, dữ liệu đầu vào, số thứ tự chống phát lại, tham số phí và chữ ký số. Khi được phát tán vào mạng lưới, các nút tiếp nhận tiến hành kiểm tra độc lập tính hợp lệ về mặt cú pháp, tính toàn vẹn chữ ký số và điều kiện logic trạng thái hiện hành trước khi chấp nhận đưa vào hàng đợi xử lý [1], [2].
 
-Các giao dịch đã được sắp thứ tự có thể được đóng gói vào Khối (Block), gồm phần đầu chứa siêu dữ liệu giao thức và phần thân chứa giao dịch [1], [2]. Tùy thiết kế, phần đầu khối có thể bao gồm giá trị băm của khối trước , gốc Merkle (), dấu thời gian và dữ liệu phục vụ đồng thuận (). Một biểu diễn khái quát của liên kết băm là: Mối liên kết mật mã giữa các khối liên tiếp được thiết lập bằng cách tính toán giá trị băm  của toàn bộ phần đầu khối thông qua hàm băm mật mã :
+Các giao dịch đã được sắp thứ tự có thể được đóng gói vào Khối (Block), gồm phần đầu chứa siêu dữ liệu giao thức và phần thân chứa giao dịch [1], [2]. Tùy thiết kế, phần đầu khối có thể bao gồm giá trị băm của khối trước $H_{i-1}$, gốc Merkle $MerkleRoot_i$, dấu thời gian $Timestamp_i$ và dữ liệu phục vụ đồng thuận $Metadata_i$. Mối liên kết mật mã giữa các khối liên tiếp có thể được biểu diễn khái quát như sau:
 
-Trong biểu thức (1.1), toán tử ∥ biểu thị phép nối chuỗi. Đây là mô hình minh họa; tập trường và quy tắc mã hóa byte cụ thể do từng giao thức quy định. Giá trị  tạo liên kết kiểm chứng giữa hai khối liên tiếp.
+$$H_i = H(H_{i-1} \parallel MerkleRoot_i \parallel Timestamp_i \parallel Metadata_i) 	ag{1.1}$$
 
-![Hình Chương 1](report-assets/ch1-07.png)
+Trong biểu thức (1.1), toán tử $\parallel$ biểu thị phép nối chuỗi. Đây là mô hình minh họa; tập trường và quy tắc mã hóa byte cụ thể do từng giao thức quy định. Giá trị $H_{i-1}$ tạo liên kết kiểm chứng giữa hai khối liên tiếp.
 
-Hình 1-1: Cấu trúc khối và liên kết mật mã giữa các khối liên tiếp
+![Hình 1.1. Cấu trúc khối và liên kết mật mã](report-assets/ch1-07.png)
 
-Nếu dữ liệu trong khối quá khứ k bị sửa, giá trị băm giao dịch, gốc Merkle và  thay đổi do tính nhạy của hàm băm [4]. Tham chiếu tại khối kế tiếp vì thế không còn khớp và sự can thiệp có thể được phát hiện. Để lịch sử đã sửa được các nút chấp nhận, đối phương còn phải đáp ứng quy tắc đồng thuận và chính sách quản trị của mạng; điều kiện cụ thể phụ thuộc loại Blockchain và mô hình đe dọa, không chỉ phụ thuộc liên kết băm [1], [2].
+Hình 1.1. Cấu trúc khối và liên kết mật mã giữa các khối liên tiếp
+
+Nếu dữ liệu trong khối quá khứ $k$ bị sửa, giá trị băm giao dịch, gốc Merkle và $H_k$ thay đổi do tính nhạy của hàm băm [4]. Tham chiếu tại khối kế tiếp vì thế không còn khớp và sự can thiệp có thể được phát hiện. Để lịch sử đã sửa được các nút chấp nhận, đối phương còn phải đáp ứng quy tắc đồng thuận và chính sách quản trị của mạng; điều kiện cụ thể phụ thuộc loại Blockchain và mô hình đe dọa, không chỉ phụ thuộc liên kết băm [1], [2].
 
 ### Hàm băm mật mã và cây Merkle
 
-Hàm băm mật mã là công cụ toán học nền tảng đảm bảo tính toàn vẹn dữ liệu trong kiến trúc chuỗi khối [1], [4]. Một hàm băm mật mã  ánh xạ một thông điệp đầu vào M có độ dài tùy ý thành một chuỗi nhị phân cố định , điển hình là 256-bit đối với chuẩn SHA-256 (FIPS 180-4) [4]. Về mặt an toàn thông tin, hàm băm mật mã phải thỏa mãn ba thuộc tính cốt lõi: tính kháng tiền ảnh (Pre-image Resistance: cho trước , khó về mặt tính toán để tìm  sao cho ), tính kháng tiền ảnh thứ hai (Second Pre-image Resistance: cho trước , khó tìm  sao cho ), và tính kháng va chạm mạnh (Collision Resistance: khó tìm bất kỳ cặp  phân biệt nào sao cho ). Đồng thời, hiệu ứng tuyết lở (avalanche effect) đảm bảo mọi biến đổi dù nhỏ nhất ở đầu vào cũng làm thay đổi ngẫu nhiên và toàn diện giá trị băm đầu ra [4].
+Hàm băm mật mã là công cụ toán học nền tảng để kiểm tra tính toàn vẹn dữ liệu trong kiến trúc chuỗi khối [1], [4]. Một hàm băm mật mã $H$ ánh xạ thông điệp $M$ có độ dài tùy ý thành chuỗi nhị phân cố định $h = H(M) \in \{0,1\}^{n}$; với SHA-256, $n=256$ [4]. Ba thuộc tính an toàn thường được xét gồm: kháng tiền ảnh (cho trước $y$, khó tìm $M$ sao cho $H(M)=y$), kháng tiền ảnh thứ hai (cho trước $M$, khó tìm $M^{\prime} \ne M$ sao cho $H(M^{\prime})=H(M)$) và kháng va chạm (khó tìm hai thông điệp phân biệt có cùng giá trị băm). Hiệu ứng tuyết lở làm cho thay đổi nhỏ ở đầu vào dẫn đến thay đổi lớn, khó dự đoán ở đầu ra [4].
 
-Để quản lý và xác thực danh sách giao dịch trong khối với chi phí tối ưu, giao thức sử dụng cấu trúc Cây Merkle (Merkle Tree) [3]. Cây Merkle thường được biểu diễn dưới dạng cây băm nhị phân, trong đó mỗi nút lá lưu giá trị băm của một giao dịch , còn mỗi nút trung gian lưu giá trị băm của phép nối hai nút con trực tiếp . Tiến trình băm cặp này thực hiện đệ quy từ các nút lá lên đỉnh để tạo ra một giá trị đại diện duy nhất là Gốc Merkle (Merkle Root) được ghi vào phần đầu khối [3]. Cây nhị phân là mô hình minh họa phổ biến; cấu trúc và cách xử lý số nút lẻ có thể khác giữa các nền tảng.
+Để quản lý và xác thực danh sách giao dịch trong khối với chi phí tối ưu, giao thức sử dụng cấu trúc Cây Merkle (Merkle Tree) [3]. Cây Merkle thường được biểu diễn dưới dạng cây băm nhị phân, trong đó mỗi nút lá lưu $L_j=H(Tx_j)$, còn mỗi nút trung gian được tính theo $N=H(N_L \parallel N_R)$. Tiến trình băm cặp này thực hiện đệ quy từ các nút lá lên đỉnh để tạo ra một giá trị đại diện duy nhất là Gốc Merkle (Merkle Root) được ghi vào phần đầu khối [3]. Cây nhị phân là mô hình minh họa phổ biến; cấu trúc và cách xử lý số nút lẻ có thể khác giữa các nền tảng.
 
-![Hình Chương 1](report-assets/ch1-05.png)
+![Hình 1.2. Cây Merkle và đường dẫn kiểm chứng](report-assets/ch1-05.png)
 
-Hình 1-2: Cây Merkle và đường dẫn kiểm chứng một giao dịch
+Hình 1.2. Cây Merkle và đường dẫn kiểm chứng một giao dịch
 
-Cấu trúc cây Merkle cho phép kiểm tra một giao dịch thuộc tập giao dịch đã cam kết thông qua Bằng chứng Merkle (Merkle Proof). Với cây cân bằng, kích thước bằng chứng và số phép băm khi xác minh ở mức , với  là tổng số lượng giao dịch trong khối [3], [10]. Một nút nhẹ (Light Node) chỉ cần lưu trữ phần đầu khối chứa Merkle Root và yêu cầu mạng lưới cung cấp chuỗi các nút băm trung gian nằm dọc theo đường dẫn kiểm chứng (Audit Path) từ giao dịch cần kiểm tra lên gốc cây. Bằng cách thực hiện tuần tự  phép băm, nút kiểm tra có thể tự xác thực tính hợp lệ của giao dịch mà không cần tải hay phân tích toàn bộ phần thân khối, giúp tối ưu hóa băng thông mạng và hiệu năng lưu trữ trong hệ thống phân tán [3], [10].
+Cấu trúc cây Merkle cho phép kiểm tra một giao dịch thuộc tập giao dịch đã cam kết thông qua Bằng chứng Merkle (Merkle Proof). Với cây cân bằng, kích thước bằng chứng và số phép băm khi xác minh ở mức $O(\log n)$, với $n$ là tổng số giao dịch [3], [10]. Một nút nhẹ (Light Node) chỉ cần lưu trữ phần đầu khối chứa Merkle Root và yêu cầu mạng lưới cung cấp chuỗi các nút băm trung gian nằm dọc theo đường dẫn kiểm chứng (Audit Path) từ giao dịch cần kiểm tra lên gốc cây. Bằng cách thực hiện tối đa $\lceil \log_2 n \rceil$ phép băm đối với cây cân bằng, nút kiểm tra có thể tự xác thực tính hợp lệ của giao dịch mà không cần tải hay phân tích toàn bộ phần thân khối, giúp tối ưu hóa băng thông mạng và hiệu năng lưu trữ trong hệ thống phân tán [3], [10].
 
 ### Mật mã khóa công khai và chữ ký số
 
-Mật mã khóa công khai và chữ ký số thiết lập cơ chế xác thực nguồn gốc và kiểm soát ủy quyền đối với các giao dịch thay đổi trạng thái sổ cái [1], [5]. Theo chuẩn NIST FIPS 186-5 [5], một lược đồ chữ ký số an toàn được định nghĩa hình thức qua bộ ba thuật toán (KeyGen, Sign, Verify): thuật toán sinh khóa  nhận tham số an ninh  để tạo cặp khóa bất đối xứng gồm khóa bí mật sk (dùng để ký) và khóa công khai pk (dùng để xác minh); thuật toán ký  tạo chữ ký số σ từ thông điệp m và khóa sk; thuật toán xác minh  kiểm tra tính hợp lệ của σ dựa trên pk và m. Mô hình tổng quát được biểu diễn theo công thức (1.2):
+Mật mã khóa công khai và chữ ký số thiết lập cơ chế xác thực nguồn gốc và kiểm soát ủy quyền đối với các giao dịch thay đổi trạng thái sổ cái [1], [5]. Theo NIST FIPS 186-5 [5], một lược đồ chữ ký số có thể được mô tả hình thức qua ba thuật toán: $KeyGen$ sinh cặp khóa bí mật $sk$ và khóa công khai $pk$; $Sign$ tạo chữ ký $\sigma$ cho thông điệp $m$; $Verify$ kiểm tra chữ ký dựa trên $pk$ và $m$:
+
+$$KeyGen(1^{\lambda}) \rightarrow (sk,pk); \quad \sigma = Sign(sk,m); \quad Verify(pk,m,\sigma) \in \{0,1\}. \tag{1.2}$$
 
 Không nên diễn giải chữ ký số nói chung như việc "mã hóa giá trị băm bằng khóa bí mật rồi giải mã bằng khóa công khai". Cách mô tả này không phản ánh mô hình của nhiều lược đồ hiện đại. Ở mức tổng quát, thuật toán Verify chỉ trả về kết quả hợp lệ hoặc không hợp lệ dựa trên khóa công khai, thông điệp và chữ ký; nó không khôi phục thông điệp bằng một phép giải mã [5].
 
@@ -96,9 +100,9 @@ Vai trò của nút phụ thuộc nền tảng. Nút đầy đủ thường lưu
 
 ### Vòng đời giao dịch
 
-![Hình Chương 1](report-assets/ch1-03.png)
+![Hình 1.3. Vòng đời giao dịch Blockchain](report-assets/ch1-03.png)
 
-Hình 1-3: Vòng đời giao dịch Blockchain ở mức khái quát
+Hình 1.3. Vòng đời giao dịch Blockchain ở mức khái quát
 
 Vòng đời giao dịch bắt đầu khi chủ thể tạo yêu cầu thay đổi trạng thái và ký bằng khóa bí mật tương ứng. Nút tiếp nhận kiểm tra cấu trúc, chữ ký, số thứ tự chống phát lại, quyền thao tác và điều kiện trạng thái hiện tại [1]. Giao dịch hợp lệ được truyền tới các thành phần tham gia sắp thứ tự hoặc đồng thuận. Trong mạng công khai, giao dịch có thể được giữ trong vùng chờ trước khi nút đề xuất lựa chọn; mạng cấp quyền có thể sử dụng quy trình đề xuất, chứng thực và sắp thứ tự khác mà không có hoạt động khai thác [2], [8].
 
@@ -106,7 +110,7 @@ Sau khi đạt điều kiện chấp nhận của giao thức, giao dịch đư�
 
 ### Sao chép trạng thái và thực thi xác định
 
-Blockchain có thể được phân tích như một dạng sao chép máy trạng thái. Gọi S là trạng thái, T là giao dịch và δ là hàm chuyển trạng thái; cùng trạng thái đầu vào và cùng thứ tự giao dịch phải tạo cùng kết quả  tại các nút trung thực [10]. Điều kiện xác định này đòi hỏi chương trình tránh phụ thuộc trực tiếp vào đồng hồ cục bộ, số ngẫu nhiên không được thống nhất, phản hồi mạng bên ngoài hoặc cách làm tròn khác nhau giữa các máy.
+Blockchain có thể được phân tích như một dạng sao chép máy trạng thái. Gọi $S$ là trạng thái, $T$ là giao dịch và $\delta$ là hàm chuyển trạng thái; cùng trạng thái đầu vào và cùng thứ tự giao dịch phải tạo cùng kết quả $S^{\prime} = \delta(S,T)$ tại các nút trung thực [10]. Điều kiện xác định này đòi hỏi chương trình tránh phụ thuộc trực tiếp vào đồng hồ cục bộ, số ngẫu nhiên không được thống nhất, phản hồi mạng bên ngoài hoặc cách làm tròn khác nhau giữa các máy.
 
 Nhiều nền tảng tách nhật ký giao dịch nối tiếp khỏi phần biểu diễn trạng thái mới nhất để vừa bảo toàn lịch sử vừa truy vấn hiệu quả. Nhật ký cho phép kiểm toán và tái dựng; trạng thái hiện thời phục vụ nghiệp vụ đọc thường xuyên. Đây là mô hình kiến trúc phổ biến nhưng cách tổ chức dữ liệu, xử lý giao dịch không hợp lệ và phục hồi trạng thái thay đổi theo từng nền tảng [8], [10].
 
@@ -144,9 +148,9 @@ Trong đó n là tổng số nút và f là số nút lỗi tối đa. Với n=3
 
 Tính hoàn tất (finality) biểu thị mức độ chắc chắn rằng một giao dịch đã được chấp nhận sẽ không bị đảo ngược trong điều kiện an toàn giả định. Trong cơ chế hoàn tất theo xác suất, khả năng tổ chức lại lịch sử giảm dần khi có thêm khối xác nhận nhưng không bằng không về mặt tuyệt đối [2]. Trong cơ chế hoàn tất xác định dựa trên túc số, giao dịch được coi là hoàn tất sau khi đạt đủ phiếu theo giao thức; kết luận này vẫn phụ thuộc vào giả định số nút lỗi, an toàn khóa và quy tắc quản trị [6], [7].
 
-![Hình Chương 1](report-assets/ch1-02.png)
+![Hình 1.4. So sánh ba nhóm cơ chế đồng thuận](report-assets/ch1-02.png)
 
-Hình 1-4: So sánh khái quát các nhóm cơ chế đồng thuận
+Hình 1.4. So sánh khái quát các nhóm cơ chế đồng thuận
 
 Lựa chọn đồng thuận là bài toán đánh đổi giữa mức phân tán quyền quyết định, khả năng chịu lỗi, độ trễ, thông lượng và chi phí vận hành [10]. “Bộ ba phân quyền – an toàn – khả năng mở rộng” có thể dùng như một khung trực giác, không phải định luật buộc mọi hệ thống chỉ được chọn hai thuộc tính. Cơ chế phù hợp phải được đánh giá trên tải thực tế, số tổ chức vận hành, loại hành vi đối phương và yêu cầu phục hồi, thay vì dựa trên tên gọi hoặc tuyên bố hiệu năng của nền tảng.
 
@@ -154,9 +158,9 @@ Lựa chọn đồng thuận là bài toán đánh đổi giữa mức phân tá
 
 ### Các trục phân loại
 
-![Hình Chương 1](report-assets/ch1-08.png)
+![Hình 1.5. Phân loại mạng Blockchain](report-assets/ch1-08.png)
 
-Hình 1-5: Phân loại Blockchain theo phạm vi tham gia và quyền truy cập
+Hình 1.5. Phân loại Blockchain theo phạm vi tham gia và quyền truy cập
 
 Blockchain có thể được phân loại theo nhiều trục độc lập. Trục quyền tham gia phân biệt mạng không cấp quyền, nơi chủ thể có thể tham gia theo quy tắc mở, với mạng cấp quyền, nơi danh tính và vai trò được phê duyệt trước [1]. Trục phạm vi quản trị phân biệt mạng công khai, mạng riêng do một miền quản trị chi phối và mạng liên minh do nhiều tổ chức cùng quản trị. Quyền đọc dữ liệu lại là một quyết định khác: một mạng cấp quyền có thể cho công chúng đọc bằng chứng tối thiểu, trong khi một mạng công khai vẫn có thể sử dụng cơ chế bảo vệ nội dung riêng tư. Vì vậy, không nên đồng nhất “công khai” với “không cấp quyền”, hoặc “riêng tư” với “cấp quyền” [1], [8].
 
@@ -187,9 +191,9 @@ Không nên sử dụng Blockchain nếu chỉ một tổ chức chịu trách n
 
 ### Mô hình đe dọa và bảo vệ nhiều lớp
 
-![Hình Chương 1](report-assets/ch1-06.png)
+![Hình 1.6. Kiến trúc phân lớp của hệ thống Blockchain](report-assets/ch1-06.png)
 
-Hình 1-6: Các lớp bảo vệ trong một hệ thống Blockchain
+Hình 1.6. Các lớp bảo vệ trong một hệ thống Blockchain
 
 An toàn Blockchain không chỉ phụ thuộc hàm băm hoặc đồng thuận mà phải được xem xét theo nhiều lớp: mật mã, mạng, đồng thuận, hợp đồng thông minh, ứng dụng, lưu trữ ngoài chuỗi và quản trị vận hành [1], [10]. Tài sản cần bảo vệ gồm khóa bí mật, danh tính thành viên, trạng thái sổ cái, dữ liệu nghiệp vụ, cấu hình nút và nhật ký. Đối phương có thể là người ngoài tấn công hạ tầng, người dùng bị chiếm tài khoản, quản trị viên lạm quyền hoặc một nhóm nút thông đồng.
 
@@ -219,9 +223,9 @@ Khả năng tương tác không chỉ là truyền thông điệp giữa hai m�
 
 Quản lý văn bằng, chứng chỉ liên quan ba vai trò chính: cơ sở đào tạo phát hành, người học nắm giữ hoặc chia sẻ và tổ chức bên ngoài xác minh [9]. Quy trình truyền thống thường dựa vào bản giấy, bản sao chứng thực hoặc yêu cầu xác nhận thủ công; khi dữ liệu nằm ở nhiều hệ thống, việc đối soát có thể chậm và khó phát hiện tài liệu đã bị chỉnh sửa. Một sổ bằng chứng dùng chung có thể hỗ trợ bên xác minh kiểm tra nguồn phát hành, tính toàn vẹn và trạng thái hiện thời mà giảm số bước liên hệ thủ công.
 
-![Hình Chương 1](report-assets/ch1-04.png)
+![Hình 1.7. Quy trình phát hành và xác minh văn bằng](report-assets/ch1-04.png)
 
-Hình 1-7: Mô hình khái niệm ứng dụng Blockchain trong quản lý văn bằng
+Hình 1.7. Mô hình khái niệm ứng dụng Blockchain trong quản lý văn bằng
 
 Yêu cầu kiểm chứng không chỉ là so sánh mã băm. Hệ thống phải xác định đơn vị nào có thẩm quyền phát hành, khóa nào hợp lệ tại thời điểm ký, dữ liệu nào tạo thành nội dung văn bằng và trạng thái nào cho phép sử dụng. Kết quả không tìm thấy bằng chứng cũng không đủ để kết luận văn bằng giả, bởi hồ sơ cũ có thể chưa được số hóa hoặc nằm ngoài phạm vi hệ thống.
 
@@ -343,7 +347,7 @@ Bitcoin regtest được chọn thay vì hợp đồng thông minh. Giá trị o
 
 ### 2.4.2. Kiến trúc thành phần
 
-![Hình 2.2. Kiến trúc thành phần](report-assets/issuance.png)
+![Hình 2.2. Kiến trúc thành phần](report-assets/architecture.png)
 
 Hệ thống gồm ba frontend React; Nginx reverse proxy; backend NestJS; PostgreSQL; Redis/BullMQ; worker; container `cert-tools`; container `cert-issuer`; verifier service; Bitcoin Core regtest. Các thành phần dữ liệu và RPC chỉ bind loopback. Cổng quản trị, Holder và Verify được tách để giảm nhầm lẫn quyền và cho phép triển khai độc lập.
 
@@ -357,7 +361,7 @@ Maker gửi thông tin người nhận và khóa công khai tới backend. Backe
 
 ### 2.5.1. Luồng phát hành
 
-![Hình 2.3. Trình tự phát hành theo lô](report-assets/issuance.png)
+![Hình 2.3. Trình tự phát hành theo lô](report-assets/issuance-sequence.png)
 
 1. Maker đăng nhập và gửi một yêu cầu hoặc mảng tối đa 500 phần tử.
 2. Backend lấy actor từ JWT, kiểm tra DTO và lưu `pending_approval`.
@@ -529,7 +533,7 @@ Bảng 3.1. Thành phần phần mềm
 
 Repository cung cấp Compose, migration, `.env.example`, script triển khai/health check và script thực nghiệm. PostgreSQL, Redis và Bitcoin RPC chỉ bind loopback. WIF, mật khẩu, JWT secret, RPC credential và tài khoản thử nghiệm nằm ngoài Git.
 
-![Hình 3.1. Kiến trúc triển khai](Tong_duyet_chuong_3_assets/01_kien_truc_tong_the.png)
+![Hình 3.1. Kiến trúc triển khai](report-assets/ch3-01-kien-truc-trien-khai.png)
 
 ### 3.1.2. Tổ chức triển khai
 
@@ -559,7 +563,7 @@ Audit được gắn vào đăng nhập, đăng ký, lập phiếu, duyệt, t�
 
 Maker gọi `/api/issue/request`. Backend lấy username từ JWT, không tin `requestedBy` trong body, và lưu bản ghi `pending_approval`. Checker gọi approve/reject. Yêu cầu được duyệt chuyển `queued`; BullMQ tách công việc nặng khỏi request HTTP [21]. Worker chuyển `processing`, tạo roster, gọi toolchain, tạo block và cập nhật `issued` hoặc `failed`.
 
-![Hình 3.2. Luồng phát hành một văn bằng](Tong_duyet_chuong_3_assets/03_luong_phat_hanh_don.png)
+![Hình 3.2. Luồng phát hành một văn bằng](report-assets/ch3-02-luong-phat-hanh-don.png)
 
 ### 3.3.2. Tối ưu phát hành theo lô
 
@@ -567,7 +571,7 @@ Phương án tuần tự ban đầu lặp `cert-tools → cert-issuer → mine` 
 
 Thiết kế cuối chia roster thành chunk 10 hồ sơ; tối đa 16 chunk tạo unsigned certificate song song, mỗi chunk dùng workspace riêng. Sau khi hoàn tất, worker gom output, đặt `batch_size` bằng số hồ sơ và gọi `cert-issuer` một lần. Tool tạo một Merkle tree và một transaction cho toàn batch. Mỗi output mang nonce để ánh xạ đúng bản ghi, không phụ thuộc tên hoặc thứ tự file.
 
-![Hình 3.3. Luồng phát hành theo lô](Tong_duyet_chuong_3_assets/04_luong_cap_lo.png)
+![Hình 3.3. Luồng phát hành theo lô](report-assets/ch3-03-luong-phat-hanh-lo.png)
 
 Workspace có roster, unsigned, blockchain certificate, issuer work và manifest. Dữ liệu runtime được giữ cục bộ và bị loại khỏi Git. Sau khi giải mã receipt, worker lưu `certUid`, `txid`, Merkle root và `batchId`; thao tác DB được chia nhỏ. Mỗi job hiện tối đa 500 hồ sơ, nên mục tiêu là một transaction mỗi job.
 
@@ -591,7 +595,7 @@ Chỉ Checker gọi được `POST /api/revoke/:id`. Service tạo `REVOKE:<cert
 
 Sau khi giao dịch được xác nhận, PostgreSQL cập nhật `revoked`, transaction, actor, lý do và thời gian. Revocation List đọc các bản ghi này. Verify trước hết kiểm tra credential/anchor, sau đó trả `REVOKED` nếu DB ghi nhận thu hồi. Hình 3.4 mô tả luồng hai lớp.
 
-![Hình 3.4. Luồng thu hồi và xác minh](Tong_duyet_chuong_3_assets/05_luong_thu_hoi.png)
+![Hình 3.4. Luồng thu hồi và xác minh](report-assets/ch3-04-luong-thu-hoi-xac-minh.png)
 
 ## 3.5. Hiện thực ba frontend
 
@@ -601,7 +605,7 @@ Một lỗi route đã được sửa bằng cách đặt `holder/certificates`,
 
 ## 3.6. Hardening B12
 
-Mật khẩu được băm bcrypt cost 10, đáp ứng mức tối thiểu cho bcrypt mà OWASP nêu nhưng hệ thống mới vẫn nên ưu tiên Argon2id [17]. JWT tuân theo cấu trúc RFC 7519 [15]. RBAC từ chối Student ở cổng quản trị và chặn ở backend; actor lấy từ JWT. Helmet, throttling, CORS allowlist, body limit, Swagger có cấu hình và Nginx được bổ sung ở B12. Nguyên tắc kiểm quyền mọi request phù hợp hướng dẫn OWASP [16].
+Mật khẩu được băm bằng bcrypt với cost 10, đáp ứng mức tối thiểu cho bcrypt mà OWASP nêu; đối với hệ thống mới, Argon2id vẫn là lựa chọn được ưu tiên [17]. JWT tuân theo cấu trúc RFC 7519 [15]. RBAC từ chối Student ở cổng quản trị và kiểm tra quyền tại backend; actor được lấy từ JWT. B12 bổ sung Helmet, throttling, CORS allowlist, giới hạn kích thước body, cấu hình Swagger và Nginx. Nguyên tắc kiểm quyền trên mọi request phù hợp với hướng dẫn OWASP [16]. Verifier đã giới hạn một số URL và chặn `localhost`/`127.0.0.1`; tuy nhiên, đối chiếu mã nguồn với hướng dẫn phòng chống SSRF cho thấy biện pháp hiện tại chưa bao phủ đầy đủ các dải địa chỉ nội bộ IPv4/IPv6, địa chỉ metadata và DNS rebinding [23]. Vì vậy, đây mới là mức giảm thiểu ban đầu, không phải bằng chứng SSRF đã được xử lý triệt để.
 
 Bản freeze R1 bị vô hiệu vì Nginx không có quyền ghi thư mục tạm cho request body lớn. Sau khi sửa quyền, preflight được chạy lại và đóng băng R2. Việc loại R1 khỏi thống kê nhưng lưu riêng bằng chứng lỗi giúp tránh lựa chọn dữ liệu có lợi và tăng khả năng truy vết.
 
@@ -640,9 +644,9 @@ Bảng 3.2. Kết quả Kịch bản 1
 | S1-05 | Sửa txid trong proof | Không `VALID` | `INDETERMINATE` | Đạt |
 | S1-06 | Maker tự duyệt | HTTP 403 | HTTP 403 | Đạt |
 
-Hai trường hợp sửa nội dung trả `INVALID`; hai trường hợp phá bằng chứng/anchor trả `INDETERMINATE`. Cả bốn đều không bị nhận là `VALID`. Ca S1-06 chứng minh guard Maker–Checker hoạt động ở API, không chỉ ở giao diện.
+Hai trường hợp sửa nội dung trả `INVALID`; hai trường hợp phá bằng chứng/anchor trả `INDETERMINATE`. Cả bốn đều không bị nhận là `VALID`. Ca S1-06 cho thấy guard Maker–Checker đã chặn đúng hành vi tự duyệt trong phạm vi API và cấu hình được kiểm thử, không chỉ ở giao diện.
 
-![Hình 3.5. Tiến trình thực nghiệm Chương 3](Tong_duyet_chuong_3_assets/02_tien_trinh_chuong_3.png)
+![Hình 3.5. Tiến trình thực nghiệm Chương 3](report-assets/ch3-05-tien-trinh-thuc-nghiem.png)
 
 ## 3.9. Kết quả Kịch bản 2 – hiệu năng Merkle batching
 
@@ -672,9 +676,9 @@ Bảng 3.4. Tổng hợp theo kích thước batch
 | 100 | 3 | 300 | 100% | 39,533 ± 1,240 | 0,3953 | 2,5311 | 1,00 |
 | 500 | 3 | 1.500 | 100% | 127,137 ± 2,983 | 0,2543 | 3,9342 | 1,00 |
 
-![Hình 3.6. Thời gian phát hành theo kích thước batch](Tong_duyet_chuong_3_assets/07-thoi-gian-batch.png)
+![Hình 3.6. Thời gian phát hành theo kích thước batch](report-assets/ch3-06-thoi-gian-batch.png)
 
-![Hình 3.7. Thông lượng và thời gian trên mỗi chứng thư](Tong_duyet_chuong_3_assets/08-thong-luong-hieu-qua.png)
+![Hình 3.7. Thông lượng và thời gian trên mỗi chứng thư](report-assets/ch3-07-thong-luong-hieu-qua.png)
 
 Khi batch tăng từ 10 lên 500, kích thước tăng 50 lần nhưng thời gian trung bình tăng khoảng 3,92 lần. Throughput tăng khoảng 12,72 lần; thời gian trung bình mỗi chứng thư giảm khoảng 92,16%. Kết quả phản ánh lợi ích phân bổ chi phí cố định và batching trong môi trường thử nghiệm, không phải cam kết hiệu năng production.
 
@@ -688,13 +692,13 @@ Bảng 3.5. Tài nguyên hệ thống
 | 100 | 21,20% | 78,63% | 2.877,6 | 3.130,1 | 134,5 | 138,1 |
 | 500 | 31,74% | 82,30% | 3.144,5 | 3.531,1 | 159,7 | 163,8 |
 
-![Hình 3.8. Mức sử dụng tài nguyên](Tong_duyet_chuong_3_assets/09-tai-nguyen.png)
+![Hình 3.8. Mức sử dụng tài nguyên](report-assets/ch3-08-tai-nguyen.png)
 
 CPU và bộ nhớ tăng theo kích thước batch nhưng nằm trong giới hạn máy thử nghiệm. CPU cực đại khoảng 82,30% ở nhóm 500; bộ nhớ dùng cực đại trung bình khoảng 3.531,1 MB. Số liệu chỉ đại diện cấu hình 16 lõi và concurrency 16 đã nêu.
 
 ### 3.9.4. Kiểm toán artifact
 
-Script kiểm toán xác nhận 9/9 run đạt, 1.830/1.830 chứng thư được phát hành, 1.830 certificate ID duy nhất, 1.830/1.830 Merkle proof hợp lệ, 9 batch tương ứng 9 transaction và các transaction có confirmation. `SHA256SUMS` kiểm tra 27/27 artifact công khai.
+Script kiểm toán ghi nhận 9/9 run đạt, 1.830/1.830 chứng thư được phát hành, 1.830 certificate ID duy nhất, 1.830/1.830 Merkle proof hợp lệ, 9 batch tương ứng 9 transaction và các transaction có confirmation. `SHA256SUMS_PUBLIC` kiểm tra 25/25 artifact được công bố; hai artifact nhạy cảm trong manifest nội bộ không nằm trong snapshot công khai.
 
 Bảng 3.6. Kết quả kiểm toán
 
@@ -705,7 +709,7 @@ Bảng 3.6. Kết quả kiểm toán
 | Certificate ID duy nhất | 1.830 |
 | Merkle proof hợp lệ | 1.830/1.830 |
 | Batch/transaction | 9/9 |
-| Artifact checksum | 27/27 |
+| Artifact checksum công khai | 25/25 |
 
 Tổng 1.830 là tổng lượt/chứng thư của chín run: `3×10 + 3×100 + 3×500`. Không có việc cộng 1.830 chứng thư rồi nhân thêm ba lần; từng run sinh tập ID riêng.
 
@@ -724,9 +728,9 @@ Bảng 3.7. Kết quả Kịch bản 3
 | S3-07 | Có trong Revocation List | Có | Có | Đạt |
 | S3-08 | Audit đủ role/action | 4 action | revoke/issue/approve/request | Đạt |
 
-Tám trên tám ca đạt. Kết quả chứng minh chỉ Checker được thu hồi; transaction được xác nhận; Verify, Revocation List và audit thống nhất trong phạm vi môi trường R2.
+Tám trên tám ca đạt. Trong phạm vi môi trường R2 và các ca đã thiết kế, kết quả ghi nhận chỉ Checker thực hiện được thao tác thu hồi; transaction có xác nhận; Verify, Revocation List và audit trả kết quả nhất quán.
 
-![Hình 3.9. Tổng hợp tỷ lệ đạt của ba kịch bản](Tong_duyet_chuong_3_assets/10-tong-hop-kich-ban.png)
+![Hình 3.9. Tổng hợp tỷ lệ đạt của ba kịch bản](report-assets/ch3-09-tong-hop-kich-ban.png)
 
 ## 3.11. Đánh giá kết quả
 
@@ -749,15 +753,15 @@ Bảng 3.8. Đối chiếu yêu cầu và bằng chứng
 
 Thứ nhất, regtest không phản ánh phí, độ trễ và kinh tế an ninh của mainnet. Thứ hai, thử nghiệm chạy trên một VPS và ba lần lặp mỗi kích thước; chưa đại diện tải dài hạn hoặc hệ thống phân tán nhiều node. Thứ ba, Student–chứng thư liên kết mềm bằng `recipientName`, có nguy cơ trùng tên. Thứ tư, khóa chưa ở HSM/KMS, chưa có MFA, HTTPS công khai, secret manager và quy trình xoay khóa.
 
-Thứ năm, Revocation List dựa vào DB; chưa có indexer phục hồi từ blockchain. Thứ sáu, audit DB có thể bị quản trị viên hạ tầng sửa. Thứ bảy, test đơn vị còn ít, chưa bao phủ sâu worker, lỗi RPC, mất kết nối giữa thao tác Bitcoin và cập nhật DB. Thứ tám, khả năng tương tác với verifier Blockcerts bên ngoài regtest cần tiếp tục đánh giá.
+Thứ năm, Revocation List dựa vào DB; chưa có indexer phục hồi từ blockchain. Thứ sáu, audit DB có thể bị quản trị viên hạ tầng sửa. Thứ bảy, test đơn vị còn ít, chưa bao phủ sâu worker, lỗi RPC, mất kết nối giữa thao tác Bitcoin và cập nhật DB. Thứ tám, lớp chống SSRF của verifier mới chặn một số trường hợp cơ bản, chưa xử lý đầy đủ địa chỉ nội bộ, metadata endpoint và DNS rebinding [23]. Thứ chín, khả năng tương tác với verifier Blockcerts bên ngoài regtest cần tiếp tục đánh giá.
 
 ### 3.11.3. Hướng phát triển
 
-Cần dùng `studentCode` và khóa ngoại ổn định; tách bảng request/batch/certificate; bổ sung transactional outbox và idempotency; xây indexer thu hồi; đưa khóa vào HSM/KMS; thêm MFA, HTTPS/HSTS, backup/restore, giám sát và kiểm thử xâm nhập. Trước mainnet cần kiểm thử testnet, xác định phí, confirmation policy, quyền riêng tư và trách nhiệm pháp lý. Có thể bổ sung verifier độc lập phía người dùng để giảm phụ thuộc dịch vụ trung tâm.
+Cần dùng `studentCode` và khóa ngoại ổn định; tách bảng request/batch/certificate; bổ sung transactional outbox và idempotency; xây indexer thu hồi; đưa khóa vào HSM/KMS; thêm MFA, HTTPS/HSTS, backup/restore, giám sát và kiểm thử xâm nhập. Verifier cần phân giải DNS có kiểm soát, từ chối toàn bộ địa chỉ private/link-local/loopback/metadata sau mỗi lần phân giải và sau chuyển hướng, đồng thời chỉ cho phép hostname/scheme/port đã định trước theo khuyến nghị OWASP [23]. Trước mainnet cần kiểm thử testnet, xác định phí, confirmation policy, quyền riêng tư và trách nhiệm pháp lý. Có thể bổ sung verifier độc lập phía người dùng để giảm phụ thuộc dịch vụ trung tâm.
 
 ## 3.12. Kết luận Chương 3
 
-Chương 3 đã trình bày môi trường, cách hiện thực backend, ba frontend, worker, Blockcerts toolchain, xác minh, thu hồi và hardening B12; đồng thời báo cáo kết quả thực nghiệm có artifact kiểm toán. Kịch bản 1 đạt 6/6, Kịch bản 2 có 9/9 run và 1.830/1.830 proof hợp lệ, Kịch bản 3 đạt 8/8. Kết quả xác nhận tính đúng của nguyên mẫu và lợi ích batching trong môi trường regtest, nhưng không được suy rộng thành mức sẵn sàng production nếu chưa xử lý các hạn chế đã nêu.
+Chương 3 đã trình bày môi trường, cách hiện thực backend, ba frontend, worker, Blockcerts toolchain, xác minh, thu hồi và hardening B12; đồng thời báo cáo kết quả thực nghiệm có artifact kiểm toán. Kịch bản 1 đạt 6/6, Kịch bản 2 có 9/9 run và 1.830/1.830 proof hợp lệ, Kịch bản 3 đạt 8/8. Kết quả cung cấp bằng chứng thực nghiệm rằng nguyên mẫu đáp ứng các yêu cầu đã kiểm thử và batching hoạt động trong môi trường regtest; kết quả không xác nhận tính đúng toàn diện và không được suy rộng thành mức sẵn sàng production.
 
 
 # KẾT LUẬN VÀ KIẾN NGHỊ
@@ -824,13 +828,15 @@ Trước khi triển khai thực tế, cần đánh giá pháp lý và quy trìn
 
 [22] TypeORM, “TypeORM Documentation — Migrations and Transactions.” https://typeorm.io/docs/advanced-topics/migrations/; https://typeorm.io/docs/advanced-topics/transactions/ (truy cập ngày 13/09/2026).
 
+[23] OWASP Foundation, “Server Side Request Forgery Prevention Cheat Sheet.” https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html (truy cập ngày 13/09/2026).
+
 # PHỤ LỤC
 
 ## Phụ lục A. Nhóm API chính
 
 | Nhóm | Đường dẫn tiêu biểu | Quyền |
 |---|---|---|
-| Xác thực | `POST /auth/login`, `GET /auth/me` | Công khai/đã đăng nhập |
+| Xác thực | `POST /api/auth/login`, `GET /api/auth/me` | Công khai/đã đăng nhập |
 | Tài khoản | `/api/admin/users` | Checker |
 | Phát hành | `/api/issue/*` | Maker/Checker theo hành động |
 | Holder | `/api/issue/holder/certificates` | Student |

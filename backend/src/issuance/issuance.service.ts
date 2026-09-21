@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -48,14 +49,61 @@ export class IssuanceService {
     return student;
   }
 
-  // Maker chỉ cung cấp mã sinh viên; backend tự lấy đúng chủ thể từ DB.
-  async request(dto: IssueRequestDto, requestedBy: string) {
-    const student = await this.studentByCode(dto.studentCode);
-    const row = this.repo.create({
+  async studentProfile(studentCode: string) {
+    const student = await this.studentByCode(studentCode);
+    return {
+      studentCode: student.studentCode,
+      recipientName: student.recipientName,
+      dateOfBirth: student.dateOfBirth ?? null,
+      email: student.email ?? null,
+      cohort: student.cohort ?? null,
+    };
+  }
+
+  private assertCompleteStudent(student: User) {
+    if (!student.dateOfBirth || !student.email || !student.cohort) {
+      throw new BadRequestException(
+        `Hồ sơ Student ${student.studentCode} thiếu ngày sinh, email hoặc niên khóa`,
+      );
+    }
+  }
+
+  private certificateValues(dto: IssueRequestDto, student: User) {
+    this.assertCompleteStudent(student);
+    const issueDate = new Date(`${dto.issueDate}T00:00:00Z`);
+    if (Number.isNaN(issueDate.getTime()) || issueDate.toISOString().slice(0, 10) !== dto.issueDate) {
+      throw new BadRequestException('Ngày cấp không hợp lệ');
+    }
+    if (dto.graduationYear > issueDate.getUTCFullYear()) {
+      throw new BadRequestException('Năm tốt nghiệp không được sau năm cấp');
+    }
+    return {
       studentId: student.id,
+      studentCode: student.studentCode!,
       recipientName: student.recipientName!,
+      studentDateOfBirth: student.dateOfBirth!,
+      studentEmail: student.email!,
+      cohort: student.cohort!,
       pubkey: dto.pubkey,
       identity: dto.identity?.trim() || student.studentCode!,
+      degreeName: dto.degreeName,
+      major: dto.major,
+      educationLevel: dto.educationLevel,
+      graduationRank: dto.graduationRank,
+      graduationYear: dto.graduationYear,
+      issueDate: dto.issueDate,
+      diplomaNumber: dto.diplomaNumber,
+      trainingMode: dto.trainingMode,
+    };
+  }
+
+  // Maker chỉ cung cấp mã sinh viên và dữ liệu văn bằng; backend chụp hồ sơ từ DB.
+  async request(dto: IssueRequestDto, requestedBy: string) {
+    const student = await this.studentByCode(dto.studentCode);
+    const duplicate = await this.repo.findOne({ where: { diplomaNumber: dto.diplomaNumber } });
+    if (duplicate) throw new ConflictException('Số hiệu văn bằng đã tồn tại');
+    const row = this.repo.create({
+      ...this.certificateValues(dto, student),
       requestedBy,
       status: 'pending_approval',
     });
@@ -97,14 +145,19 @@ export class IssuanceService {
       );
     }
 
+    const diplomaNumbers = items.map((item) => item.diplomaNumber);
+    if (new Set(diplomaNumbers).size !== diplomaNumbers.length) {
+      throw new ConflictException('Lô có số hiệu văn bằng bị trùng');
+    }
+    const existing = await this.repo.find({ where: { diplomaNumber: In(diplomaNumbers) } });
+    if (existing.length) {
+      throw new ConflictException(`Số hiệu văn bằng đã tồn tại: ${existing.slice(0, 10).map((row) => row.diplomaNumber).join(', ')}`);
+    }
     const batchId = crypto.randomUUID();
     const rows = items.map((dto) => {
       const student = byCode.get(this.normalizeStudentCode(dto.studentCode))!;
       return this.repo.create({
-        studentId: student.id,
-        recipientName: student.recipientName!,
-        pubkey: dto.pubkey,
-        identity: dto.identity?.trim() || student.studentCode!,
+        ...this.certificateValues(dto, student),
         requestedBy,
         batchId,
         status: 'pending_approval' as IssuanceStatus,
@@ -332,6 +385,18 @@ export class IssuanceService {
       return {
         id: row.id,
         recipientName: row.recipientName,
+        studentCode: row.studentCode,
+        studentDateOfBirth: row.studentDateOfBirth,
+        studentEmail: row.studentEmail,
+        degreeName: row.degreeName,
+        major: row.major,
+        educationLevel: row.educationLevel,
+        graduationRank: row.graduationRank,
+        graduationYear: row.graduationYear,
+        issueDate: row.issueDate,
+        diplomaNumber: row.diplomaNumber,
+        trainingMode: row.trainingMode,
+        cohort: row.cohort,
         certUid: row.certUid,
         status: row.status,
         txid: row.txid,

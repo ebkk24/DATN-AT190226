@@ -2,7 +2,19 @@
   "@context": [
     "https://www.w3.org/2018/credentials/v1",
     {
-      "alumniOf": "https://schema.org/alumniOf"
+      "alumniOf": "https://schema.org/alumniOf",
+      "studentCode": "https://schema.org/identifier",
+      "dateOfBirth": "https://schema.org/birthDate",
+      "email": "https://schema.org/email",
+      "cohort": "https://actvn.edu.vn/credentials/terms#cohort",
+      "degreeName": "https://schema.org/educationalCredentialAwarded",
+      "major": "https://actvn.edu.vn/credentials/terms#major",
+      "educationLevel": "https://schema.org/educationalLevel",
+      "graduationRank": "https://schema.org/award",
+      "graduationYear": "https://schema.org/endDate",
+      "issueDate": "https://schema.org/dateIssued",
+      "diplomaNumber": "https://schema.org/serialNumber",
+      "trainingMode": "https://schema.org/courseMode"
     },
     "https://w3id.org/blockcerts/v3"
   ],
@@ -18,7 +30,19 @@
     "alumniOf": {
       "id": "https://actvn.edu.vn/"
     },
-    "name": "*|RECIPIENT_NAME|*"
+    "name": "*|RECIPIENT_NAME|*",
+    "studentCode": "*|STUDENT_CODE|*",
+    "dateOfBirth": "*|DATE_OF_BIRTH|*",
+    "email": "*|EMAIL|*",
+    "cohort": "*|COHORT|*",
+    "degreeName": "*|DEGREE_NAME|*",
+    "major": "*|MAJOR|*",
+    "educationLevel": "*|EDUCATION_LEVEL|*",
+    "graduationRank": "*|GRADUATION_RANK|*",
+    "graduationYear": "*|GRADUATION_YEAR|*",
+    "issueDate": "*|ISSUE_DATE|*",
+    "diplomaNumber": "*|DIPLOMA_NUMBER|*",
+    "trainingMode": "*|TRAINING_MODE|*"
   },
   "name": "Văn bằng tốt nghiệp",
   "description": "Văn bằng điện tử được phát hành và neo bằng Blockcerts trên mạng Bitcoin regtest.",

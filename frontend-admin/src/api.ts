@@ -21,6 +21,18 @@ export type CertificateRecord = {
   recipientName: string;
   pubkey?: string | null;
   identity?: string | null;
+  studentCode?: string | null;
+  studentDateOfBirth?: string | null;
+  studentEmail?: string | null;
+  cohort?: string | null;
+  degreeName?: string | null;
+  major?: string | null;
+  educationLevel?: string | null;
+  graduationRank?: string | null;
+  graduationYear?: number | null;
+  issueDate?: string | null;
+  diplomaNumber?: string | null;
+  trainingMode?: string | null;
   status: IssuanceStatus;
   requestedBy?: string | null;
   approvedBy?: string | null;
@@ -41,6 +53,9 @@ export type UserRecord = {
   role: Role;
   recipientName?: string | null;
   studentCode?: string | null;
+  dateOfBirth?: string | null;
+  email?: string | null;
+  cohort?: string | null;
   createdAt: string;
 };
 
@@ -55,10 +70,25 @@ export type AuditRecord = {
   createdAt: string;
 };
 
+export type StudentProfile = {
+  studentCode: string;
+  recipientName: string;
+  dateOfBirth: string | null;
+  email: string | null;
+  cohort: string | null;
+};
+
 export type RecipientInput = {
   studentCode: string;
   pubkey: string;
-  identity?: string;
+  degreeName: string;
+  major: "An Toàn Thông Tin";
+  educationLevel: "Đại học" | "Thạc sĩ" | "Tiến sĩ";
+  graduationRank: "Xuất sắc" | "Giỏi" | "Khá" | "Trung bình";
+  graduationYear: number;
+  issueDate: string;
+  diplomaNumber: string;
+  trainingMode: "Chính quy" | "Vừa làm vừa học" | "Đào tạo từ xa";
 };
 
 function token() {
@@ -131,6 +161,9 @@ export const api = {
       batchId: string;
     }>("/api/issue/batch/request", jsonOptions("POST", { recipients })),
 
+  studentProfile: (studentCode: string) =>
+    authFetch<StudentProfile>(`/api/issue/students/${encodeURIComponent(studentCode.trim().toUpperCase())}`),
+
   listPending: () =>
     authFetch<CertificateRecord[]>("/api/issue?status=pending_approval"),
 
@@ -172,11 +205,21 @@ export const api = {
     role: Role;
     recipientName?: string;
     studentCode?: string;
+    dateOfBirth?: string;
+    email?: string;
+    cohort?: string;
   }) =>
     authFetch<{ id: string; username: string; role: Role }>(
       "/api/admin/users",
       jsonOptions("POST", user),
     ),
+
+  updateStudentProfile: (id: string, profile: {
+    recipientName: string;
+    dateOfBirth: string;
+    email: string;
+    cohort: string;
+  }) => authFetch<UserRecord>(`/api/admin/users/${id}/student-profile`, jsonOptions("PATCH", profile)),
 
   listAudit: () => authFetch<AuditRecord[]>("/api/audit"),
 };

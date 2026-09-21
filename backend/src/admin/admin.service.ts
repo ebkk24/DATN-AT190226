@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { User } from '../auth/user.entity';
-import { RegisterDto } from '../auth/auth.dto';
+import { RegisterDto, UpdateStudentProfileDto } from '../auth/auth.dto';
 import { AuditService } from '../audit/audit.service';
 
 @Injectable()
@@ -21,8 +21,23 @@ export class AdminService {
       role: user.role,
       recipientName: user.recipientName ?? null,
       studentCode: user.studentCode ?? null,
+      dateOfBirth: user.dateOfBirth ?? null,
+      email: user.email ?? null,
+      cohort: user.cohort ?? null,
       createdAt: user.createdAt,
     }));
+  }
+
+  async updateStudentProfile(id: string, dto: UpdateStudentProfileDto, updatedBy: string) {
+    const student = await this.users.findOne({ where: { id, role: 'student' } });
+    if (!student) throw new ConflictException('Không tìm thấy tài khoản Student');
+    if (dto.recipientName !== undefined) student.recipientName = dto.recipientName.trim();
+    if (dto.dateOfBirth !== undefined) student.dateOfBirth = dto.dateOfBirth;
+    if (dto.email !== undefined) student.email = dto.email.trim().toLowerCase();
+    if (dto.cohort !== undefined) student.cohort = dto.cohort.trim();
+    const saved = await this.users.save(student);
+    await this.audit.log({ action: 'update_profile', actor: updatedBy, actorRole: 'checker', targetId: saved.id, detail: saved.studentCode ?? null });
+    return { id: saved.id, recipientName: saved.recipientName, studentCode: saved.studentCode, dateOfBirth: saved.dateOfBirth, email: saved.email, cohort: saved.cohort };
   }
 
   async create(dto: RegisterDto, createdBy: string) {
@@ -49,6 +64,9 @@ export class AdminService {
       recipientName:
         dto.role === 'student' ? dto.recipientName?.trim() || null : null,
       studentCode: studentCode || null,
+      dateOfBirth: dto.role === 'student' ? dto.dateOfBirth : null,
+      email: dto.role === 'student' ? dto.email?.trim().toLowerCase() : null,
+      cohort: dto.role === 'student' ? dto.cohort?.trim() : null,
     });
     const saved = await this.users.save(user);
     await this.audit.log({
@@ -64,6 +82,9 @@ export class AdminService {
       role: saved.role,
       recipientName: saved.recipientName,
       studentCode: saved.studentCode,
+      dateOfBirth: saved.dateOfBirth,
+      email: saved.email,
+      cohort: saved.cohort,
     };
   }
 }

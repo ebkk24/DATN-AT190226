@@ -11,6 +11,18 @@ export interface VerifyResult {
   issuedOn?: string;
   recipientName?: string;
   certUid?: string;
+  studentCode?: string;
+  dateOfBirth?: string;
+  email?: string;
+  cohort?: string;
+  degreeName?: string;
+  major?: string;
+  educationLevel?: string;
+  graduationRank?: string;
+  graduationYear?: number;
+  issueDate?: string;
+  diplomaNumber?: string;
+  trainingMode?: string;
   message?: string;
   revocationTxid?: string;
   [key: string]: unknown;

@@ -1,7 +1,7 @@
 jest.mock('@nestjs/bullmq', () => ({ InjectQueue: () => () => undefined }));
 
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-return, @typescript-eslint/require-await, @typescript-eslint/no-unsafe-call */
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
 import { IssuanceService } from './issuance.service';
 
 describe('IssuanceService student identity mapping', () => {
@@ -10,6 +10,9 @@ describe('IssuanceService student identity mapping', () => {
     role: 'student',
     studentCode: 'AT180001',
     recipientName: 'Nguyễn Văn An',
+    dateOfBirth: '2004-03-27',
+    email: 'an@example.edu.vn',
+    cohort: '2022 - 2027',
   };
 
   function setup() {
@@ -42,6 +45,14 @@ describe('IssuanceService student identity mapping', () => {
       {
         studentCode: 'at180001',
         pubkey: 'mmtMJVNrauBfzn8sr8E6DXEeLVp6WVg1kT',
+        degreeName: 'Bằng tốt nghiệp đại học',
+      major: 'An Toàn Thông Tin',
+      educationLevel: 'Đại học',
+      graduationRank: 'Giỏi',
+      graduationYear: 2027,
+      issueDate: '2027-06-30',
+      diplomaNumber: 'KMA-2027-0001',
+      trainingMode: 'Chính quy',
       },
       'maker-a',
     );
@@ -51,6 +62,11 @@ describe('IssuanceService student identity mapping', () => {
         studentId: student.id,
         recipientName: student.recipientName,
         identity: student.studentCode,
+        studentCode: student.studentCode,
+        studentDateOfBirth: student.dateOfBirth,
+        studentEmail: student.email,
+        cohort: student.cohort,
+        diplomaNumber: 'KMA-2027-0001',
       }),
     );
     expect(result).toEqual(
@@ -59,6 +75,50 @@ describe('IssuanceService student identity mapping', () => {
         recipientName: student.recipientName,
       }),
     );
+  });
+
+  it('từ chối hồ sơ Student chưa đủ dữ liệu bắt buộc', async () => {
+    const { service, users } = setup();
+    users.findOne.mockResolvedValue({ ...student, email: null });
+    await expect(
+      service.request(
+        {
+          studentCode: 'AT180001',
+          pubkey: 'mmtMJVNrauBfzn8sr8E6DXEeLVp6WVg1kT',
+          degreeName: 'Bằng tốt nghiệp đại học',
+          major: 'An Toàn Thông Tin',
+          educationLevel: 'Đại học',
+          graduationRank: 'Giỏi',
+          graduationYear: 2027,
+          issueDate: '2027-06-30',
+          diplomaNumber: 'KMA-2027-0002',
+          trainingMode: 'Chính quy',
+        },
+        'maker-a',
+      ),
+    ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('từ chối số hiệu văn bằng đã tồn tại trên toàn hệ thống', async () => {
+    const { service, repo } = setup();
+    repo.findOne.mockResolvedValue({ id: 'existing-certificate' });
+    await expect(
+      service.request(
+        {
+          studentCode: 'AT180001',
+          pubkey: 'mmtMJVNrauBfzn8sr8E6DXEeLVp6WVg1kT',
+          degreeName: 'Bằng tốt nghiệp đại học',
+          major: 'An Toàn Thông Tin',
+          educationLevel: 'Đại học',
+          graduationRank: 'Giỏi',
+          graduationYear: 2027,
+          issueDate: '2027-06-30',
+          diplomaNumber: 'KMA-2027-0001',
+          trainingMode: 'Chính quy',
+        },
+        'maker-a',
+      ),
+    ).rejects.toBeInstanceOf(ConflictException);
   });
 
   it('truy vấn ví Student bằng userId thay vì recipientName', async () => {
@@ -80,6 +140,14 @@ describe('IssuanceService student identity mapping', () => {
           {
             studentCode: 'AT999999',
             pubkey: 'mmtMJVNrauBfzn8sr8E6DXEeLVp6WVg1kT',
+            degreeName: 'Bằng tốt nghiệp đại học',
+      major: 'An Toàn Thông Tin',
+      educationLevel: 'Đại học',
+      graduationRank: 'Giỏi',
+      graduationYear: 2027,
+      issueDate: '2027-06-30',
+      diplomaNumber: 'KMA-2027-9999',
+      trainingMode: 'Chính quy',
           },
         ],
         'maker-a',

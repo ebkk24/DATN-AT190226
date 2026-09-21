@@ -129,8 +129,12 @@ export default function Checker() {
             />
             <div className="record-main">
               <strong>{record.recipientName}</strong>
-              <span className="mono muted">{record.identity || record.id}</span>
-              <span className="mono small break-word">{record.pubkey}</span>
+              <span className="mono muted">{record.studentCode || record.identity || record.id}</span>
+              <span><b>{record.degreeName || "Văn bằng cũ"}</b> · {record.major || "Chưa có ngành"}</span>
+              <span className="small">Trình độ: {record.educationLevel || "—"} · Xếp loại: {record.graduationRank || "—"} · Năm: {record.graduationYear || "—"}</span>
+              <span className="small">Ngày sinh: {record.studentDateOfBirth || "—"} · Email: {record.studentEmail || "—"} · Niên khóa: {record.cohort || "—"}</span>
+              <span className="small">Ngày cấp: {record.issueDate || "—"} · Số hiệu: <b>{record.diplomaNumber || "—"}</b> · Hình thức: {record.trainingMode || "—"}</span>
+              <span className="mono small break-word">Địa chỉ nhận: {record.pubkey || "—"}</span>
             </div>
             <div className="record-actions">
               <button className="button primary small-button" onClick={() => void approveOne(record.id)} disabled={busy}>

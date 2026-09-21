@@ -32,6 +32,7 @@ export class VerificationService {
   }
 
   async verify(dto: VerifyCertificateDto): Promise<Record<string, any>> {
+    const businessData = this.businessData(dto.certificate);
     const subjectId = String(dto.certificate?.credentialSubject?.id || '');
     if (
       !/^ecdsa-koblitz-pubkey:[mn2][1-9A-HJ-NP-Za-km-z]{25,34}$/.test(subjectId)
@@ -44,8 +45,9 @@ export class VerificationService {
         },
         anchorVerification: null,
       };
-      await this.persist(dto, invalid);
-      return invalid;
+      const enriched = { ...invalid, ...businessData };
+      await this.persist(dto, enriched);
+      return enriched;
     }
     const projectRoot = this.projectRoot();
     const tmpDir = `${projectRoot}/backend/.verify-tmp`;
@@ -87,20 +89,22 @@ export class VerificationService {
               certificateVerification: result.certificateVerification || null,
               anchorVerification: result.anchorVerification || null,
             };
-            await this.persist(dto, revokedResult);
-            return revokedResult;
+            const enriched = { ...revokedResult, ...businessData };
+            await this.persist(dto, enriched);
+            return enriched;
           }
         }
       }
       this.logger.log(`Verify done -> ${result.status}`);
-      await this.persist(dto, result);
-      return result;
+      const enriched = { ...result, ...businessData };
+      await this.persist(dto, enriched);
+      return enriched;
     } catch (err: any) {
       // docker tra loi error tren stderr; ta van thu parse stdout neu co
       const out = err?.stdout?.toString?.() || '';
       if (out.trim()) {
         try {
-          return JSON.parse(out.trim());
+          return { ...JSON.parse(out.trim()), ...businessData };
         } catch {
           /* ignore */
         }
@@ -111,11 +115,33 @@ export class VerificationService {
         error: 'Khong the goi Verification Service',
         detail: err?.message || String(err),
       };
-      await this.persist(dto, fallback);
-      return fallback;
+      const enriched = { ...fallback, ...businessData };
+      await this.persist(dto, enriched);
+      return enriched;
     } finally {
       await fs.rm(hostPath, { force: true });
     }
+  }
+
+  private businessData(cert: Record<string, any>): Record<string, any> {
+    const subject = cert?.credentialSubject || {};
+    const certId = String(cert?.id || cert?.['@id'] || '');
+    return {
+      recipientName: subject.name,
+      certUid: certId.startsWith('urn:uuid:') ? certId.slice(9) : certId || undefined,
+      studentCode: subject.studentCode,
+      dateOfBirth: subject.dateOfBirth,
+      email: subject.email,
+      cohort: subject.cohort,
+      degreeName: subject.degreeName,
+      major: subject.major,
+      educationLevel: subject.educationLevel,
+      graduationRank: subject.graduationRank,
+      graduationYear: subject.graduationYear,
+      issueDate: subject.issueDate,
+      diplomaNumber: subject.diplomaNumber,
+      trainingMode: subject.trainingMode,
+    };
   }
 
   private extractCertId(cert: Record<string, any>): string | null {

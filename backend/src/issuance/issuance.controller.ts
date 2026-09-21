@@ -92,6 +92,13 @@ export class IssuanceController {
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('maker')
+  @Get('students/:studentCode')
+  studentProfile(@Param('studentCode') studentCode: string) {
+    return this.svc.studentProfile(studentCode);
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('maker', 'checker')
   @Get(':id')
   status(@Param('id') id: string) {

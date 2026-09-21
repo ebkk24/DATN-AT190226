@@ -14,7 +14,8 @@ export type AuditAction =
   | 'issue'
   | 'revoke'
   | 'verify'
-  | 'repair';
+  | 'repair'
+  | 'update_profile';
 
 @Entity('audit_logs')
 export class AuditLog {

@@ -157,7 +157,17 @@ export default function App() {
                 </div>
                 <dl className="result-details">
                   {result.recipientName && <div><dt>Người nhận</dt><dd>{result.recipientName}</dd></div>}
-                  {result.issuedOn && <div><dt>Ngày phát hành</dt><dd>{formatDate(result.issuedOn)}</dd></div>}
+                  {result.studentCode && <div><dt>Mã sinh viên</dt><dd className="mono">{result.studentCode}</dd></div>}
+                  {result.dateOfBirth && <div><dt>Ngày sinh</dt><dd>{result.dateOfBirth}</dd></div>}
+                  {result.email && <div><dt>Email</dt><dd>{result.email}</dd></div>}
+                  {result.cohort && <div><dt>Niên khóa</dt><dd>{result.cohort}</dd></div>}
+                  {result.degreeName && <div><dt>Tên văn bằng</dt><dd>{result.degreeName}</dd></div>}
+                  {result.major && <div><dt>Ngành</dt><dd>{result.major}</dd></div>}
+                  {result.educationLevel && <div><dt>Trình độ / xếp loại</dt><dd>{result.educationLevel} · {result.graduationRank || "—"}</dd></div>}
+                  {result.graduationYear && <div><dt>Năm tốt nghiệp</dt><dd>{result.graduationYear}</dd></div>}
+                  {result.diplomaNumber && <div><dt>Số hiệu văn bằng</dt><dd className="mono">{result.diplomaNumber}</dd></div>}
+                  {result.trainingMode && <div><dt>Hình thức đào tạo</dt><dd>{result.trainingMode}</dd></div>}
+                  {(result.issueDate || result.issuedOn) && <div><dt>Ngày cấp</dt><dd>{result.issueDate || formatDate(result.issuedOn)}</dd></div>}
                   {result.certUid && <div><dt>Mã chứng thư</dt><dd className="mono">{result.certUid}</dd></div>}
                   {result.txid && <div className="full-row"><dt>Giao dịch blockchain</dt><dd className="mono">{result.txid}</dd></div>}
                 </dl>

@@ -1,9 +1,13 @@
 import {
+  IsDateString,
+  IsEmail,
   IsIn,
   IsNotEmpty,
   IsString,
   Matches,
   ValidateIf,
+  IsOptional,
+  Length,
 } from 'class-validator';
 import { Transform, TransformFnParams } from 'class-transformer';
 
@@ -33,6 +37,25 @@ export class RegisterDto {
       'studentCode chỉ gồm 2-50 ký tự chữ, số, dấu chấm, gạch dưới hoặc gạch ngang',
   })
   studentCode?: string;
+
+  @ValidateIf((value: RegisterDto) => value.role === 'student')
+  @IsDateString({ strict: true }, { message: 'dateOfBirth phải là ngày ISO hợp lệ dạng YYYY-MM-DD' })
+  dateOfBirth?: string;
+
+  @ValidateIf((value: RegisterDto) => value.role === 'student')
+  @IsEmail() @Length(3, 255)
+  email?: string;
+
+  @ValidateIf((value: RegisterDto) => value.role === 'student')
+  @IsString() @Matches(/^\d{4} - \d{4}$/, { message: 'cohort phải có dạng 2022 - 2027' })
+  cohort?: string;
+}
+
+export class UpdateStudentProfileDto {
+  @IsOptional() @IsString() @IsNotEmpty() recipientName?: string;
+  @IsOptional() @IsDateString({ strict: true }, { message: 'dateOfBirth phải là ngày ISO hợp lệ dạng YYYY-MM-DD' }) dateOfBirth?: string;
+  @IsOptional() @IsEmail() @Length(3, 255) email?: string;
+  @IsOptional() @IsString() @Matches(/^\d{4} - \d{4}$/) cohort?: string;
 }
 
 export class LoginDto {

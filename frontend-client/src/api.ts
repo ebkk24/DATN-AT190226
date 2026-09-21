@@ -15,6 +15,18 @@ export interface HolderCertificate {
   id: string;
   certUid: string;
   recipientName: string;
+  studentCode?: string | null;
+  studentDateOfBirth?: string | null;
+  studentEmail?: string | null;
+  cohort?: string | null;
+  degreeName?: string | null;
+  major?: string | null;
+  educationLevel?: string | null;
+  graduationRank?: string | null;
+  graduationYear?: number | null;
+  issueDate?: string | null;
+  diplomaNumber?: string | null;
+  trainingMode?: string | null;
   txid?: string;
   status?: string;
   certificate?: {

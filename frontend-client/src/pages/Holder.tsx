@@ -105,10 +105,15 @@ export default function Holder({ username, onLogout }: { username: string; onLog
                   </div>
                   <div className="certificate-body">
                     <p className="eyebrow">CHỨNG THƯ BLOCKCERTS</p>
-                    <h2>{certificate.certificate?.name || "Văn bằng số"}</h2>
+                    <h2>{certificate.degreeName || certificate.certificate?.name || "Văn bằng số"}</h2>
                     <p className="recipient-name">{certificate.recipientName}</p>
+                    <p className="muted">{certificate.studentCode || "Hồ sơ cũ"} · {certificate.major || "Chưa có ngành"} · Niên khóa {certificate.cohort || "—"}</p>
                     <div className="certificate-meta">
-                      <div><span>Ngày cấp</span><strong>{formatDate(certificate.certificate?.issuanceDate)}</strong></div>
+                      <div><span>Trình độ / xếp loại</span><strong>{certificate.educationLevel || "—"} · {certificate.graduationRank || "—"}</strong></div>
+                      <div><span>Năm tốt nghiệp</span><strong>{certificate.graduationYear || "—"}</strong></div>
+                      <div><span>Ngày cấp</span><strong>{certificate.issueDate || formatDate(certificate.certificate?.issuanceDate)}</strong></div>
+                      <div><span>Số hiệu văn bằng</span><strong className="mono">{certificate.diplomaNumber || "—"}</strong></div>
+                      <div><span>Hình thức đào tạo</span><strong>{certificate.trainingMode || "—"}</strong></div>
                       <div><span>Mã chứng thư</span><strong className="mono" title={certificate.certUid}>{shorten(certificate.certUid)}</strong></div>
                     </div>
                     <div className="proof-row"><Icon name="chain" /><span><small>Giao dịch neo blockchain</small><strong className="mono" title={certificate.txid}>{shorten(certificate.txid, 26)}</strong></span></div>

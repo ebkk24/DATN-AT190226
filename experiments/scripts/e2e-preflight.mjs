@@ -44,7 +44,17 @@ const maker = await login(accounts.maker);
 const student = await login(accounts.student);
 const studentTwin = await login(accounts.studentTwin);
 const issueStart = Date.now();
-const request = await call("/api/issue/request", { method: "POST", token: maker, body: { studentCode: accounts.student.studentCode, pubkey: process.env.ISSUING_ADDRESS, identity: `e2e-${accounts.runId}@example.invalid` } });
+const business = {
+  degreeName: "Bằng tốt nghiệp đại học",
+  major: "An Toàn Thông Tin",
+  educationLevel: "Đại học",
+  graduationRank: "Giỏi",
+  graduationYear: 2026,
+  issueDate: "2026-09-21",
+  diplomaNumber: `KMA-E2E-${Date.now()}`,
+  trainingMode: "Chính quy",
+};
+const request = await call("/api/issue/request", { method: "POST", token: maker, body: { studentCode: accounts.student.studentCode, pubkey: process.env.ISSUING_ADDRESS, identity: `e2e-${accounts.runId}@example.invalid`, ...business } });
 assert(request.status === 201 && request.body?.id, `Maker lập phiếu lỗi ${request.status}`);
 const id = request.body.id;
 const makerApprove = await call(`/api/issue/${id}/approve`, { method: "POST", token: maker, body: {} });
@@ -67,6 +77,8 @@ assert(fs.existsSync(certPath), "Không tìm thấy JSON chứng thư đã phát
 const certificate = JSON.parse(fs.readFileSync(certPath, "utf8"));
 assert(certificate.proof?.verificationMethod === `${base}/api/blockcerts/issuers/kma/profile.json`, "verificationMethod chưa dùng Issuer Profile ổn định");
 assert(certificate.issuer === `${base}/api/blockcerts/issuers/kma/profile.json`, "issuer chưa dùng Issuer Profile ổn định");
+for (const [key, value] of Object.entries(business)) assert(String(certificate.credentialSubject?.[key]) === String(value), `Credential sai trường ${key}`);
+assert(certificate.credentialSubject?.studentCode === accounts.student.studentCode, "Credential sai studentCode snapshot");
 const original = await call("/api/verify", { method: "POST", body: { certificate } });
 assert(original.status === 201 && original.body?.status === "VALID", `Chứng thư gốc không VALID: ${original.body?.status}`);
 const modifiedRecipient = structuredClone(certificate);
@@ -88,6 +100,8 @@ for (const [name, cert] of Object.entries({ recipientName: modifiedRecipient, cr
 }
 const holder = await call("/api/issue/holder/certificates", { token: student });
 assert(holder.status === 200 && Array.isArray(holder.body) && holder.body.some((x) => x.id === id), "Holder không thấy chứng thư của mình");
+const holderRow = holder.body.find((x) => x.id === id);
+assert(holderRow.diplomaNumber === business.diplomaNumber && holderRow.studentCode === accounts.student.studentCode, "Holder thiếu dữ liệu nghiệp vụ hoặc sai chủ sở hữu");
 const twinHolder = await call("/api/issue/holder/certificates", { token: studentTwin });
 assert(twinHolder.status === 200 && Array.isArray(twinHolder.body) && !twinHolder.body.some((x) => x.id === id), "Student trùng họ tên nhìn thấy nhầm chứng thư");
 const studentRevoke = await call(`/api/revoke/${id}`, { method: "POST", token: student, body: { reason: "RBAC test" } });

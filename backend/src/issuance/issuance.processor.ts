@@ -353,7 +353,7 @@ export class IssuanceProcessor extends WorkerHost {
     }
 
     const nonceToRow = new Map<string, IssuedCertificate>();
-    const rosterLines = ['name,pubkey,identity,recipient_name,nonce'];
+    const rosterLines = ['name,pubkey,identity,recipient_name,student_code,date_of_birth,email,cohort,degree_name,major,education_level,graduation_rank,graduation_year,issue_date,diploma_number,training_mode,nonce'];
     for (const row of rows) {
       const nonce = this.stableNonce(batchId, row.id);
       nonceToRow.set(nonce, row);
@@ -365,6 +365,18 @@ export class IssuanceProcessor extends WorkerHost {
             : `ecdsa-koblitz-pubkey:${row.pubkey}`,
           row.identity || '',
           row.recipientName,
+          row.studentCode || '',
+          row.studentDateOfBirth || '',
+          row.studentEmail || '',
+          row.cohort || '',
+          row.degreeName || '',
+          row.major || '',
+          row.educationLevel || '',
+          row.graduationRank || '',
+          String(row.graduationYear || ''),
+          row.issueDate || '',
+          row.diplomaNumber || '',
+          row.trainingMode || '',
           nonce,
         ]
           .map((value) => this.csvCell(value))

@@ -44,6 +44,9 @@ export default function Records() {
         record.id,
         record.certUid,
         record.txid,
+        record.studentCode,
+        record.diplomaNumber,
+        record.degreeName,
       ].some((value) => String(value || "").toLowerCase().includes(keyword));
       return matchesStatus && matchesText;
     });
@@ -102,6 +105,7 @@ export default function Records() {
             <thead>
               <tr>
                 <th>Người nhận</th>
+                <th>Văn bằng</th>
                 <th>Trạng thái</th>
                 <th>Người duyệt</th>
                 <th>Txid phát hành</th>
@@ -111,14 +115,16 @@ export default function Records() {
             </thead>
             <tbody>
               {!filtered.length && (
-                <tr><td colSpan={6}><div className="empty-state compact">Không tìm thấy văn bằng phù hợp.</div></td></tr>
+                <tr><td colSpan={7}><div className="empty-state compact">Không tìm thấy văn bằng phù hợp.</div></td></tr>
               )}
               {filtered.map((record) => (
                 <tr key={record.id}>
                   <td>
                     <strong>{record.recipientName}</strong>
-                    <span className="table-sub mono">{record.identity || record.id.slice(0, 8)}</span>
+                    <span className="table-sub mono">{record.studentCode || record.identity || record.id.slice(0, 8)}</span>
+                    <span className="table-sub">{record.cohort || "—"}</span>
                   </td>
+                  <td><strong>{record.degreeName || "Văn bằng cũ"}</strong><span className="table-sub">{record.major || "—"} · {record.graduationRank || "—"}</span><span className="table-sub mono">{record.diplomaNumber || "—"}</span></td>
                   <td>
                     <span className={`status-chip ${record.status}`}>
                       {labels[record.status] || record.status}

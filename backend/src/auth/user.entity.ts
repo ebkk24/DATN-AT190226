@@ -29,6 +29,15 @@ export class User {
   @Column({ type: 'varchar', length: 50, nullable: true, unique: true })
   studentCode?: string | null;
 
+  @Column({ type: 'date', nullable: true })
+  dateOfBirth?: string | null;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  email?: string | null;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  cohort?: string | null;
+
   @CreateDateColumn()
   createdAt: Date;
 }

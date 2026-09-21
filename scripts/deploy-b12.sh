@@ -4,7 +4,6 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 cd "$ROOT/backend"
 npm run build
-npm run migration:run
 
 for pair in "frontend-client:student" "frontend-admin:admin" "frontend-verify:verify"; do
   app="${pair%%:*}"
@@ -15,6 +14,21 @@ for pair in "frontend-client:student" "frontend-admin:admin" "frontend-verify:ve
   mkdir -p "$ROOT/deploy/www/$target"
   cp -a dist/. "$ROOT/deploy/www/$target/"
 done
+
+# Dừng API trong cửa sổ migration để phiên bản cũ không ghi bản ghi audit
+# thiếu hash giữa lúc migration thêm ràng buộc NOT NULL.
+cd "$ROOT/backend"
+backend_was_active=0
+if systemctl --user is-active --quiet datn-blockcerts-backend.service; then
+  backend_was_active=1
+  systemctl --user stop datn-blockcerts-backend.service
+fi
+if ! npm run migration:run; then
+  if [ "$backend_was_active" -eq 1 ]; then
+    systemctl --user start datn-blockcerts-backend.service
+  fi
+  exit 1
+fi
 
 mkdir -p "/home/khai/DATN_work/datn-blockcerts/deploy/runtime/client_body" "/home/khai/DATN_work/datn-blockcerts/deploy/runtime/proxy_temp"
 systemctl --user daemon-reload

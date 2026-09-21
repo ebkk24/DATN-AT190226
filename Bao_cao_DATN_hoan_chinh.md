@@ -426,17 +426,17 @@ Thu hồi có hai dấu vết: transaction Bitcoin và chỉ mục DB/Revocation
 
 ### 2.8.1. Bảng `users`
 
-Bảng lưu `id`, `username` duy nhất, `passwordHash`, `role`, `recipientName` tùy chọn và `createdAt`. `recipientName` là liên kết mềm giữa tài khoản Student và chứng thư. Cách này đủ cho nguyên mẫu nhưng có nguy cơ trùng tên; phiên bản tiếp theo cần `studentCode` ổn định và ràng buộc rõ ràng.
+Bảng lưu `id`, `username` duy nhất, `passwordHash`, `role`, `studentCode` và `recipientName` tùy chọn cùng `createdAt`. `studentCode` là định danh nghiệp vụ duy nhất; chứng thư liên kết tới tài khoản Student bằng khóa ngoại `studentId`, còn `recipientName` chỉ là dữ liệu hiển thị, không dùng để quyết định quyền sở hữu.
 
 ### 2.8.2. Bảng `issued_certificates`
 
-Mỗi dòng vừa là yêu cầu nghiệp vụ vừa là chứng thư sau phát hành. Nhóm đầu vào gồm `recipientName`, `pubkey`, `identity`; nhóm blockchain gồm `certUid`, `txid`, `merkleRoot`, `batchId`; nhóm Maker–Checker gồm `requestedBy`, `approvedBy`, `rejectedBy`, `rejectReason`; nhóm trạng thái gồm `status`, `errorMessage`; nhóm thu hồi gồm `revocationTxid`, `revokedBy`, `revokeReason`, `revokedAt`.
+Mỗi dòng vừa là yêu cầu nghiệp vụ vừa là chứng thư sau phát hành. Nhóm đầu vào gồm dữ liệu văn bằng và khóa ngoại `studentId`; nhóm blockchain gồm `certUid`, `txid`, `merkleRoot`, `batchId`; nhóm Maker–Checker gồm `requestedBy`, `approvedBy`, `rejectedBy`, `rejectReason`; nhóm trạng thái gồm `status`, `errorMessage`; nhóm thu hồi gồm `revocationTxid`, raw transaction/txid checkpoint, số lần thử, người thực hiện, lý do và thời điểm.
 
-Thiết kế một bảng làm giảm số phép nối và phù hợp nguyên mẫu, nhưng làm trộn dữ liệu yêu cầu với artifact phát hành. Khi mở rộng, nên tách `issuance_requests`, `batches` và `certificates`, thêm khóa ngoại tới student/user và quy tắc duy nhất theo định danh ổn định.
+Thiết kế một bảng làm giảm số phép nối và phù hợp nguyên mẫu nhưng vẫn trộn dữ liệu yêu cầu với artifact phát hành. Hệ thống hiện đã liên kết Student bằng khóa ngoại và dùng `studentCode` duy nhất toàn hệ thống; khi mở rộng vẫn nên tách `issuance_requests`, `batches`, `certificates` và `revocation_requests`.
 
 ### 2.8.3. `verification_logs` và `audit_logs`
 
-`verification_logs` lưu `certId`, trạng thái, kết quả verifier, kết quả adapter, confirmation, phản hồi thô và thời gian. `audit_logs` lưu action, actor, role, target, detail, txid và thời gian. Verification log phục vụ phân tích kỹ thuật; audit log phục vụ truy trách nhiệm nghiệp vụ. Cả hai nằm trong DB nên phải có kiểm soát truy cập, backup và chính sách lưu giữ; chúng không tự bất biến chỉ vì hệ thống có blockchain.
+`verification_logs` lưu `certId`, trạng thái, kết quả verifier, kết quả adapter, confirmation, phản hồi thô và thời gian. `audit_logs` lưu action, actor, role, target, detail, txid và thời gian; mỗi dòng còn có `previousHash` và `entryHash` để tạo chuỗi hash SHA-256, cho phép phát hiện sửa/xóa ở giữa chuỗi qua endpoint kiểm tra toàn vẹn. Cơ chế này chỉ mang tính tamper-evident: DBA vẫn có thể viết lại toàn bộ chuỗi hoặc xóa phần đuôi nếu không đối chiếu head hash với kho log ngoài hệ thống. Vì vậy vẫn cần kiểm soát truy cập, backup và hệ thống log append-only độc lập khi triển khai production.
 
 Bảng 2.4. Mô hình dữ liệu chính
 
@@ -627,7 +627,7 @@ Trong đó `T_batch` là thời gian từ duyệt đến phát hành hoàn tất
 
 ### 3.7.2. Kiểm thử tự động và chất lượng mã
 
-Backend có 5 test suite với 8/8 test đạt: controller cơ bản; ba trường hợp RolesGuard; DTO phát hành; Issuer Profile/Revocation List; và semantic `credentialSubject.id`. Cả ba frontend build và lint thành công. `npm audit` của backend và ba frontend không phát hiện lỗ hổng tại thời điểm freeze. Kết quả audit dependency không đồng nghĩa hệ thống không có lỗ hổng logic hoặc cấu hình.
+Backend có 10 test suite với 31/31 test đạt, gồm RBAC, DTO, issuance outbox/checkpoint/recovery, revocation checkpoint/reconciliation, audit hash chain, verifier và issuer profile. Bộ safe-fetch có 10/10 ca SSRF đạt. Cả ba frontend build thành công; `npm audit --omit=dev` của backend và ba frontend không phát hiện lỗ hổng tại thời điểm kiểm tra. Kết quả này không đồng nghĩa hệ thống không có lỗ hổng logic hoặc cấu hình.
 
 ## 3.8. Kết quả Kịch bản 1 – tính toàn vẹn và Maker–Checker
 
@@ -747,17 +747,17 @@ Bảng 3.8. Đối chiếu yêu cầu và bằng chứng
 | Chỉ Checker thu hồi | S3-02 đến S3-04 | Đạt |
 | Verify nhận biết thu hồi | S3-05 đến S3-07 | Đạt |
 | Audit actor/action | S3-08 | Đạt |
-| Build/test/health | 8/8 test; 3 frontend; `HEALTH_OK` | Đạt |
+| Build/test/health | 31/31 backend test; 10/10 SSRF test; 3 frontend; `HEALTH_OK` | Đạt |
 
 ### 3.11.2. Hạn chế
 
-Thứ nhất, regtest không phản ánh phí, độ trễ và kinh tế an ninh của mainnet. Thứ hai, thử nghiệm chạy trên một VPS và ba lần lặp mỗi kích thước; chưa đại diện tải dài hạn hoặc hệ thống phân tán nhiều node. Thứ ba, Student–chứng thư liên kết mềm bằng `recipientName`, có nguy cơ trùng tên. Thứ tư, khóa chưa ở HSM/KMS, chưa có MFA, HTTPS công khai, secret manager và quy trình xoay khóa.
+Thứ nhất, regtest không phản ánh phí, độ trễ và kinh tế an ninh của mainnet. Thứ hai, thử nghiệm chạy trên một VPS và ba lần lặp mỗi kích thước; chưa đại diện tải dài hạn hoặc hệ thống phân tán nhiều node. Thứ ba, khóa chưa ở HSM/KMS, chưa có MFA, HTTPS công khai, secret manager và quy trình xoay khóa. Thứ tư, API và worker vẫn cùng tiến trình; worker có quyền Docker gần tương đương quyền quản trị host.
 
-Thứ năm, Revocation List dựa vào DB; chưa có indexer phục hồi từ blockchain. Thứ sáu, audit DB có thể bị quản trị viên hạ tầng sửa. Thứ bảy, test đơn vị còn ít, chưa bao phủ sâu worker, lỗi RPC, mất kết nối giữa thao tác Bitcoin và cập nhật DB. Thứ tám, lớp chống SSRF của verifier mới chặn một số trường hợp cơ bản, chưa xử lý đầy đủ địa chỉ nội bộ, metadata endpoint và DNS rebinding [23]. Thứ chín, khả năng tương tác với verifier Blockcerts bên ngoài regtest cần tiếp tục đánh giá.
+Thứ năm, Revocation List dựa vào DB; chưa có indexer phục hồi toàn bộ từ blockchain. Thứ sáu, audit hash chain phát hiện sửa cục bộ nhưng DBA vẫn có thể viết lại chuỗi hoặc xóa đuôi nếu head hash không được neo ra kho độc lập. Thứ bảy, issuance/revocation đã có checkpoint, idempotency và reconciliation nhưng chưa có fault-injection bằng cách kill worker đúng thời điểm hoặc kiểm thử tải/concurrency quy mô lớn. Thứ tám, SSRF regression test đã bao phủ loopback, private/link-local/metadata IP, DNS kết quả trộn, redirect, timeout/giới hạn dung lượng; chưa thay thế pentest độc lập. Thứ chín, khả năng tương tác với verifier Blockcerts bên ngoài regtest cần tiếp tục đánh giá.
 
 ### 3.11.3. Hướng phát triển
 
-Cần dùng `studentCode` và khóa ngoại ổn định; tách bảng request/batch/certificate; bổ sung transactional outbox và idempotency; xây indexer thu hồi; đưa khóa vào HSM/KMS; thêm MFA, HTTPS/HSTS, backup/restore, giám sát và kiểm thử xâm nhập. Verifier cần phân giải DNS có kiểm soát, từ chối toàn bộ địa chỉ private/link-local/loopback/metadata sau mỗi lần phân giải và sau chuyển hướng, đồng thời chỉ cho phép hostname/scheme/port đã định trước theo khuyến nghị OWASP [23]. Trước mainnet cần kiểm thử testnet, xác định phí, confirmation policy, quyền riêng tư và trách nhiệm pháp lý. Có thể bổ sung verifier độc lập phía người dùng để giảm phụ thuộc dịch vụ trung tâm.
+Hệ thống đã dùng `studentCode`/khóa ngoại ổn định, transactional outbox và checkpoint/idempotency; bước tiếp theo là tách bảng request/batch/certificate/revocation, bổ sung fault-injection và indexer phục hồi thu hồi, đưa khóa vào HSM/KMS, tách API khỏi worker đặc quyền, thêm MFA, HTTPS/HSTS, backup/restore, giám sát và kiểm thử xâm nhập. Verifier cần phân giải DNS có kiểm soát, từ chối toàn bộ địa chỉ private/link-local/loopback/metadata sau mỗi lần phân giải và sau chuyển hướng, đồng thời chỉ cho phép hostname/scheme/port đã định trước theo khuyến nghị OWASP [23]. Trước mainnet cần kiểm thử testnet, xác định phí, confirmation policy, quyền riêng tư và trách nhiệm pháp lý. Có thể bổ sung verifier độc lập phía người dùng để giảm phụ thuộc dịch vụ trung tâm.
 
 ## 3.12. Hỏi đáp và tự phản biện
 
@@ -959,7 +959,7 @@ Phần này tổng hợp các câu hỏi có khả năng xuất hiện khi đọ
 
 **Q46: SSRF nguy hiểm ở đâu trong cổng Verify?**
 
-**A:** Chứng thư có thể chứa URL do người dùng kiểm soát khiến verifier truy cập loopback, metadata cloud hoặc mạng nội bộ. Cần allowlist giao thức, chặn dải IP riêng/đặc biệt sau phân giải DNS, chống DNS rebinding, giới hạn redirect, thời gian, dung lượng và cô lập tiến trình verifier.
+**A:** Chứng thư có thể chứa URL do người dùng kiểm soát khiến verifier truy cập loopback, metadata cloud hoặc mạng nội bộ. Verifier hiện chỉ cho HTTPS, chặn dải IP riêng/đặc biệt sau mọi lần phân giải DNS và redirect, ghim IP, giới hạn redirect, thời gian và dung lượng; bộ regression test bao phủ các trường hợp chính. Cô lập mạng/tiến trình và allowlist miền hẹp hơn vẫn là biện pháp production nên bổ sung.
 
 **Q47: Tải lên JSON có thể dẫn đến thực thi mã không?**
 
@@ -967,7 +967,7 @@ Phần này tổng hợp các câu hỏi có khả năng xuất hiện khi đọ
 
 **Q48: Audit log có thể bị quản trị viên sửa không?**
 
-**A:** Trong nguyên mẫu, audit nằm trong PostgreSQL nên tài khoản đặc quyền có thể tác động. Production nên dùng append-only/WORM hoặc chuyển log có chữ ký sang hệ thống SIEM độc lập, đồng bộ thời gian và cảnh báo khi có khoảng trống.
+**A:** Có. Chuỗi hash SHA-256 hiện tại giúp phát hiện một dòng bị sửa/xóa ở giữa chuỗi, nhưng quản trị viên cơ sở dữ liệu vẫn có thể viết lại toàn bộ chuỗi hoặc xóa phần đuôi. Production phải định kỳ xuất/neo head hash sang kho append-only/WORM hoặc SIEM độc lập, đồng bộ thời gian và cảnh báo khi có khoảng trống.
 
 **Q49: Rate limiting có chống được DDoS không?**
 
@@ -997,7 +997,7 @@ Phần này tổng hợp các câu hỏi có khả năng xuất hiện khi đọ
 
 **Q55: Làm sao tránh phát hành trùng khi worker chạy lại?**
 
-**A:** Mỗi yêu cầu cần idempotency key, khóa/trạng thái chuyển đổi nguyên tử và kiểm tra artifact/giao dịch đã tồn tại trước khi broadcast. Cơ chế retry phải phân biệt lỗi trước và sau broadcast vì retry mù sau broadcast có thể tạo giao dịch thứ hai.
+**A:** Issuance hiện dùng `batchId`/`jobId` ổn định, transactional outbox, checkpoint raw transaction/txid và đối soát on-chain; revocation cũng lưu checkpoint trước broadcast và khóa advisory. Retry chỉ kiểm tra hoặc phát lại đúng raw transaction cũ, không tạo giao dịch mới một cách mù quáng.
 
 **Q56: Một lô quá lớn có vấn đề gì?**
 

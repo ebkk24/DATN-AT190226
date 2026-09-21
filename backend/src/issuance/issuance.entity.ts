@@ -12,6 +12,8 @@ export type IssuanceStatus =
   | 'queued'
   | 'processing'
   | 'issued'
+  | 'revocation_pending'
+  | 'revocation_reconciliation_required'
   | 'revoked'
   | 'failed';
 
@@ -105,6 +107,22 @@ export class IssuedCertificate {
 
   @Column({ type: 'varchar', length: 64, nullable: true })
   revocationTxid?: string | null;
+
+  // Checkpoint được lưu trước khi broadcast để retry không tạo giao dịch mới.
+  @Column({ type: 'varchar', length: 64, nullable: true })
+  revocationIntentTxid?: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  revocationRawTransaction?: string | null;
+
+  @Column({ type: 'timestamp with time zone', nullable: true })
+  revocationPreparedAt?: Date | null;
+
+  @Column({ type: 'integer', default: 0 })
+  revocationAttemptCount: number;
+
+  @Column({ type: 'text', nullable: true })
+  revocationError?: string | null;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   revokedBy?: string | null;

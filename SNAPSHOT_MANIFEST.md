@@ -9,6 +9,8 @@ Snapshot sạch của đồ án **DATN-AT190226**, được tạo từ mã ngu�
 - Ba giao diện React/Vite: quản trị, sinh viên và xác minh công khai.
 - Cấu hình Docker Compose, Nginx và tệp môi trường mẫu.
 - Tích hợp Blockcerts V3, Bitcoin Core regtest, PostgreSQL và Redis.
+- Transactional outbox/checkpoint cho issuance; checkpoint, advisory lock và reconciliation cho revocation.
+- Audit hash chain có endpoint kiểm tra toàn vẹn; SSRF guard và CSP mẫu cho cổng xác minh.
 - Kịch bản cùng kết quả thực nghiệm chính thức `b12-frozen-20260912-r2`.
 - Báo cáo hoàn chỉnh ở định dạng Markdown, DOCX, PDF và hình minh họa.
 - Phần Q&A/tự phản biện gồm 82 câu về chi phí mainnet, mật mã, quyền riêng tư, pháp lý, bảo mật, vận hành và giới hạn thực nghiệm.

@@ -40,6 +40,12 @@ export class AuditLog {
   @Column({ type: 'varchar', length: 64, nullable: true })
   txid?: string | null;
 
+  @Column({ type: 'varchar', length: 64, nullable: true })
+  previousHash?: string | null;
+
+  @Column({ type: 'varchar', length: 64 })
+  entryHash: string;
+
   @CreateDateColumn()
   createdAt: Date;
 }

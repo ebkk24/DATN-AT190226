@@ -115,7 +115,7 @@ Backend NestJS là điểm điều phối trung tâm và cung cấp REST API. C�
 | `issuer/` | Công bố Issuer Profile và Revocation List theo URL Blockcerts |
 | `verification/` | Điều phối Verifier Service, chuẩn hóa kết quả và lưu lịch sử xác minh |
 | `revocation/` | Thu hồi chứng thư, ghi bằng chứng thu hồi và trả trạng thái thu hồi |
-| `audit/` | Lưu dấu vết đăng nhập, tạo yêu cầu, phê duyệt, phát hành, xác minh và thu hồi |
+| `audit/` | Lưu dấu vết nghiệp vụ theo chuỗi hash SHA-256 và cung cấp kiểm tra toàn vẹn; không thay thế kho log ngoài hệ thống |
 | `config/` và `migrations/` | Cấu hình kết nối và quản lý lược đồ PostgreSQL |
 
 Backend áp dụng:
@@ -255,11 +255,11 @@ Quá trình xác minh gồm nhiều lớp kiểm tra:
 
 Checker chỉ được thu hồi chứng thư đang ở trạng thái `issued`. Khi thu hồi:
 
-1. Backend tạo giao dịch Bitcoin regtest chứa thông điệp `REVOKE:<certUid>` trong `OP_RETURN`.
-2. `txid` thu hồi, lý do, người thực hiện và thời điểm được lưu vào PostgreSQL.
-3. Trạng thái nghiệp vụ chuyển thành `revoked`.
-4. Issuer Revocation List công bố trạng thái để công cụ xác minh Blockcerts có thể tra cứu.
-5. API Verify đối chiếu trạng thái thu hồi trước khi trả kết quả cuối.
+1. Backend khóa tuần tự luồng thu hồi, chuyển trạng thái sang `revocation_pending` và tạo giao dịch đã ký.
+2. Raw transaction và `txid` dự kiến được checkpoint vào PostgreSQL **trước khi broadcast**.
+3. Backend broadcast đúng raw transaction đã checkpoint; nếu timeout/crash, reconciliation kiểm tra `txid` trên chain hoặc phát lại chính raw transaction đó, không tạo giao dịch mới.
+4. Chỉ sau khi xác nhận đúng `OP_RETURN` chứa `REVOKE:<certUid>`, trạng thái mới chuyển thành `revoked` và lưu lý do/người thực hiện/thời điểm.
+5. Issuer Revocation List và API Verify đối chiếu trạng thái thu hồi trước khi trả kết quả cuối.
 
 PostgreSQL giúp truy vấn nhanh và phục vụ giao diện; giao dịch regtest cung cấp bằng chứng neo bổ sung. Hai lớp phải được hiểu là cơ chế của nguyên mẫu, không phải tuyên bố tương đương một dịch vụ thu hồi production trên Bitcoin mainnet.
 
@@ -279,7 +279,7 @@ PostgreSQL giúp truy vấn nhanh và phục vụ giao diện; giao dịch regte
 Có bốn ranh giới chính cần lưu ý:
 
 1. **Trình duyệt → Backend:** mọi dữ liệu từ frontend đều không đáng tin cậy; backend phải xác thực JWT, role và DTO thay vì tin vào việc ẩn nút trên giao diện.
-2. **Backend → Công cụ Docker:** backend chỉ truyền tệp và tham số cần thiết; đầu ra từ công cụ phải được kiểm tra trước khi ghi `issued`.
+2. **Backend → Công cụ Docker:** backend chỉ truyền tệp và tham số cần thiết; đầu ra từ công cụ phải được kiểm tra trước khi ghi `issued`. Ở bản triển khai một máy hiện tại, worker dùng Docker daemon; quyền thành viên nhóm `docker` về thực tế gần tương đương `root` trên host. Đây là rủi ro được chấp nhận trong nguyên mẫu, không phải ranh giới production an toàn.
 3. **Backend/công cụ → Bitcoin RPC:** RPC có quyền điều khiển ví regtest nên chỉ được mở trên loopback hoặc mạng quản trị tin cậy.
 4. **Khóa phát hành → Hệ thống tệp:** WIF nằm tại `storage/credentials/pk_issuer.txt`, phải có quyền đọc hạn chế và không được đưa vào database, log, frontend hay repository.
 
@@ -301,11 +301,11 @@ JWT bảo vệ danh tính người thao tác nhưng không thay thế chữ ký/
 Đây là kiến trúc nguyên mẫu phục vụ đồ án và thực nghiệm có kiểm soát:
 
 - Bitcoin đang chạy `regtest`, không phải testnet/mainnet.
-- Backend và worker hiện cùng nằm trong một tiến trình NestJS.
+- Backend và worker hiện cùng nằm trong một tiến trình NestJS; user chạy tiến trình cần quyền Docker để gọi công cụ Blockcerts. Bản production phải tách API public khỏi worker đặc quyền, dùng Docker socket proxy/rootless runtime hoặc sandbox tương đương.
 - Công cụ Blockcerts được gọi qua Docker và dùng thư mục runtime cục bộ.
 - PostgreSQL, Redis và Bitcoin Core đang hướng tới mô hình một máy/VPS, chưa phải cụm HA.
 - Chưa có HSM/KMS để quản lý private key.
-- Chưa có bằng chứng đầy đủ cho reorg, tải đồng thời lớn, failover, backup/restore và crash recovery ở mức production.
+- Issuance đã có transactional outbox, job ID ổn định, anchor checkpoint/reconciliation; revocation đã có raw-transaction checkpoint, khóa đồng thời và reconciliation. Các kiểm soát này có unit/E2E test nhưng chưa thay thế fault-injection, reorg, tải đồng thời lớn, failover và backup/restore ở mức production.
 
 Vì vậy kiến trúc đủ để chứng minh quy trình Blockcerts V3, Maker–Checker, Merkle batching, xác minh và thu hồi trong regtest; không nên suy rộng thành hệ thống production-ready nếu chưa hardening và kiểm thử bổ sung.
 
@@ -383,7 +383,7 @@ Phần này giúp chạy API và ba giao diện trên máy cá nhân. Luồng **
 
 ```bash
 git clone https://github.com/ebkk24/DATN-AT190226.git
-cd DATN-AT190226-release
+cd DATN-AT190226
 ```
 
 ### Bước 2 — Tạo tệp cấu hình
@@ -631,7 +631,7 @@ Backend chỉ trả chứng thư khớp danh tính người nhận của Student
 
 ### 7.4. Xác minh công khai
 
-1. Mở trang `/verify` của Maker Portal.
+1. Mở Verify Portal tại `http://127.0.0.1:5175`; nếu dùng Nginx tích hợp, mở `http://<máy-chủ>:8088/verify/`.
 2. Tải lên tệp chứng thư JSON hoặc cung cấp dữ liệu theo giao diện.
 3. Hệ thống kiểm tra chữ ký/nội dung, Merkle proof, Bitcoin anchor và trạng thái thu hồi.
 4. Đọc kết quả:
@@ -654,19 +654,17 @@ Repository **không chứa private key/WIF**. Đây là chủ ý bảo mật. Ch
 
 Các tệp mẫu trong `blockcerts/` chứa địa chỉ của môi trường thí nghiệm đã đóng băng. Khi dựng môi trường mới, phải tạo địa chỉ phát hành mới và cập nhật đồng bộ cấu hình.
 
-### 8.1. Tạo ví và địa chỉ phát hành mới
+### 8.1. Tạo khóa phát hành và ví watch-only mới
 
-Nạp biến môi trường vào shell:
+> **Tương thích Bitcoin Core 31.1:** Core 31.1 không còn hỗ trợ tạo ví legacy bằng `descriptors=false` và RPC `dumpprivkey` không còn tồn tại. Vì `cert-issuer` cần WIF để ký, khóa được sinh cục bộ bằng script độc lập; Bitcoin Core chỉ nhập địa chỉ vào descriptor wallet **watch-only**. Private key không đi vào ví Core.
+
+Nạp biến môi trường và tạo hàm gọi Bitcoin CLI:
 
 ```bash
 set -a
 source .env
 set +a
-```
 
-Tạo hàm gọi Bitcoin CLI:
-
-```bash
 btc() {
   docker compose exec -T bitcoin-core \
     /opt/bitcoin-31.1/bin/bitcoin-cli \
@@ -677,35 +675,43 @@ btc() {
 }
 ```
 
-Tạo ví legacy có private key:
+Sinh WIF và địa chỉ P2PKH dành riêng cho **regtest**. Script từ chối ghi đè khóa cũ và không in WIF ra terminal:
+
+```bash
+python3 scripts/generate-regtest-issuer-key.py
+chmod 600 storage/credentials/pk_issuer.txt
+ISSUING_ADDRESS="$(cat storage/credentials/issuing-address.txt)"
+export ISSUING_ADDRESS
+```
+
+Tạo descriptor wallet không chứa private key và nhập địa chỉ phát hành:
 
 ```bash
 btc -named createwallet \
-  wallet_name=blockcerts_issuer \
-  disable_private_keys=false \
-  blank=false \
-  descriptors=false \
+  wallet_name=cert_issuer_watch \
+  disable_private_keys=true \
+  blank=true \
+  descriptors=true \
   load_on_startup=true
+
+WATCH_DESCRIPTOR="$(
+  btc getdescriptorinfo "addr(${ISSUING_ADDRESS})" \
+    | python3 -c 'import json,sys; print(json.load(sys.stdin)["descriptor"])'
+)"
+export WATCH_DESCRIPTOR
+IMPORT_REQUEST="$(python3 -c 'import json,os; print(json.dumps([{"desc": os.environ["WATCH_DESCRIPTOR"], "timestamp": "now", "active": False}]))')"
+btc -rpcwallet=cert_issuer_watch importdescriptors "$IMPORT_REQUEST"
 ```
 
-Tạo địa chỉ và đào block để có UTXO đã trưởng thành:
+Đào block vào đúng địa chỉ để tạo UTXO đã trưởng thành:
 
 ```bash
-ISSUING_ADDRESS="$(btc -rpcwallet=blockcerts_issuer getnewaddress issuer legacy)"
 btc generatetoaddress 101 "$ISSUING_ADDRESS"
-printf '%s\n' "$ISSUING_ADDRESS"
+btc -rpcwallet=cert_issuer_watch listunspent 1 9999999 \
+  | python3 -c 'import json,sys; rows=json.load(sys.stdin); print({"utxo_count": len(rows), "total": sum(x["amount"] for x in rows)})'
 ```
 
-Xuất WIF vào tệp cục bộ được bảo vệ:
-
-```bash
-mkdir -p storage/credentials
-btc -rpcwallet=blockcerts_issuer dumpprivkey "$ISSUING_ADDRESS" \
-  > storage/credentials/pk_issuer.txt
-chmod 600 storage/credentials/pk_issuer.txt
-```
-
-Không in WIF ra terminal, không đưa WIF vào `.env`, README, báo cáo hoặc Git.
+Đặt `BITCOIN_WALLET=cert_issuer_watch` và `ISSUING_ADDRESS` trong `.env`. Không in WIF, không đưa WIF vào `.env`, README, báo cáo hoặc Git. Sao lưu khóa bằng kênh riêng; mất WIF đồng nghĩa không thể tiếp tục ký từ địa chỉ này.
 
 ### 8.2. Đồng bộ địa chỉ và URL đơn vị cấp
 
@@ -1018,7 +1024,7 @@ Nếu secret từng được commit, xóa file ở commit mới là **chưa đ�
 
 Khuyến nghị khi triển khai:
 
-- Chạy backend bằng người dùng riêng, không dùng `root`.
+- Chạy API bằng người dùng riêng, không dùng `root` và không thuộc nhóm `docker`; tách worker cần Docker sang service/user riêng. Thành viên nhóm `docker` phải được coi là quyền gần tương đương `root`.
 - Giới hạn quyền đọc tệp WIF ở mức `600`.
 - Không công khai PostgreSQL, Redis hoặc Bitcoin RPC.
 - Dùng HTTPS.
@@ -1037,7 +1043,7 @@ Các giới hạn cần hiểu đúng:
 
 - Dữ liệu được sinh/kiểm soát phục vụ thí nghiệm, không phải dữ liệu trường thật.
 - Bitcoin regtest không phản ánh phí, thời gian xác nhận, reorg và điều kiện mainnet.
-- Chưa có bằng chứng đầy đủ cho tải production, nhiều Checker duyệt đồng thời, crash recovery, retry/idempotency và kiểm thử xâm nhập.
+- Đã có bằng chứng unit/E2E cho idempotency, checkpoint và reconciliation của issuance/revocation; chưa có fault-injection bằng cách kill tiến trình đúng thời điểm, tải production, reorg, failover, pentest hoặc nhiều Checker đồng thời ở quy mô lớn.
 - Freeze và SHA-256 chứng minh tính toàn vẹn của artifact sau khi chốt; không tự chứng minh dữ liệu đại diện cho mọi môi trường thực tế.
 
 Cách diễn đạt phù hợp:

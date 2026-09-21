@@ -6,6 +6,8 @@ const labels: Record<IssuanceStatus, string> = {
   queued: "Trong hàng đợi",
   processing: "Đang phát hành",
   issued: "Đã cấp",
+  revocation_pending: "Đang chuẩn bị thu hồi",
+  revocation_reconciliation_required: "Đang đối soát thu hồi",
   revoked: "Đã thu hồi",
   rejected: "Đã từ chối",
   failed: "Thất bại",

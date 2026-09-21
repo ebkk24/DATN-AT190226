@@ -11,6 +11,8 @@ export type IssuanceStatus =
   | "queued"
   | "processing"
   | "issued"
+  | "revocation_pending"
+  | "revocation_reconciliation_required"
   | "revoked"
   | "rejected"
   | "failed";

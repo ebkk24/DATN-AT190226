@@ -4,6 +4,7 @@
   "private": true,
   "description": "Dịch vụ xác minh tổng hợp chứng thư Blockcerts",
   "scripts": {
-    "verify": "node src/verify-certificate.cjs"
+    "verify": "node src/verify-certificate.cjs",
+    "test": "node --test test/*.test.cjs"
   }
 }

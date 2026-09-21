@@ -1,6 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
+const { createSafeFetch } = require('./safe-fetch.cjs');
 
 const root = process.cwd();
 const certificateArgument = process.argv[2];
@@ -28,22 +29,44 @@ const nativeFetch = globalThis.fetch;
 function httpsVersion(url) {
   return url.startsWith('http://') ? 'https://' + url.slice(7) : url;
 }
-const allowedProfileUrls = new Set([profile.id, httpsVersion(profile.id)]);
-const allowedRevocationUrls = [profile.revocationList, httpsVersion(profile.revocationList)];
+
+function normalizedUrl(value) {
+  const url = new URL(value);
+  url.hash = '';
+  return url.href;
+}
+
+const allowedProfileUrls = new Set(
+  [profile.id, httpsVersion(profile.id)].map(normalizedUrl)
+);
+const allowedRevocationUrls = [profile.revocationList, httpsVersion(profile.revocationList)].map(function (value) {
+  return new URL(value);
+});
+const safeRemoteFetch = createSafeFetch({
+  maxBytes: Number(process.env.VERIFIER_REMOTE_MAX_BYTES || 1024 * 1024),
+  timeoutMs: Number(process.env.VERIFIER_REMOTE_TIMEOUT_MS || 5000),
+  maxRedirects: Number(process.env.VERIFIER_REMOTE_MAX_REDIRECTS || 3)
+});
+
+function isAllowedRevocationUrl(value) {
+  const candidate = new URL(value);
+  if (candidate.username || candidate.password) return false;
+  return allowedRevocationUrls.some(function (base) {
+    const basePath = base.pathname.replace(/\/$/, '');
+    return candidate.origin === base.origin &&
+      (candidate.pathname === base.pathname || candidate.pathname.startsWith(basePath + '/'));
+  });
+}
 
 globalThis.fetch = async function (input, options) {
-  const url = typeof input === 'string' ? input : input.url;
-  if (allowedProfileUrls.has(url)) {
+  const url = typeof input === 'string' || input instanceof URL ? String(input) : input.url;
+  if (allowedProfileUrls.has(normalizedUrl(url))) {
     return new Response(profileText, { status: 200, headers: { 'content-type': 'application/json' } });
   }
-  if (allowedRevocationUrls.some(function (base) { return url.startsWith(base); })) {
+  if (isAllowedRevocationUrl(url)) {
     return new Response(revocationText, { status: 200, headers: { 'content-type': 'application/json' } });
   }
-  const parsed = new URL(url);
-  if (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') {
-    throw new Error('Từ chối truy cập địa chỉ nội bộ không nằm trong danh sách cho phép.');
-  }
-  return nativeFetch(input, options);
+  return safeRemoteFetch(input, options);
 };
 
 const rpcUrl = process.env.BITCOIN_RPC_URL || 'http://127.0.0.1:18443';

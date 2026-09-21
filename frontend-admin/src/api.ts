@@ -17,6 +17,7 @@ export type IssuanceStatus =
 
 export type CertificateRecord = {
   id: string;
+  studentId?: string | null;
   recipientName: string;
   pubkey?: string | null;
   identity?: string | null;
@@ -39,6 +40,7 @@ export type UserRecord = {
   username: string;
   role: Role;
   recipientName?: string | null;
+  studentCode?: string | null;
   createdAt: string;
 };
 
@@ -54,7 +56,7 @@ export type AuditRecord = {
 };
 
 export type RecipientInput = {
-  recipientName: string;
+  studentCode: string;
   pubkey: string;
   identity?: string;
 };
@@ -169,6 +171,7 @@ export const api = {
     password: string;
     role: Role;
     recipientName?: string;
+    studentCode?: string;
   }) =>
     authFetch<{ id: string; username: string; role: Role }>(
       "/api/admin/users",

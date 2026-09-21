@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -32,11 +32,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: JwtPayload) {
     const user = await this.users.findOne({ where: { id: payload.sub } });
+    if (!user) throw new UnauthorizedException('Tài khoản không còn tồn tại');
     return {
-      userId: payload.sub,
-      username: payload.username,
-      role: payload.role,
-      recipientName: user?.recipientName ?? null,
+      userId: user.id,
+      username: user.username,
+      role: user.role,
+      recipientName: user.recipientName ?? null,
+      studentCode: user.studentCode ?? null,
     };
   }
 }

@@ -6,13 +6,13 @@ function parseRows(text: string, defaultPubkey: string): RecipientInput[] {
   if (!lines.length) throw new Error("Chưa có dữ liệu sinh viên");
   if (lines.length > 500) throw new Error("Mỗi lô tối đa 500 sinh viên");
   return lines.map((line, index) => {
-    const [recipientName = "", identity = "", customPubkey = ""] = line
+    const [studentCode = "", customPubkey = ""] = line
       .split("|")
       .map((part) => part.trim());
     const pubkey = customPubkey || defaultPubkey.trim();
-    if (!recipientName) throw new Error(`Dòng ${index + 1} thiếu họ tên`);
+    if (!studentCode) throw new Error(`Dòng ${index + 1} thiếu mã sinh viên`);
     if (!pubkey) throw new Error(`Dòng ${index + 1} thiếu public key`);
-    return { recipientName, identity: identity || undefined, pubkey };
+    return { studentCode: studentCode.toUpperCase(), pubkey };
   });
 }
 
@@ -50,7 +50,7 @@ export default function BatchMaker() {
         <div>
           <p className="eyebrow">MAKER · BATCH</p>
           <h2>Lập phiếu theo lô</h2>
-          <p className="muted">Tối đa 500 hồ sơ; dán trực tiếp từ Excel hoặc tệp danh sách.</p>
+          <p className="muted">Tối đa 500 hồ sơ; họ tên được lấy từ tài khoản Student.</p>
         </div>
         <span className="count-badge">{lineCount}/500 dòng</span>
       </div>
@@ -64,17 +64,17 @@ export default function BatchMaker() {
           />
         </label>
         <label>
-          Danh sách sinh viên
+          Danh sách mã sinh viên
           <textarea
             rows={14}
             value={raw}
             onChange={(event) => setRaw(event.target.value)}
-            placeholder={"Nguyễn Văn An | AT180001\nTrần Thị Bình | AT180002\nLê Văn Cường | AT180003 | public-key-riêng"}
+            placeholder={"AT180001\nAT180002\nAT180003 | public-key-riêng"}
             required
           />
         </label>
         <div className="hint">
-          Định dạng mỗi dòng: <code>Họ tên | Mã sinh viên | public key tùy chọn</code>
+          Định dạng mỗi dòng: <code>Mã sinh viên | public key tùy chọn</code>
         </div>
         <div className="form-actions">
           <button className="button primary" disabled={busy || lineCount === 0}>

@@ -1,25 +1,33 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn } from "typeorm";
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+} from 'typeorm';
 
-export type UserRole = "maker" | "checker" | "student";
+export type UserRole = 'maker' | 'checker' | 'student';
 
-@Entity("users")
+@Entity('users')
 export class User {
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: "varchar", length: 100, unique: true })
+  @Column({ type: 'varchar', length: 100, unique: true })
   username: string;
 
-  // Mat khau da duoc bam (khong luu trang)
-  @Column({ type: "varchar", length: 255 })
+  @Column({ type: 'varchar', length: 255 })
   passwordHash: string;
 
-  @Column({ type: "varchar", length: 20 })
+  @Column({ type: 'varchar', length: 20 })
   role: UserRole;
 
-  // Ten nguoi nhan chung thu (khoa ngoai mem voi issued_certificates.recipientName)
-  @Column({ type: "varchar", length: 255, nullable: true })
+  // Họ tên chỉ dùng để hiển thị trên chứng thư, không dùng để phân quyền.
+  @Column({ type: 'varchar', length: 255, nullable: true })
   recipientName?: string | null;
+
+  // Định danh nghiệp vụ ổn định và duy nhất của Student.
+  @Column({ type: 'varchar', length: 50, nullable: true, unique: true })
+  studentCode?: string | null;
 
   @CreateDateColumn()
   createdAt: Date;

@@ -18,12 +18,15 @@ for (const line of fs.readFileSync(path.join(root, ".env"), "utf8").split(/\r?\n
 const runId = new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 14);
 const password = () => crypto.randomBytes(24).toString("base64url");
 const recipientName = `Thực nghiệm B12 Holder ${runId}`;
+const studentCode = `B12-${runId}`;
+const twinStudentCode = `B12-TWIN-${runId}`;
 const accounts = {
   runId,
   baseUrl: process.env.PUBLIC_BASE_URL,
   checker: { username: `b12_checker_${runId}`, password: password(), role: "checker" },
   maker: { username: `b12_maker_${runId}`, password: password(), role: "maker" },
-  student: { username: `b12_student_${runId}`, password: password(), role: "student", recipientName },
+  student: { username: `b12_student_${runId}`, password: password(), role: "student", recipientName, studentCode },
+  studentTwin: { username: `b12_student_twin_${runId}`, password: password(), role: "student", recipientName, studentCode: twinStudentCode },
 };
 const db = new Client({
   host: process.env.POSTGRES_HOST,
@@ -54,7 +57,7 @@ const login = await call("/api/auth/login", {
 });
 if (login.status !== 201 || !login.body?.token) throw new Error(`Bootstrap checker login lỗi ${login.status}`);
 const created = [];
-for (const key of ["maker", "student"]) {
+for (const key of ["maker", "student", "studentTwin"]) {
   const account = accounts[key];
   const response = await call("/api/admin/users", {
     method: "POST",
@@ -69,6 +72,6 @@ fs.mkdirSync(privateDir, { recursive: true, mode: 0o700 });
 const privatePath = path.join(privateDir, "current-accounts.json");
 fs.writeFileSync(privatePath, JSON.stringify(accounts, null, 2), { mode: 0o600 });
 fs.chmodSync(privatePath, 0o600);
-const publicResult = { runId, baseUrl: accounts.baseUrl, checkerBootstrap: accounts.checker.username, created, recipientName, createdAt: new Date().toISOString() };
+const publicResult = { runId, baseUrl: accounts.baseUrl, checkerBootstrap: accounts.checker.username, created, recipientName, studentCode, createdAt: new Date().toISOString() };
 fs.writeFileSync(path.join(root, "experiments/results/account-bootstrap.json"), JSON.stringify(publicResult, null, 2));
-console.log(JSON.stringify({ ok: true, runId, roles: ["checker", "maker", "student"], privateMode: (fs.statSync(privatePath).mode & 0o777).toString(8) }));
+console.log(JSON.stringify({ ok: true, runId, roles: ["checker", "maker", "student", "studentTwin"], privateMode: (fs.statSync(privatePath).mode & 0o777).toString(8) }));

@@ -3,19 +3,21 @@ import { validate } from 'class-validator';
 import { IssueRequestDto } from './issue.dto';
 
 describe('IssueRequestDto', () => {
-  it('chấp nhận địa chỉ P2PKH regtest và từ chối subject URI đầu vào', async () => {
+  it('chấp nhận mã sinh viên và địa chỉ P2PKH regtest hợp lệ', async () => {
     const valid = Object.assign(new IssueRequestDto(), {
-      recipientName: 'Sinh viên kiểm thử',
+      studentCode: 'AT180001',
       pubkey: 'mmtMJVNrauBfzn8sr8E6DXEeLVp6WVg1kT',
     });
     expect(await validate(valid)).toHaveLength(0);
+  });
 
+  it('từ chối mã sinh viên và subject URI không hợp lệ', async () => {
     const invalid = Object.assign(new IssueRequestDto(), {
-      recipientName: 'Sinh viên kiểm thử',
+      studentCode: 'mã có khoảng trắng',
       pubkey: 'ecdsa-koblitz-pubkey:mmtMJVNrauBfzn8sr8E6DXEeLVp6WVg1kT',
     });
-    expect(
-      (await validate(invalid)).some((error) => error.property === 'pubkey'),
-    ).toBe(true);
+    const errors = await validate(invalid);
+    expect(errors.some((error) => error.property === 'studentCode')).toBe(true);
+    expect(errors.some((error) => error.property === 'pubkey')).toBe(true);
   });
 });

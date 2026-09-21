@@ -42,8 +42,9 @@ async function confirmations(txid) {
 const checker = await login(accounts.checker);
 const maker = await login(accounts.maker);
 const student = await login(accounts.student);
+const studentTwin = await login(accounts.studentTwin);
 const issueStart = Date.now();
-const request = await call("/api/issue/request", { method: "POST", token: maker, body: { recipientName: accounts.student.recipientName, pubkey: process.env.ISSUING_ADDRESS, identity: `e2e-${accounts.runId}@example.invalid` } });
+const request = await call("/api/issue/request", { method: "POST", token: maker, body: { studentCode: accounts.student.studentCode, pubkey: process.env.ISSUING_ADDRESS, identity: `e2e-${accounts.runId}@example.invalid` } });
 assert(request.status === 201 && request.body?.id, `Maker lập phiếu lỗi ${request.status}`);
 const id = request.body.id;
 const makerApprove = await call(`/api/issue/${id}/approve`, { method: "POST", token: maker, body: {} });
@@ -87,6 +88,8 @@ for (const [name, cert] of Object.entries({ recipientName: modifiedRecipient, cr
 }
 const holder = await call("/api/issue/holder/certificates", { token: student });
 assert(holder.status === 200 && Array.isArray(holder.body) && holder.body.some((x) => x.id === id), "Holder không thấy chứng thư của mình");
+const twinHolder = await call("/api/issue/holder/certificates", { token: studentTwin });
+assert(twinHolder.status === 200 && Array.isArray(twinHolder.body) && !twinHolder.body.some((x) => x.id === id), "Student trùng họ tên nhìn thấy nhầm chứng thư");
 const studentRevoke = await call(`/api/revoke/${id}`, { method: "POST", token: student, body: { reason: "RBAC test" } });
 const makerRevoke = await call(`/api/revoke/${id}`, { method: "POST", token: maker, body: { reason: "RBAC test" } });
 assert(studentRevoke.status === 403 && makerRevoke.status === 403, `RBAC revoke sai: student=${studentRevoke.status}, maker=${makerRevoke.status}`);
@@ -113,10 +116,10 @@ const result = {
   rbac: { makerSelfApprove: makerApprove.status, studentRevoke: studentRevoke.status, makerRevoke: makerRevoke.status, checkerRevoke: revoked.status },
   verification: { original: original.body.status, tampered, afterRevoke: afterRevoke.body.status },
   revocation: { txid: revoked.body.revocationTxid, confirmations: revokeConfirmations, listed: true },
-  holder: { visible: true, returnedCount: holder.body.length },
+  holder: { visible: true, returnedCount: holder.body.length, sameNameIsolation: true, twinReturnedCount: twinHolder.body.length },
   audit: related.map(({ action, actor, actorRole, targetId, txid, createdAt }) => ({ action, actor, actorRole, targetId, txid, createdAt })),
   passed: true,
 };
 const out = path.join(root, "experiments/results/e2e-preflight.json");
 fs.writeFileSync(out, JSON.stringify(result, null, 2));
-console.log(JSON.stringify({ passed: true, id, issueSeconds, original: result.verification.original, tampered, afterRevoke: result.verification.afterRevoke, rbac: result.rbac, auditActions: result.audit.map((x) => x.action) }));
+console.log(JSON.stringify({ passed: true, id, issueSeconds, original: result.verification.original, tampered, afterRevoke: result.verification.afterRevoke, rbac: result.rbac, sameNameIsolation: result.holder.sameNameIsolation, auditActions: result.audit.map((x) => x.action) }));

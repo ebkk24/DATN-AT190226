@@ -47,4 +47,4 @@ if [ "$nginx_ready" -ne 1 ]; then
   exit 1
 fi
 "$ROOT/scripts/health-check-b12.sh"
-echo "Đã triển khai: http://ebk.tailc30db9.ts.net:8088"
+echo "Đã triển khai: http://100.105.56.19:8088"

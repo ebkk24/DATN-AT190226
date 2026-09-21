@@ -13,6 +13,7 @@ export default function Users() {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<Role>("student");
   const [recipientName, setRecipientName] = useState("");
+  const [studentCode, setStudentCode] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -43,11 +44,13 @@ export default function Users() {
         password,
         role,
         recipientName: role === "student" ? recipientName.trim() : undefined,
+        studentCode: role === "student" ? studentCode.trim().toUpperCase() : undefined,
       });
       setMessage(`Đã tạo tài khoản ${result.username} (${roleLabel[result.role]}).`);
       setUsername("");
       setPassword("");
       setRecipientName("");
+      setStudentCode("");
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Không thể tạo tài khoản");
@@ -92,15 +95,26 @@ export default function Users() {
             </select>
           </label>
           {role === "student" && (
-            <label>
-              Họ tên liên kết văn bằng
-              <input
-                value={recipientName}
-                onChange={(event) => setRecipientName(event.target.value)}
-                placeholder="Phải khớp tên trên văn bằng"
-                required
-              />
-            </label>
+            <>
+              <label>
+                Mã sinh viên duy nhất
+                <input
+                  value={studentCode}
+                  onChange={(event) => setStudentCode(event.target.value)}
+                  placeholder="Ví dụ: AT180001"
+                  required
+                />
+              </label>
+              <label>
+                Họ tên hiển thị trên văn bằng
+                <input
+                  value={recipientName}
+                  onChange={(event) => setRecipientName(event.target.value)}
+                  placeholder="Ví dụ: Nguyễn Văn An"
+                  required
+                />
+              </label>
+            </>
           )}
           <button className="button primary" disabled={busy}>
             {busy ? "Đang tạo…" : "Tạo tài khoản"}
@@ -112,16 +126,17 @@ export default function Users() {
           <div className="table-scroll">
             <table>
               <thead>
-                <tr><th>Tài khoản</th><th>Vai trò</th><th>Liên kết người nhận</th><th>Ngày tạo</th></tr>
+                <tr><th>Tài khoản</th><th>Vai trò</th><th>Mã sinh viên</th><th>Họ tên hiển thị</th><th>Ngày tạo</th></tr>
               </thead>
               <tbody>
                 {!users.length && (
-                  <tr><td colSpan={4}><div className="empty-state compact">Chưa có tài khoản.</div></td></tr>
+                  <tr><td colSpan={5}><div className="empty-state compact">Chưa có tài khoản.</div></td></tr>
                 )}
                 {users.map((user) => (
                   <tr key={user.id}>
                     <td><strong>{user.username}</strong><span className="table-sub mono">{user.id.slice(0, 8)}</span></td>
                     <td><span className={`role-chip ${user.role}`}>{roleLabel[user.role].split(" — ")[0]}</span></td>
+                    <td><span className="mono">{user.studentCode || "—"}</span></td>
                     <td>{user.recipientName || "—"}</td>
                     <td>{new Date(user.createdAt).toLocaleDateString("vi-VN")}</td>
                   </tr>

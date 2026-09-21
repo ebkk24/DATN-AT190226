@@ -25,6 +25,7 @@ class AuthUser {
   username: string;
   role: string;
   recipientName?: string | null;
+  studentCode?: string | null;
 }
 
 @Controller('api/issue')
@@ -39,7 +40,6 @@ export class IssuanceController {
     return this.svc.request(dto, u.username);
   }
 
-  // Route tĩnh batch phải đặt trước các route :id.
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('maker')
   @Post('batch/request')
@@ -54,6 +54,13 @@ export class IssuanceController {
   approveBatch(@Body() dto: BatchApproveDto, @Req() req: Request) {
     const u = req.user as AuthUser;
     return this.svc.approveBatch(dto, u.username);
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('checker')
+  @Post('batch/:batchId/retry')
+  retryBatch(@Param('batchId') batchId: string) {
+    return this.svc.retryBatch(batchId);
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -81,7 +88,7 @@ export class IssuanceController {
   @Get('holder/certificates')
   holderCerts(@Req() req: Request) {
     const u = req.user as AuthUser;
-    return this.svc.holderCertificates(u.recipientName || '');
+    return this.svc.holderCertificates(u.userId);
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)

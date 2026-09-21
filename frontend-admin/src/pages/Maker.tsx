@@ -2,8 +2,7 @@ import { useState } from "react";
 import { api } from "../api";
 
 export default function Maker() {
-  const [recipientName, setRecipientName] = useState("");
-  const [identity, setIdentity] = useState("");
+  const [studentCode, setStudentCode] = useState("");
   const [pubkey, setPubkey] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -16,13 +15,11 @@ export default function Maker() {
     setBusy(true);
     try {
       const result = await api.requestIssue({
-        recipientName: recipientName.trim(),
-        identity: identity.trim() || undefined,
+        studentCode: studentCode.trim().toUpperCase(),
         pubkey: pubkey.trim(),
       });
       setMessage(`Đã lập phiếu ${result.id.slice(0, 8)} — đang chờ Checker duyệt.`);
-      setRecipientName("");
-      setIdentity("");
+      setStudentCode("");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Không thể lập phiếu");
     } finally {
@@ -36,26 +33,18 @@ export default function Maker() {
         <div>
           <p className="eyebrow">MAKER</p>
           <h2>Lập phiếu cấp văn bằng</h2>
-          <p className="muted">Phiếu chỉ được phát hành sau khi Checker phê duyệt.</p>
+          <p className="muted">Họ tên được lấy từ hồ sơ Student theo mã sinh viên, không nhập thủ công.</p>
         </div>
         <span className="status-chip pending">Chưa ghi blockchain</span>
       </div>
       <form onSubmit={submit} className="card form-grid">
         <label>
-          Họ tên người nhận
-          <input
-            value={recipientName}
-            onChange={(event) => setRecipientName(event.target.value)}
-            placeholder="Ví dụ: Nguyễn Văn An"
-            required
-          />
-        </label>
-        <label>
           Mã sinh viên
           <input
-            value={identity}
-            onChange={(event) => setIdentity(event.target.value)}
+            value={studentCode}
+            onChange={(event) => setStudentCode(event.target.value)}
             placeholder="Ví dụ: AT180001"
+            required
           />
         </label>
         <label className="full-width">

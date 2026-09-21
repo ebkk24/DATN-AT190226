@@ -4,6 +4,8 @@ import * as path from 'path';
 import { DataSource } from 'typeorm';
 import { User } from './auth/user.entity';
 import { IssuedCertificate } from './issuance/issuance.entity';
+import { IssuanceBatch } from './issuance/issuance-batch.entity';
+import { IssuanceOutbox } from './issuance/issuance-outbox.entity';
 import { VerificationLog } from './verification/entities/verification-log.entity';
 import { AuditLog } from './audit/audit.entity';
 
@@ -21,7 +23,14 @@ export default new DataSource({
   database: process.env.POSTGRES_DB || 'datn',
   synchronize: false,
   logging: false,
-  entities: [User, IssuedCertificate, VerificationLog, AuditLog],
+  entities: [
+    User,
+    IssuedCertificate,
+    IssuanceBatch,
+    IssuanceOutbox,
+    VerificationLog,
+    AuditLog,
+  ],
   migrations: [path.join(__dirname, 'migrations', '*.{js,ts}')],
   migrationsTableName: 'typeorm_migrations',
 });

@@ -1,16 +1,16 @@
 {
   "kind": "B12_E2E_PREFLIGHT",
-  "runId": "20260912085122",
-  "startedAt": "2026-09-12T08:51:24.671Z",
-  "completedAt": "2026-09-12T08:52:07.400Z",
+  "runId": "20260920123633",
+  "startedAt": "2026-09-21T01:01:18.966Z",
+  "completedAt": "2026-09-21T01:01:38.337Z",
   "issuance": {
-    "id": "b371e215-dcb5-446f-aba9-3102be1dec3d",
-    "certUid": "aabd23c7-7e3c-4bc9-a3dd-3ab8462e3bf1",
-    "txid": "4a529f931f5a377d262b28c88b14060efa4ed86b14bdcb965092d54651fac089",
-    "merkleRoot": "66ceed8a410b8cbe78a75b427e75923dda3388f58ede397d887f98bdddf6b5a6",
-    "seconds": 12.314,
+    "id": "a18e5d95-13be-4aa1-b140-1ae39a369934",
+    "certUid": "58a0954c-e2d0-4dab-8603-b11d07fa95d0",
+    "txid": "634b167ad001a56d88c5a6702c043c08975fb6fd1dc531e09e75303de055ae1c",
+    "merkleRoot": "4957cc0bcbf00e27a8cc9de9b7514df9f44fb1fa74732c92321298a625533e9d",
+    "seconds": 6.119,
     "confirmations": 2,
-    "profile": "http://ebk.tailc30db9.ts.net:8088/api/blockcerts/issuers/kma/profile.json"
+    "profile": "http://100.105.56.19:8088/api/blockcerts/issuers/kma/profile.json"
   },
   "rbac": {
     "makerSelfApprove": 403,
@@ -29,46 +29,48 @@
     "afterRevoke": "REVOKED"
   },
   "revocation": {
-    "txid": "56838d4536c6b10b878a0b0a34eac3172bedc31dc428a4e8f69a0f3b2e3fd1d2",
+    "txid": "3d37b399276622fee47942558120a36bb318f72611d16c1dd85305f66a0a4b3f",
     "confirmations": 1,
     "listed": true
   },
   "holder": {
     "visible": true,
-    "returnedCount": 1
+    "returnedCount": 10,
+    "sameNameIsolation": true,
+    "twinReturnedCount": 0
   },
   "audit": [
     {
       "action": "revoke",
-      "actor": "b12_checker_20260912085122",
+      "actor": "b12_checker_20260920123633",
       "actorRole": "checker",
-      "targetId": "b371e215-dcb5-446f-aba9-3102be1dec3d",
-      "txid": "56838d4536c6b10b878a0b0a34eac3172bedc31dc428a4e8f69a0f3b2e3fd1d2",
-      "createdAt": "2026-09-12T01:52:02.310Z"
+      "targetId": "a18e5d95-13be-4aa1-b140-1ae39a369934",
+      "txid": "3d37b399276622fee47942558120a36bb318f72611d16c1dd85305f66a0a4b3f",
+      "createdAt": "2026-09-20T18:01:36.152Z"
     },
     {
       "action": "issue",
-      "actor": "b12_checker_20260912085122",
+      "actor": "b12_checker_20260920123633",
       "actorRole": "checker",
-      "targetId": "b371e215-dcb5-446f-aba9-3102be1dec3d",
-      "txid": "4a529f931f5a377d262b28c88b14060efa4ed86b14bdcb965092d54651fac089",
-      "createdAt": "2026-09-12T01:51:37.095Z"
+      "targetId": "a18e5d95-13be-4aa1-b140-1ae39a369934",
+      "txid": "634b167ad001a56d88c5a6702c043c08975fb6fd1dc531e09e75303de055ae1c",
+      "createdAt": "2026-09-20T18:01:25.040Z"
     },
     {
       "action": "approve",
-      "actor": "b12_checker_20260912085122",
+      "actor": "b12_checker_20260920123633",
       "actorRole": "checker",
-      "targetId": "b371e215-dcb5-446f-aba9-3102be1dec3d",
+      "targetId": "a18e5d95-13be-4aa1-b140-1ae39a369934",
       "txid": null,
-      "createdAt": "2026-09-12T01:51:25.800Z"
+      "createdAt": "2026-09-20T18:01:19.578Z"
     },
     {
       "action": "request",
-      "actor": "b12_maker_20260912085122",
+      "actor": "b12_maker_20260920123633",
       "actorRole": "maker",
-      "targetId": "b371e215-dcb5-446f-aba9-3102be1dec3d",
+      "targetId": "a18e5d95-13be-4aa1-b140-1ae39a369934",
       "txid": null,
-      "createdAt": "2026-09-12T01:51:25.723Z"
+      "createdAt": "2026-09-20T18:01:19.551Z"
     }
   ],
   "passed": true

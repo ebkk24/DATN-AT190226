@@ -37,7 +37,7 @@ let report = fs.existsSync(resultPath) ? JSON.parse(fs.readFileSync(resultPath, 
 if (report.runs.some((x) => x.size === size && x.repeat === repeat && x.passed)) { console.log(JSON.stringify({ skipped: true, size, repeat })); process.exit(0); }
 const maker = await login(accounts.maker); const checker = await login(accounts.checker);
 const code = `official-${accounts.runId}-n${size}-r${repeat}`;
-const recipients = Array.from({ length: size }, (_, i) => ({ recipientName: `${code}-SV-${String(i + 1).padStart(4, "0")}`, pubkey: process.env.ISSUING_ADDRESS, identity: `${code}-${i + 1}@example.invalid` }));
+const recipients = Array.from({ length: size }, (_, i) => ({ studentCode: accounts.student.studentCode, pubkey: process.env.ISSUING_ADDRESS, identity: `${code}-${i + 1}@example.invalid` }));
 const blockBefore = bcli("getblockcount"); const totalStart = Date.now(); sample(); const timer = setInterval(sample, 1000);
 let run;
 try {

@@ -20,6 +20,11 @@ export class IssuedCertificate {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  // Khóa ngoại thật dùng để xác định chủ sở hữu chứng thư.
+  @Column({ type: 'uuid', nullable: true })
+  studentId?: string | null;
+
+  // Ảnh chụp họ tên tại thời điểm lập phiếu, chỉ dùng để hiển thị.
   @Column({ type: 'varchar', length: 255 })
   recipientName: string;
 
@@ -38,7 +43,6 @@ export class IssuedCertificate {
   @Column({ type: 'varchar', length: 64, nullable: true })
   merkleRoot?: string | null;
 
-  // Mã lô bền vững để truy vấn, thống kê và tái hiện thực nghiệm.
   @Column({ type: 'varchar', length: 100, nullable: true })
   batchId?: string | null;
 
@@ -58,12 +62,11 @@ export class IssuedCertificate {
   status: IssuanceStatus;
 
   @Column({ type: 'text', nullable: true })
-  errorMessage: string;
+  errorMessage: string | null;
 
   @CreateDateColumn()
   createdAt: Date;
 
-  // --- Thu hoi (Revocation) ---
   @Column({ type: 'varchar', length: 64, nullable: true })
   revocationTxid?: string | null;
 

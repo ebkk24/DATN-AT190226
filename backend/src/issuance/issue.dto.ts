@@ -8,11 +8,19 @@ import {
   IsUUID,
   ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform, TransformFnParams, Type } from 'class-transformer';
 
 export class IssueRequestDto {
+  @Transform((params: TransformFnParams): unknown => {
+    const input: unknown = params.value;
+    return typeof input === 'string' ? input.trim().toUpperCase() : input;
+  })
   @IsString()
-  recipientName: string;
+  @Matches(/^[A-Z0-9][A-Z0-9._-]{1,49}$/, {
+    message:
+      'studentCode chỉ gồm 2-50 ký tự chữ, số, dấu chấm, gạch dưới hoặc gạch ngang',
+  })
+  studentCode: string;
 
   @IsString()
   @Matches(/^[mn2][1-9A-HJ-NP-Za-km-z]{25,34}$/, {

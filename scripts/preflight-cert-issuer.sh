@@ -30,7 +30,7 @@ from bitcoin import SelectParams
 from bitcoin.wallet import CBitcoinSecret,P2PKHBitcoinAddress
 SelectParams("regtest")
 k=CBitcoinSecret(open("/run/secrets/pk_issuer.txt").read().strip())
-assert str(P2PKHBitcoinAddress.from_pubkey(k.pub))=="mmtMJVNrauBfzn8sr8E6DXEeLVp6WVg1kT"
+assert str(P2PKHBitcoinAddress.from_pubkey(k.pub))=="myFN5aF1NpvPeyediipicfsvD2QGVU3D5M"
 print("Khóa và địa chỉ khớp nhau")
 '
 
@@ -39,7 +39,7 @@ docker compose --profile tools run --rm cert-issuer python -c '
 import bitcoin
 bitcoin.SelectParams("regtest")
 from bitcoin.rpc import Proxy
-u=Proxy().listunspent(addrs=["mmtMJVNrauBfzn8sr8E6DXEeLVp6WVg1kT"])
+u=Proxy().listunspent(addrs=["myFN5aF1NpvPeyediipicfsvD2QGVU3D5M"])
 assert u, "cert-issuer không nhìn thấy UTXO của địa chỉ phát hành"
 print("UTXO:",len(u),"; xác nhận:",u[0]["confirmations"])
 '

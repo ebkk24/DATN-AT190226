@@ -1,0 +1,11 @@
+{
+  "runId": "20260930103051",
+  "roles": [
+    "checker",
+    "maker",
+    "student",
+    "studentTwin"
+  ],
+  "baseUrl": "http://127.0.0.1:18088",
+  "createdAt": "2026-09-30T10:30:52.109Z"
+}

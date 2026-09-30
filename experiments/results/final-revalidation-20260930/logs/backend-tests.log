@@ -1,0 +1,32 @@
+
+> backend@0.0.1 test
+> jest --runInBand --json --outputFile=/home/khai/DATN_work/datn-blockcerts-final-run/experiments/repro/runtime/results/backend-jest.json
+
+PASS src/issuance/issuance.service.spec.ts
+[31m[Nest] 2260897  - [39m09/30/2026, 5:30:49 PM [31m  ERROR[39m [38;5;3m[RevocationService] [39m[31mRevoke failed for 10000000-0000-4000-8000-000000000001: Chi thu hoi duoc chung thu da phat hanh[39m
+[31m[Nest] 2260897  - [39m09/30/2026, 5:30:49 PM [31m  ERROR[39m [38;5;3m[RevocationService] [39m[31mRevoke failed for 10000000-0000-4000-8000-000000000001: Chi thu hoi duoc chung thu da phat hanh[39m
+[31m[Nest] 2260897  - [39m09/30/2026, 5:30:49 PM [31m  ERROR[39m [38;5;3m[RevocationService] [39m[31mRevoke failed for 10000000-0000-4000-8000-000000000001: Chi thu hoi duoc chung thu da phat hanh[39m
+[31m[Nest] 2260897  - [39m09/30/2026, 5:30:49 PM [31m  ERROR[39m [38;5;3m[RevocationService] [39m[31mRevoke failed for 10000000-0000-4000-8000-000000000001: Chi thu hoi duoc chung thu da phat hanh[39m
+PASS src/revocation/revocation.service.spec.ts
+[32m[Nest] 2260897  - [39m09/30/2026, 5:30:49 PM [32m    LOG[39m [38;5;3m[RevocationService] [39m[32mRevoked cert-1 -> tx aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa[39m
+[32m[Nest] 2260897  - [39m09/30/2026, 5:30:49 PM [32m    LOG[39m [38;5;3m[RevocationService] [39m[32mRevoked cert-1 -> tx aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa[39m
+[33m[Nest] 2260897  - [39m09/30/2026, 5:30:49 PM [33m   WARN[39m [38;5;3m[IssuanceProcessor] [39m[33mBỏ qua duplicate job đang được xử lý: batch-1[39m
+PASS src/issuance/issuance.processor.spec.ts
+PASS src/audit/audit.service.spec.ts
+PASS src/verification/verification.service.spec.ts
+[33m[Nest] 2260897  - [39m09/30/2026, 5:30:49 PM [33m   WARN[39m [38;5;3m[VerificationService] [39m[33mCertificate 00000000-0000-4000-8000-000000000001 đang đối soát trạng thái thu hồi[39m
+[33m[Nest] 2260897  - [39m09/30/2026, 5:30:49 PM [33m   WARN[39m [38;5;3m[VerificationService] [39m[33mCertificate 00000000-0000-4000-8000-000000000001 đã thu hồi (tx tx-revoke-1)[39m
+PASS src/issuance/issue.dto.spec.ts
+PASS src/issuance/issuance.dispatcher.spec.ts
+PASS src/issuer/issuer.service.spec.ts
+PASS src/auth/auth.service.spec.ts
+PASS src/auth/roles.guard.spec.ts
+PASS src/auth/auth.dto.spec.ts
+PASS src/app.controller.spec.ts
+
+Test Suites: 12 passed, 12 total
+Tests:       49 passed, 49 total
+Snapshots:   0 total
+Time:        2.96 s
+Ran all test suites.
+Test results written to: ../experiments/repro/runtime/results/backend-jest.json

@@ -1,0 +1,19 @@
+{
+  "schema": "datn-run-summary-v1",
+  "runId": "20260930T103044Z-3582ddaa",
+  "default": "PASS",
+  "functional": true,
+  "recovery": true,
+  "backend_suites": 12,
+  "backend_tests": 49,
+  "ssrf_tests": 10,
+  "verification_status_tests": 6,
+  "verifier_tests": 16,
+  "benchmark": "PASS",
+  "sourceTreeSha256": "6e0cd862daf5641b26995575d8e7ff9d755daf43396191dfc838fc6ffb0997cc",
+  "sourceCommit": "2816de8aac13492b614dbcc6b3b3e1f3eba52bc1",
+  "sourceDirty": false,
+  "benchmark_runs": 9,
+  "benchmark_certificates": 1830,
+  "full_verifier_valid": 1830
+}

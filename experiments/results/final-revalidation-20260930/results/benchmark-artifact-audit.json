@@ -1,0 +1,123 @@
+{
+  "schema": "datn-benchmark-artifact-audit-v1",
+  "completedAt": "2026-09-30T10:35:37.269Z",
+  "sourceCommit": "2816de8aac13492b614dbcc6b3b3e1f3eba52bc1",
+  "sourceTreeSha256": "6e0cd862daf5641b26995575d8e7ff9d755daf43396191dfc838fc6ffb0997cc",
+  "sourceDirty": false,
+  "runs": [
+    {
+      "code": "repro-20260930103051-n10-r1",
+      "size": 10,
+      "requestBatchId": "901eefe0-a054-4378-9a8a-f7ae6fb374dd",
+      "issuanceBatchId": "d31ba7b2-5af0-4e3b-80c4-e5612b807498",
+      "dbIssued": 10,
+      "proofsChecked": 10,
+      "transactionCount": 1,
+      "merkleRootCount": 1,
+      "bitcoinConfirmed": true,
+      "passed": true
+    },
+    {
+      "code": "repro-20260930103051-n10-r2",
+      "size": 10,
+      "requestBatchId": "9e32fa96-5677-46ec-85f8-e070930d7014",
+      "issuanceBatchId": "7ed1d44d-dc5b-442b-878c-bfaa6517c2e3",
+      "dbIssued": 10,
+      "proofsChecked": 10,
+      "transactionCount": 1,
+      "merkleRootCount": 1,
+      "bitcoinConfirmed": true,
+      "passed": true
+    },
+    {
+      "code": "repro-20260930103051-n10-r3",
+      "size": 10,
+      "requestBatchId": "f2f11ce6-9fce-4c4b-8181-8435d90ea267",
+      "issuanceBatchId": "20e96ffd-a4fb-4446-b391-eca47c6cc525",
+      "dbIssued": 10,
+      "proofsChecked": 10,
+      "transactionCount": 1,
+      "merkleRootCount": 1,
+      "bitcoinConfirmed": true,
+      "passed": true
+    },
+    {
+      "code": "repro-20260930103051-n100-r1",
+      "size": 100,
+      "requestBatchId": "b96e4d08-5021-4cba-b53b-acd7dbfa81ec",
+      "issuanceBatchId": "5abba72a-52c8-4cf0-818e-12d66489a511",
+      "dbIssued": 100,
+      "proofsChecked": 100,
+      "transactionCount": 1,
+      "merkleRootCount": 1,
+      "bitcoinConfirmed": true,
+      "passed": true
+    },
+    {
+      "code": "repro-20260930103051-n100-r2",
+      "size": 100,
+      "requestBatchId": "0a5e2094-afae-44b9-8d23-029600af4394",
+      "issuanceBatchId": "02bca638-d675-45e8-9507-c2d02108dd1f",
+      "dbIssued": 100,
+      "proofsChecked": 100,
+      "transactionCount": 1,
+      "merkleRootCount": 1,
+      "bitcoinConfirmed": true,
+      "passed": true
+    },
+    {
+      "code": "repro-20260930103051-n100-r3",
+      "size": 100,
+      "requestBatchId": "0e8703be-9c35-4895-a4b8-f3dfe630844b",
+      "issuanceBatchId": "34d0c40b-ac26-4839-beb7-9909d3c6059e",
+      "dbIssued": 100,
+      "proofsChecked": 100,
+      "transactionCount": 1,
+      "merkleRootCount": 1,
+      "bitcoinConfirmed": true,
+      "passed": true
+    },
+    {
+      "code": "repro-20260930103051-n500-r1",
+      "size": 500,
+      "requestBatchId": "c604abc3-edca-43e8-bb02-efcf2990c6e4",
+      "issuanceBatchId": "a3777067-db7e-44b0-8be3-6a52747cefd3",
+      "dbIssued": 500,
+      "proofsChecked": 500,
+      "transactionCount": 1,
+      "merkleRootCount": 1,
+      "bitcoinConfirmed": true,
+      "passed": true
+    },
+    {
+      "code": "repro-20260930103051-n500-r2",
+      "size": 500,
+      "requestBatchId": "966bc5b9-e39b-450c-9533-7a78dca351c9",
+      "issuanceBatchId": "860907d4-abb9-423f-9c85-41f3b8de9014",
+      "dbIssued": 500,
+      "proofsChecked": 500,
+      "transactionCount": 1,
+      "merkleRootCount": 1,
+      "bitcoinConfirmed": true,
+      "passed": true
+    },
+    {
+      "code": "repro-20260930103051-n500-r3",
+      "size": 500,
+      "requestBatchId": "bf9455a1-ce98-42ae-8a16-c551d2948db6",
+      "issuanceBatchId": "dbf6c42a-4b35-4454-a6fe-22e40fe2dcef",
+      "dbIssued": 500,
+      "proofsChecked": 500,
+      "transactionCount": 1,
+      "merkleRootCount": 1,
+      "bitcoinConfirmed": true,
+      "passed": true
+    }
+  ],
+  "totalCertificates": 1830,
+  "totalProofsChecked": 1830,
+  "totalUniqueCertificateIds": 1830,
+  "fullVerifierValid": 1830,
+  "fullVerifierFailures": [],
+  "passed": true
+}

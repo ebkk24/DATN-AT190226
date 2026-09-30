@@ -1,0 +1,28 @@
+
+> @datn/verifier-service@0.1.0 test
+> node --test test/*.test.cjs
+
+✔ chặn IPv4 nội bộ, loopback, link-local, metadata và dạng biểu diễn khác (3.834087ms)
+✔ chặn IPv6 loopback, ULA, link-local, multicast và IPv4-mapped (8.781089ms)
+✔ chỉ cho phép HTTPS và không cho URL chứa credential (0.955496ms)
+✔ chặn hostname nếu DNS trả về một địa chỉ private hoặc kết quả trộn (0.482458ms)
+✔ chuẩn hóa và chặn IPv4 dạng số nguyên, hex và octal (0.968373ms)
+✔ ghim kết nối vào IP công khai đã kiểm tra (31.248427ms)
+✔ kiểm tra lại URL sau redirect và chặn redirect vào localhost (1.030001ms)
+✔ giới hạn số redirect (1.28703ms)
+✔ từ chối phản hồi vượt giới hạn kích thước (2.040008ms)
+✔ từ chối redirect và trạng thái HTTP không hợp lệ mà không treo tiến trình (2.458287ms)
+✔ proof bị hỏng là INVALID (1.101795ms)
+✔ TXID sai định dạng là INVALID (0.407228ms)
+✔ TXID không tồn tại nhưng RPC phản hồi được là INVALID (0.354826ms)
+✔ mất kết nối RPC là INDETERMINATE (0.362075ms)
+✔ thiếu credential RPC là INDETERMINATE (0.252702ms)
+✔ proofValue hỏng mã hóa UTF-8/CBOR là INVALID (0.172837ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 150.242915

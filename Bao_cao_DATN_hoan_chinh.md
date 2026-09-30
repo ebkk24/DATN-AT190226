@@ -10,9 +10,9 @@ Trong bối cảnh chuyển đổi số, số hóa hồ sơ và văn bằng giú
 
 # CHƯƠNG I. CƠ SỞ LÝ THUYẾT VỀ CÔNG NGHỆ BLOCKCHAIN
 
-## Tổng quan về công nghệ Blockchain
+## 1.1. Tổng quan về công nghệ Blockchain
 
-### Khái niệm và mục tiêu hình thành
+### 1.1.1. Khái niệm và mục tiêu hình thành
 
 Công nghệ chuỗi khối (Blockchain) là một dạng kiến trúc sổ cái phân tán (Distributed Ledger Technology - DLT), trong đó dữ liệu giao dịch được đóng gói thành các khối (blocks), liên kết tuần tự theo thời gian bằng các hàm băm mật mã và được đồng bộ giữa các nút mạng thông qua giao thức đồng thuận [1], [2]. Thay vì phụ thuộc vào một máy chủ trung tâm, sổ cái Blockchain được sao chép và duy trì độc lập tại nhiều nút tham gia. Khi dữ liệu quá khứ bị thay đổi, các liên kết băm phía sau không còn khớp; sự sai lệch vì thế có thể được phát hiện khi kiểm tra lại lịch sử. Kết hợp với sao chép sổ cái và đồng thuận, cơ chế này làm cho việc sửa đổi hồi tố mà không để lại dấu vết trở nên khó khăn trong các giả định an toàn của hệ thống [1], [10].
 
@@ -20,13 +20,13 @@ Mục tiêu cốt lõi của Blockchain là giúp các thực thể thuộc nhi�
 
 Tuy nhiên, Blockchain không nhằm thay thế các hệ thống lưu trữ dung lượng lớn hay cơ sở dữ liệu quan hệ truyền thống. Mọi hệ thống Blockchain trong thực tế đều đòi hỏi một khung quản trị xác định, bao gồm quy định về quyền truy cập, chính sách quản lý khóa mật mã, quy tắc phê duyệt giao dịch và cơ chế nâng cấp giao thức [1]. Công nghệ này phù hợp hơn với bài toán cộng tác đa bên, trong đó các thực thể cần chia sẻ trạng thái có thể kiểm chứng nhưng không muốn một bên duy nhất toàn quyền quyết định lịch sử dữ liệu [10].
 
-### Quá trình phát triển
+### 1.1.2. Quá trình phát triển
 
 Nền tảng lý thuyết của Blockchain là kết quả kế thừa từ nhiều thập kỷ nghiên cứu về mật mã học, cấu trúc dữ liệu và hệ thống phân tán. Từ cuối những năm 1970 và đầu thập niên 1980, các công trình về hệ mật mã khóa công khai, cấu trúc cây băm Merkle [3] và các giải pháp đóng dấu thời gian số (digital timestamping) đã đặt nền móng cho việc xác thực tính toàn vẹn dữ liệu. Song song với đó, lý thuyết hệ thống phân tán phát triển các mô hình đồng thuận chịu lỗi dừng (CFT) và chịu lỗi tùy ý Byzantine (BFT), cung cấp cơ sở toán học để duy trì tính nhất quán trạng thái giữa các nút độc lập khi xảy ra sự cố mạng hoặc có nút sai hỏng [6], [7].
 
 Năm 2008, Satoshi Nakamoto kết hợp chuỗi liên kết băm, mạng ngang hàng và cơ chế Bằng chứng công việc (Proof of Work) để giới thiệu Bitcoin, qua đó đề xuất một cơ chế hạn chế chi tiêu kép mà không cần máy chủ thanh toán trung tâm [1], [2]. Các nền tảng về sau mở rộng khả năng lập trình trạng thái thông qua hợp đồng thông minh (smart contract), cho phép biểu diễn và tự động thực thi một số quy tắc nghiệp vụ [1], [10]. Đồng thời, các kiến trúc Blockchain cấp quyền (permissioned) ra đời, ứng dụng các thuật toán CFT và BFT để tối ưu hóa thông lượng và đáp ứng yêu cầu bảo mật, quyền riêng tư nghiêm ngặt trong môi trường liên tổ chức [1], [8].
 
-### Đặc trưng, giới hạn và những cách hiểu cần tránh
+### 1.1.3. Đặc trưng, giới hạn và những cách hiểu cần tránh
 
 Hệ thống Blockchain sở hữu các đặc trưng kỹ thuật cốt lõi gồm phân tán dữ liệu, khả năng kiểm chứng độc lập, tính truy vết giao dịch và cơ chế chống can thiệp dữ liệu hồi tố [1]. Mọi giao dịch hợp lệ đều gắn liền với định danh mật mã của bên khởi tạo và được neo chặt vào cấu trúc chuỗi khối, giúp người tham gia đối soát lịch sử một cách minh bạch mà không phụ thuộc một chủ thể duy nhất [2], [10]. Mặc dù vậy, việc nghiên cứu và ứng dụng đòi hỏi phải nhận diện rõ các giới hạn kỹ thuật và tránh ba ngộ nhận phổ biến:
 
@@ -34,7 +34,7 @@ Thứ nhất, dữ liệu ghi trên chuỗi không đồng nghĩa với chân l�
 
 Thứ ba, Blockchain không đồng nghĩa với tính ẩn danh hoàn toàn hay việc loại bỏ trách nhiệm pháp lý. Đa phần các mạng lưới chỉ cung cấp tính năng bí danh (pseudonymity) dựa trên địa chỉ khóa công khai; thông qua phân tích đồ thị luồng giao dịch và đối chiếu siêu dữ liệu ngoại vi, danh tính thực của thực thể vẫn có thể bị truy vết và định danh [1]. Ngoài ra, việc nhiều nút cùng kiểm tra và lưu bản sao thường làm tăng độ trễ, chi phí lưu trữ và chi phí phối hợp so với cơ sở dữ liệu tập trung được tối ưu cho cùng một bài toán [10].
 
-### Phân biệt với DLT và cơ sở dữ liệu phân tán
+### 1.1.4. Phân biệt với DLT và cơ sở dữ liệu phân tán
 
 Công nghệ sổ cái phân tán (DLT) là khái niệm bao trùm, chỉ chung mọi kiến trúc hệ thống lưu trữ và đồng bộ hóa sổ cái ghi chép trạng thái trên nhiều thực thể mạng mà không phụ thuộc vào một máy chủ trung tâm [1]. DLT không bắt buộc dữ liệu phải tổ chức thành khối liên kết chuỗi tuyến tính, mà có thể sử dụng cấu trúc đồ thị có hướng không chu trình (DAG) hoặc các dạng cây phi tuyến khác. Do đó, Blockchain là một tập con đặc thù của DLT, nổi bật với cấu trúc phân khối tuần tự và các liên kết mật mã chặt chẽ giữa các khối [1], [10].
 
@@ -42,9 +42,9 @@ Cơ sở dữ liệu phân tán truyền thống (chẳng hạn các hệ quản
 
 Blockchain hướng tới môi trường có nhiều chủ thể cùng duy trì lịch sử theo một bộ quy tắc đã thống nhất [1], [8]. Trong thiết kế liên tổ chức, quyền cập nhật và quản trị nên được phân bổ sao cho một tài khoản đơn lẻ không thể âm thầm sửa lịch sử đã xác nhận; tuy nhiên, mức phân quyền thực tế vẫn phụ thuộc số tổ chức vận hành, chính sách nâng cấp và khả năng thông đồng. Khác biệt cốt lõi so với cơ sở dữ liệu phân tán truyền thống vì thế nằm ở ranh giới tin cậy và quy trình chấp nhận thay đổi, không chỉ ở số lượng máy lưu bản sao [10].
 
-## Cấu trúc dữ liệu và nền tảng mật mã
+## 1.2. Cấu trúc dữ liệu và nền tảng mật mã
 
-### Giao dịch, khối và liên kết băm
+### 1.2.1. Giao dịch, khối và liên kết băm
 
 Giao dịch (Transaction) là đơn vị nguyên tử biểu diễn một yêu cầu thay đổi trạng thái trong hệ thống sổ cái phân tán [1], [10]. Tùy nền tảng, giao dịch có thể chứa định danh hoặc địa chỉ bên gửi, dữ liệu đầu vào, số thứ tự chống phát lại, tham số phí và chữ ký số. Khi được phát tán vào mạng lưới, các nút tiếp nhận tiến hành kiểm tra độc lập tính hợp lệ về mặt cú pháp, tính toàn vẹn chữ ký số và điều kiện logic trạng thái hiện hành trước khi chấp nhận đưa vào hàng đợi xử lý [1], [2].
 
@@ -60,7 +60,7 @@ Hình 1.1. Cấu trúc khối và liên kết mật mã giữa các khối liên
 
 Nếu dữ liệu trong khối quá khứ $k$ bị sửa, giá trị băm giao dịch, gốc Merkle và $H_k$ thay đổi do tính nhạy của hàm băm [4]. Tham chiếu tại khối kế tiếp vì thế không còn khớp và sự can thiệp có thể được phát hiện. Để lịch sử đã sửa được các nút chấp nhận, đối phương còn phải đáp ứng quy tắc đồng thuận và chính sách quản trị của mạng; điều kiện cụ thể phụ thuộc loại Blockchain và mô hình đe dọa, không chỉ phụ thuộc liên kết băm [1], [2].
 
-### Hàm băm mật mã và cây Merkle
+### 1.2.2. Hàm băm mật mã và cây Merkle
 
 Hàm băm mật mã là công cụ toán học nền tảng để kiểm tra tính toàn vẹn dữ liệu trong kiến trúc chuỗi khối [1], [4]. Một hàm băm mật mã $H$ ánh xạ thông điệp $M$ có độ dài tùy ý thành chuỗi nhị phân cố định $h = H(M) \in \{0,1\}^{n}$; với SHA-256, $n=256$ [4]. Ba thuộc tính an toàn thường được xét gồm: kháng tiền ảnh (cho trước $y$, khó tìm $M$ sao cho $H(M)=y$), kháng tiền ảnh thứ hai (cho trước $M$, khó tìm $M^{\prime} \ne M$ sao cho $H(M^{\prime})=H(M)$) và kháng va chạm (khó tìm hai thông điệp phân biệt có cùng giá trị băm). Hiệu ứng tuyết lở làm cho thay đổi nhỏ ở đầu vào dẫn đến thay đổi lớn, khó dự đoán ở đầu ra [4].
 
@@ -72,7 +72,7 @@ Hình 1.2. Cây Merkle và đường dẫn kiểm chứng một giao dịch
 
 Cấu trúc cây Merkle cho phép kiểm tra một giao dịch thuộc tập giao dịch đã cam kết thông qua Bằng chứng Merkle (Merkle Proof). Với cây cân bằng, kích thước bằng chứng và số phép băm khi xác minh ở mức $O(\log n)$, với $n$ là tổng số giao dịch [3], [10]. Một nút nhẹ (Light Node) chỉ cần lưu trữ phần đầu khối chứa Merkle Root và yêu cầu mạng lưới cung cấp chuỗi các nút băm trung gian nằm dọc theo đường dẫn kiểm chứng (Audit Path) từ giao dịch cần kiểm tra lên gốc cây. Bằng cách thực hiện tối đa $\lceil \log_2 n \rceil$ phép băm đối với cây cân bằng, nút kiểm tra có thể tự xác thực tính hợp lệ của giao dịch mà không cần tải hay phân tích toàn bộ phần thân khối, giúp tối ưu hóa băng thông mạng và hiệu năng lưu trữ trong hệ thống phân tán [3], [10].
 
-### Mật mã khóa công khai và chữ ký số
+### 1.2.3. Mật mã khóa công khai và chữ ký số
 
 Mật mã khóa công khai và chữ ký số thiết lập cơ chế xác thực nguồn gốc và kiểm soát ủy quyền đối với các giao dịch thay đổi trạng thái sổ cái [1], [5]. Theo NIST FIPS 186-5 [5], một lược đồ chữ ký số có thể được mô tả hình thức qua ba thuật toán: $KeyGen$ sinh cặp khóa bí mật $sk$ và khóa công khai $pk$; $Sign$ tạo chữ ký $\sigma$ cho thông điệp $m$; $Verify$ kiểm tra chữ ký dựa trên $pk$ và $m$:
 
@@ -82,7 +82,7 @@ Không nên diễn giải chữ ký số nói chung như việc "mã hóa giá t
 
 Về phương diện an toàn thông tin, chữ ký số cung cấp ba thuộc tính cơ bản: xác thực nguồn gốc (Authentication), bảo toàn tính toàn vẹn (Integrity) và chống chối bỏ kỹ thuật (Non-repudiation) [1], [5]. Tuy nhiên, cần nhận thức rõ giới hạn biên của công nghệ: chữ ký số chỉ chứng minh tính hợp lệ về mặt toán học giữa bộ dữ liệu (m, σ, pk), chứ không thể chứng minh thực thể hợp pháp thực sự trực tiếp ký nếu khóa bí mật sk đã bị lộ lọt, bị mã độc đánh cắp hoặc trích xuất trái phép từ thiết bị lưu trữ [1], [5]. Do đó, giá trị chứng minh của chữ ký trong thực tế phụ thuộc vào quản lý vòng đời khóa, bảo vệ thiết bị ký, gắn khóa với đúng danh tính, ghi nhật ký sử dụng và thu hồi kịp thời khi có sự cố [1], [5].
 
-### Định danh, dấu thời gian và nonce
+### 1.2.4. Định danh, dấu thời gian và nonce
 
 Định danh trong Blockchain cho phép gắn giao dịch với một khóa hoặc tư cách thành viên có quyền [1]. Ở mạng không cấp quyền, địa chỉ thường được tạo từ khóa công khai hoặc dữ liệu dẫn xuất và chủ yếu mang tính bí danh. Ở mạng cấp quyền, khóa công khai có thể được gắn với danh tính tổ chức thông qua chứng thư số và hạ tầng khóa công khai [8]. Trong cả hai trường hợp, chữ ký hợp lệ chỉ chứng minh việc sử dụng khóa tương ứng; mối liên hệ giữa khóa và cá nhân hoặc tổ chức ngoài đời vẫn phụ thuộc quy trình đăng ký, cấp phát và quản trị danh tính.
 
@@ -90,15 +90,15 @@ Dấu thời gian hỗ trợ sắp xếp sự kiện và áp dụng các quy t�
 
 Nonce là giá trị được giao thức sử dụng để tạo tính duy nhất hoặc thứ tự. Trong PoW, nút khai thác thay đổi nonce để tìm giá trị băm thỏa điều kiện độ khó [2]. Trong mô hình tài khoản, nonce thường là bộ đếm tăng dần để các nút phát hiện giao dịch cũ hoặc sai thứ tự. Cơ chế này hỗ trợ chống phát lại khi được kiểm tra cùng chữ ký và ngữ cảnh giao dịch; nó không thay thế toàn bộ biện pháp bảo vệ phiên và giao thức [1], [10].
 
-## Kiến trúc và nguyên lý hoạt động
+## 1.3. Kiến trúc và nguyên lý hoạt động
 
-### Mạng ngang hàng và vai trò của nút
+### 1.3.1. Mạng ngang hàng và vai trò của nút
 
 Mạng ngang hàng (Peer-to-Peer - P2P) cho phép các nút trao đổi trực tiếp giao dịch, khối và thông tin trạng thái mà không bắt buộc mọi thông điệp phải đi qua một máy chủ trung tâm [1], [2]. Mỗi nút kiểm tra dữ liệu nhận được theo quy tắc giao thức trước khi chuyển tiếp cho các nút lân cận. Cách tổ chức này hỗ trợ nhân bản dữ liệu, tăng khả năng tiếp tục hoạt động khi một số kết nối gặp sự cố và làm giảm phụ thuộc vào một điểm truyền tin duy nhất. Tuy nhiên, P2P không đồng nghĩa với phân quyền tuyệt đối: các nút vẫn có thể tập trung tại cùng nhà cung cấp hạ tầng, cùng miền quản trị hoặc chịu ảnh hưởng của một nhóm vận hành nhỏ [1], [10].
 
 Vai trò của nút phụ thuộc nền tảng. Nút đầy đủ thường lưu đủ dữ liệu cần thiết để tự kiểm tra lịch sử; nút nhẹ chỉ giữ một phần thông tin và dựa vào bằng chứng mật mã; nút đề xuất hoặc xác thực tham gia đồng thuận; một số nền tảng còn tách riêng nhiệm vụ sắp thứ tự, thực thi và lưu trữ [1], [8]. Vì vậy, các tên gọi như nút khai thác, nút xác thực hay nút lưu trữ không phải bộ phân loại áp dụng cho mọi Blockchain. Khi đánh giá kiến trúc, cần xác định rõ mỗi nút lưu gì, kiểm tra gì, thuộc tổ chức nào và có quyền tác động đến trạng thái ra sao.
 
-### Vòng đời giao dịch
+### 1.3.2. Vòng đời giao dịch
 
 ![Hình 1.3. Vòng đời giao dịch Blockchain](report-assets/ch1-03.png)
 
@@ -108,33 +108,33 @@ Vòng đời giao dịch bắt đầu khi chủ thể tạo yêu cầu thay đ�
 
 Sau khi đạt điều kiện chấp nhận của giao thức, giao dịch được đưa vào khối hoặc lô dữ liệu, truyền tới các nút và kiểm tra lần cuối trước khi cập nhật trạng thái. Ứng dụng chỉ nên thông báo thành công khi đã nhận bằng chứng giao dịch được cam kết hợp lệ, thay vì coi việc tạo mã giao dịch hay phát tán yêu cầu là hoàn tất. Mức độ chắc chắn của kết quả phụ thuộc cơ chế đồng thuận: một số mạng cần nhiều khối xác nhận, trong khi mạng dựa trên túc số có thể đạt hoàn tất xác định dưới các giả định vận hành đã nêu [1], [6].
 
-### Sao chép trạng thái và thực thi xác định
+### 1.3.3. Sao chép trạng thái và thực thi xác định
 
 Blockchain có thể được phân tích như một dạng sao chép máy trạng thái. Gọi $S$ là trạng thái, $T$ là giao dịch và $\delta$ là hàm chuyển trạng thái; cùng trạng thái đầu vào và cùng thứ tự giao dịch phải tạo cùng kết quả $S^{\prime} = \delta(S,T)$ tại các nút trung thực [10]. Điều kiện xác định này đòi hỏi chương trình tránh phụ thuộc trực tiếp vào đồng hồ cục bộ, số ngẫu nhiên không được thống nhất, phản hồi mạng bên ngoài hoặc cách làm tròn khác nhau giữa các máy.
 
 Nhiều nền tảng tách nhật ký giao dịch nối tiếp khỏi phần biểu diễn trạng thái mới nhất để vừa bảo toàn lịch sử vừa truy vấn hiệu quả. Nhật ký cho phép kiểm toán và tái dựng; trạng thái hiện thời phục vụ nghiệp vụ đọc thường xuyên. Đây là mô hình kiến trúc phổ biến nhưng cách tổ chức dữ liệu, xử lý giao dịch không hợp lệ và phục hồi trạng thái thay đổi theo từng nền tảng [8], [10].
 
-### Hợp đồng thông minh và dữ liệu ngoài hệ thống
+### 1.3.4. Hợp đồng thông minh và dữ liệu ngoài hệ thống
 
 Hợp đồng thông minh là chương trình biểu diễn quy tắc chuyển trạng thái và được các nút thực thi theo cơ chế của nền tảng [1], [10]. Nó có thể chuẩn hóa điều kiện nghiệp vụ và tạo dấu vết nhất quán, nhưng không tự bảo đảm logic được viết đúng. Lỗi phân quyền, kiểm tra đầu vào, xử lý trạng thái hoặc cơ chế nâng cấp có thể gây hậu quả trên toàn mạng. Vì vậy, mã cần được kiểm thử, rà soát an toàn, quản lý phiên bản và triển khai theo quy trình phê duyệt phù hợp.
 
 Môi trường thực thi xác định không thể tùy ý lấy dữ liệu từ Internet vì các nút có thể nhận kết quả khác nhau. Dữ liệu ngoài hệ thống thường được đưa vào qua nguồn cung cấp có thẩm quyền hoặc cơ chế oracle. Chữ ký của nguồn chỉ chứng minh dữ liệu đến từ khóa tương ứng và không bị sửa sau khi ký; nó không chứng minh nội dung phản ánh đúng sự thật ngoài đời. Thiết kế an toàn cần quy định nguồn tin cậy, thời hạn hiệu lực, cách xử lý sai lệch và cơ chế dừng an toàn khi dữ liệu ngoài không đáng tin [1].
 
-## Cơ chế đồng thuận
+## 1.4. Cơ chế đồng thuận
 
-### Bài toán đồng thuận và mô hình lỗi
+### 1.4.1. Bài toán đồng thuận và mô hình lỗi
 
 Đồng thuận giúp các nút thống nhất thứ tự giao dịch và trạng thái được chấp nhận trong điều kiện thông điệp có thể đến không đồng thời hoặc một số nút gặp sự cố [1]. Hai thuộc tính thường được xem xét là tính an toàn, nghĩa là các nút trung thực không chấp nhận hai quyết định mâu thuẫn trong cùng ngữ cảnh, và tính sống, nghĩa là hệ thống có thể tiếp tục đưa ra quyết định khi các giả định về mạng và số nút lỗi còn được thỏa mãn [6], [7]. Không giao thức nào bảo đảm mọi thuộc tính trong mọi điều kiện; mỗi thiết kế phải nêu mô hình mạng, loại lỗi và ngưỡng đối phương mà nó chịu được.
 
 Mô hình chịu lỗi dừng (Crash Fault Tolerance - CFT) giả định nút lỗi chỉ dừng hoặc mất kết nối, không chủ động tạo thông điệp sai. Mô hình chịu lỗi Byzantine (Byzantine Fault Tolerance - BFT) mạnh hơn vì cho phép nút bị chiếm quyền gửi thông điệp khác nhau tới các bên, thông đồng hoặc cố ý vi phạm giao thức [6], [7]. Việc lựa chọn CFT hay BFT phải dựa trên ranh giới tin cậy: nút trong cùng miền quản trị và được bảo vệ tốt có thể chấp nhận giả định lỗi dừng, còn mạng liên tổ chức có nguy cơ hành vi tùy ý cần đánh giá BFT hoặc biện pháp kiểm soát bổ sung.
 
-### Proof of Work và Proof of Stake
+### 1.4.2. Proof of Work và Proof of Stake
 
 Trong mạng không cấp quyền, một thực thể có thể tạo nhiều định danh với chi phí thấp để thao túng biểu quyết. Proof of Work (PoW) gắn quyền đề xuất khối với công việc tính toán, còn Proof of Stake (PoS) gắn quyền tham gia với lượng tài sản cam kết và các quy tắc khuyến khích hoặc xử phạt [1], [2]. Hai nhóm cơ chế này tạo chi phí cho tấn công Sybil mà không cần danh sách thành viên cố định.
 
 PoW có lịch sử vận hành rõ trong Bitcoin nhưng tiêu thụ nhiều năng lượng và thường đạt hoàn tất theo xác suất [2]. PoS giảm nhu cầu tính toán lặp lại, song độ an toàn phụ thuộc cách chọn người đề xuất, cơ chế xử lý nhánh cạnh tranh, phân phối cổ phần và quản trị giao thức. Không phải mọi PoS đều có cùng mô hình hoàn tất hoặc hiệu năng. Đối với mạng gồm các tổ chức đã định danh, PoW và PoS thường không phải lựa chọn đầu tiên vì quyền tham gia có thể được kiểm soát trực tiếp bằng danh tính và chính sách [1], [8].
 
-### Đồng thuận CFT và BFT trong mạng định danh
+### 1.4.3. Đồng thuận CFT và BFT trong mạng định danh
 
 Raft là thuật toán CFT sử dụng nút dẫn dắt để sắp thứ tự và sao chép nhật ký; một mục được cam kết khi đạt đa số theo quy tắc của giao thức [7]. PBFT cổ điển hướng tới mô hình Byzantine và sử dụng các pha trao đổi thông điệp để các bản sao thống nhất thứ tự yêu cầu ngay cả khi có một số nút hành xử tùy ý [6]. So với PoW hoặc PoS, các giao thức này dựa trên tập thành viên đã biết và cơ chế túc số, nên phù hợp hơn với nhiều mạng cấp quyền.
 
@@ -144,7 +144,7 @@ n ≥ 2f + 1 (CFT); n ≥ 3f + 1 (BFT)    (1.3)
 
 Trong đó n là tổng số nút và f là số nút lỗi tối đa. Với n=3f+1, một túc số BFT thường có 2f+1 phiếu; hai túc số như vậy giao nhau ít nhất f+1 nút, nên phần giao chứa ít nhất một nút trung thực khi có tối đa f nút Byzantine [6]. PBFT cổ điển còn có chi phí truyền thông bậc hai O(n^2) ở các pha nhiều nút trao đổi chéo, do đó chi phí tăng nhanh theo quy mô mạng [6].
 
-### Tính hoàn tất và đánh đổi thiết kế
+### 1.4.4. Tính hoàn tất và đánh đổi thiết kế
 
 Tính hoàn tất (finality) biểu thị mức độ chắc chắn rằng một giao dịch đã được chấp nhận sẽ không bị đảo ngược trong điều kiện an toàn giả định. Trong cơ chế hoàn tất theo xác suất, khả năng tổ chức lại lịch sử giảm dần khi có thêm khối xác nhận nhưng không bằng không về mặt tuyệt đối [2]. Trong cơ chế hoàn tất xác định dựa trên túc số, giao dịch được coi là hoàn tất sau khi đạt đủ phiếu theo giao thức; kết luận này vẫn phụ thuộc vào giả định số nút lỗi, an toàn khóa và quy tắc quản trị [6], [7].
 
@@ -154,9 +154,9 @@ Hình 1.4. So sánh khái quát các nhóm cơ chế đồng thuận
 
 Lựa chọn đồng thuận là bài toán đánh đổi giữa mức phân tán quyền quyết định, khả năng chịu lỗi, độ trễ, thông lượng và chi phí vận hành [10]. “Bộ ba phân quyền – an toàn – khả năng mở rộng” có thể dùng như một khung trực giác, không phải định luật buộc mọi hệ thống chỉ được chọn hai thuộc tính. Cơ chế phù hợp phải được đánh giá trên tải thực tế, số tổ chức vận hành, loại hành vi đối phương và yêu cầu phục hồi, thay vì dựa trên tên gọi hoặc tuyên bố hiệu năng của nền tảng.
 
-## Phân loại Blockchain và điều kiện lựa chọn
+## 1.5. Phân loại Blockchain và điều kiện lựa chọn
 
-### Các trục phân loại
+### 1.5.1. Các trục phân loại
 
 ![Hình 1.5. Phân loại mạng Blockchain](report-assets/ch1-08.png)
 
@@ -164,7 +164,7 @@ Hình 1.5. Phân loại Blockchain theo phạm vi tham gia và quyền truy cậ
 
 Blockchain có thể được phân loại theo nhiều trục độc lập. Trục quyền tham gia phân biệt mạng không cấp quyền, nơi chủ thể có thể tham gia theo quy tắc mở, với mạng cấp quyền, nơi danh tính và vai trò được phê duyệt trước [1]. Trục phạm vi quản trị phân biệt mạng công khai, mạng riêng do một miền quản trị chi phối và mạng liên minh do nhiều tổ chức cùng quản trị. Quyền đọc dữ liệu lại là một quyết định khác: một mạng cấp quyền có thể cho công chúng đọc bằng chứng tối thiểu, trong khi một mạng công khai vẫn có thể sử dụng cơ chế bảo vệ nội dung riêng tư. Vì vậy, không nên đồng nhất “công khai” với “không cấp quyền”, hoặc “riêng tư” với “cấp quyền” [1], [8].
 
-### So sánh các mô hình triển khai
+### 1.5.2. So sánh các mô hình triển khai
 
 Bảng 1-1: So sánh khái quát các mô hình triển khai Blockchain
 
@@ -181,15 +181,15 @@ Mạng mở tạo khả năng kiểm chứng rộng và chống Sybil bằng ngu
 
 Không mô hình nào mặc nhiên tốt hơn. Hiệu năng thực tế phụ thuộc thuật toán đồng thuận, số nút, chính sách xác nhận, hạ tầng mạng, kích thước giao dịch và cách tổ chức dữ liệu. Vì vậy, các con số thông lượng hoặc độ trễ chỉ có ý nghĩa khi được đo trên cấu hình và tải xác định [10].
 
-### Khi nên và không nên sử dụng Blockchain
+### 1.5.3. Khi nên và không nên sử dụng Blockchain
 
 Nên xem xét Blockchain khi nhiều tổ chức cần cùng cập nhật trạng thái, lịch sử phải được kiểm chứng độc lập và không bên nào được chấp nhận làm chủ thể duy nhất có quyền sửa dữ liệu. Quy trình cũng phải đủ rõ để biểu diễn thành giao dịch, các bên có động lực vận hành chung và dữ liệu có thể được tối thiểu hóa phù hợp với yêu cầu riêng tư [1], [10].
 
 Không nên sử dụng Blockchain nếu chỉ một tổ chức chịu trách nhiệm và được các bên tin cậy, nếu dữ liệu phải sửa hoặc xóa thường xuyên, hoặc nếu tải và độ trễ vượt khả năng của cơ chế đồng thuận. Một cơ sở dữ liệu truyền thống có nhật ký kiểm toán và chữ ký số có thể đơn giản, rẻ và dễ quản trị hơn trong các trường hợp đó. Blockchain cũng không sửa được một quy trình nghiệp vụ mơ hồ, dữ liệu đầu vào kém chất lượng hay tranh chấp trách nhiệm giữa các tổ chức.
 
-## An toàn, quyền riêng tư và khả năng mở rộng
+## 1.6. An toàn, quyền riêng tư và khả năng mở rộng
 
-### Mô hình đe dọa và bảo vệ nhiều lớp
+### 1.6.1. Mô hình đe dọa và bảo vệ nhiều lớp
 
 ![Hình 1.6. Kiến trúc phân lớp của hệ thống Blockchain](report-assets/ch1-06.png)
 
@@ -199,27 +199,27 @@ An toàn Blockchain không chỉ phụ thuộc hàm băm hoặc đồng thuận 
 
 Biện pháp bảo vệ phải bám vào mô hình đe dọa. Kênh truyền cần được mã hóa và xác thực; nút cần vá lỗi, phân đoạn mạng, giám sát và sao lưu; chính sách đồng thuận phải giới hạn quyền của một tổ chức; ứng dụng phải kiểm soát đầu vào, phiên đăng nhập và phân quyền. Việc nhiều nút lưu sổ cái không thay thế kế hoạch ứng phó sự cố: nếu các nút cùng phụ thuộc một hạ tầng, cùng dùng cấu hình sai hoặc cùng bị lộ khóa, lỗi có thể lan rộng trên toàn hệ thống.
 
-### Quản lý khóa, hợp đồng thông minh và nguồn dữ liệu ngoài
+### 1.6.2. Quản lý khóa, hợp đồng thông minh và nguồn dữ liệu ngoài
 
 Khóa bí mật đại diện cho quyền ký giao dịch nên cần được quản lý suốt vòng đời: sinh bằng nguồn ngẫu nhiên an toàn, lưu trong kho được bảo vệ, giới hạn mục đích sử dụng, luân chuyển, sao lưu có kiểm soát và thu hồi khi nghi ngờ lộ [5]. Mô-đun bảo mật phần cứng, chữ ký nhiều bên hoặc mật mã ngưỡng có thể giảm rủi ro một khóa hay một cá nhân trở thành điểm lỗi đơn, nhưng không loại bỏ nhu cầu quản trị và phục hồi.
 
 Hợp đồng thông minh cần kiểm tra quyền, dữ liệu đầu vào, chuyển trạng thái và các trường hợp đồng thời; phiên bản mới phải có quy trình rà soát, kiểm thử và phê duyệt [10]. Nguồn dữ liệu ngoài phải được xác định thẩm quyền, ký số khi phù hợp và có thời hạn hiệu lực. Dùng nhiều nguồn chỉ hữu ích khi các nguồn đủ độc lập; nếu tất cả cùng lấy dữ liệu từ một hệ thống gốc, biểu quyết không làm dữ liệu đáng tin hơn.
 
-### Quyền riêng tư và dữ liệu cá nhân
+### 1.6.3. Quyền riêng tư và dữ liệu cá nhân
 
 Sổ cái được nhân bản và khó sửa đặt ra xung đột với yêu cầu hạn chế mục đích sử dụng, chỉnh sửa hoặc xóa dữ liệu cá nhân. Đưa trực tiếp họ tên, ngày sinh, điểm số hay tệp văn bằng lên chuỗi làm tăng phạm vi sao chép và khó kiểm soát thời hạn lưu giữ. Mã hóa không giải quyết hoàn toàn vấn đề vì bản mã tồn tại lâu dài và khóa có thể bị lộ trong tương lai.
 
 Cách tiếp cận phù hợp là tối thiểu hóa dữ liệu trên chuỗi, giữ hồ sơ chi tiết ở kho ngoài chuỗi có phân quyền và chỉ ghi bằng chứng mật mã hoặc trạng thái cần thiết cho kiểm chứng [1], [9]. Tuy nhiên, giá trị băm không mặc nhiên ẩn danh: nếu dữ liệu gốc dễ đoán, kẻ tấn công có thể thử các khả năng và so sánh kết quả; bản ghi cũng có thể liên kết với sự kiện hoặc định danh khác. Việc xóa dữ liệu ngoài chuỗi không xóa bằng chứng đã ghi, vì vậy thiết kế phải đánh giá khả năng liên kết, căn cứ xử lý và trách nhiệm của từng bên.
 
-### Khả năng mở rộng và khả năng tương tác
+### 1.6.4. Khả năng mở rộng và khả năng tương tác
 
 Khi nhiều nút cùng lưu và kiểm tra giao dịch, thông lượng, độ trễ, băng thông và dung lượng trở thành các giới hạn cần đo [10]. Có thể cải thiện bằng cách xử lý theo lô, tối ưu chính sách xác nhận, phân vùng dữ liệu hoặc đưa một phần xử lý ra ngoài chuỗi; mỗi cách tạo thêm giả định tin cậy và độ phức tạp. Các giải pháp lớp 2 chỉ nên được xem xét khi thật sự kế thừa an toàn từ chuỗi cơ sở, không nên đồng nhất mọi sidechain hoặc cầu nối với lớp 2.
 
 Khả năng tương tác không chỉ là truyền thông điệp giữa hai mạng mà còn là thống nhất ý nghĩa dữ liệu, định danh tổ chức, phiên bản lược đồ và trạng thái nghiệp vụ. Cầu nối hoặc dịch vụ chuyển tiếp bổ sung điểm tin cậy mới và từng là mục tiêu của nhiều sự cố. Các chuẩn dữ liệu chứng thực như W3C Verifiable Credentials giúp thống nhất cách biểu diễn vai trò phát hành, chủ thể và bên xác minh, nhưng không tự giải quyết quản trị khóa, quyền truy cập hay tranh chấp pháp lý [9].
 
-## Định hướng ứng dụng trong quản lý văn bằng, chứng chỉ
+## 1.7. Định hướng ứng dụng trong quản lý văn bằng, chứng chỉ
 
-### Bài toán, tác nhân và yêu cầu kiểm chứng
+### 1.7.1. Bài toán, tác nhân và yêu cầu kiểm chứng
 
 Quản lý văn bằng, chứng chỉ liên quan ba vai trò chính: cơ sở đào tạo phát hành, người học nắm giữ hoặc chia sẻ và tổ chức bên ngoài xác minh [9]. Quy trình truyền thống thường dựa vào bản giấy, bản sao chứng thực hoặc yêu cầu xác nhận thủ công; khi dữ liệu nằm ở nhiều hệ thống, việc đối soát có thể chậm và khó phát hiện tài liệu đã bị chỉnh sửa. Một sổ bằng chứng dùng chung có thể hỗ trợ bên xác minh kiểm tra nguồn phát hành, tính toàn vẹn và trạng thái hiện thời mà giảm số bước liên hệ thủ công.
 
@@ -229,25 +229,25 @@ Hình 1.7. Mô hình khái niệm ứng dụng Blockchain trong quản lý văn 
 
 Yêu cầu kiểm chứng không chỉ là so sánh mã băm. Hệ thống phải xác định đơn vị nào có thẩm quyền phát hành, khóa nào hợp lệ tại thời điểm ký, dữ liệu nào tạo thành nội dung văn bằng và trạng thái nào cho phép sử dụng. Kết quả không tìm thấy bằng chứng cũng không đủ để kết luận văn bằng giả, bởi hồ sơ cũ có thể chưa được số hóa hoặc nằm ngoài phạm vi hệ thống.
 
-### Mô hình dữ liệu khái niệm trên chuỗi và ngoài chuỗi
+### 1.7.2. Mô hình dữ liệu khái niệm trên chuỗi và ngoài chuỗi
 
 Ở mức khái niệm, sổ cái chỉ nên giữ lượng dữ liệu tối thiểu phục vụ kiểm chứng, chẳng hạn cam kết mật mã, tham chiếu đơn vị phát hành và trạng thái hiệu lực. Hồ sơ đầy đủ cùng dữ liệu cá nhân được quản lý ngoài chuỗi trong hệ thống có thẩm quyền, với mã hóa, phân quyền, nhật ký truy cập và sao lưu. Hai miền được liên kết bằng quy tắc tạo bằng chứng xác định để tài liệu bị thay đổi tạo kết quả kiểm tra khác [1], [9].
 
 Cách phân tách này giảm việc sao chép dữ liệu nhạy cảm nhưng không làm rủi ro riêng tư biến mất. Bằng chứng trên chuỗi vẫn có thể bị liên kết hoặc dò đoán; kho ngoài chuỗi vẫn có thể bị mất, sửa hoặc ngừng phục vụ. Vì vậy, Chương II cần xác định mô hình dữ liệu, quy tắc chuẩn hóa, quyền truy cập và cơ chế xử lý khi dữ liệu nguồn sai mà không giả định Blockchain tự giải quyết các vấn đề đó.
 
-### Giá trị kỳ vọng, giới hạn và ranh giới trách nhiệm
+### 1.7.3. Giá trị kỳ vọng, giới hạn và ranh giới trách nhiệm
 
 Giá trị kỳ vọng là rút ngắn thời gian xác minh, tăng khả năng phát hiện tài liệu bị sửa và tạo lịch sử trạng thái dùng chung giữa các tổ chức. Công nghệ có thể hỗ trợ ghi nhận phát hành hoặc thay đổi hiệu lực, nhưng không tự quyết định người học đủ điều kiện tốt nghiệp, không chứng minh người xuất trình là chủ văn bằng và không đánh giá chất lượng đào tạo.
 
 Cơ sở đào tạo vẫn chịu trách nhiệm về dữ liệu đầu vào và thẩm quyền phát hành; người vận hành chịu trách nhiệm bảo vệ khóa và hạ tầng; bên xác minh phải diễn giải kết quả đúng phạm vi. Nếu khóa phát hành bị lộ, bản ghi kỹ thuật hợp lệ vẫn có thể được tạo cho đến khi quyền bị thu hồi. Do đó, Blockchain phải được xem là công cụ hỗ trợ kiểm chứng, không phải nguồn phán quyết duy nhất.
 
-## Tổng kết Chương I
+## 1.8. Tổng kết Chương I
 
-### Kết quả lý luận chính
+### 1.8.1. Kết quả lý luận chính
 
 Chương I đã trình bày Blockchain như một kiến trúc sổ cái phân tán kết hợp cấu trúc liên kết băm, chữ ký số, mạng ngang hàng và đồng thuận. Mức bảo đảm của hệ thống phụ thuộc đồng thời vào giả định mật mã, số nút lỗi, quản trị khóa, chất lượng ứng dụng và dữ liệu ngoài chuỗi; vì vậy không thể đồng nhất Blockchain với tính bất biến hay an toàn tuyệt đối [1], [10]. Phân tích cũng cho thấy việc lựa chọn mô hình công khai, riêng, cấp quyền hoặc không cấp quyền phải xuất phát từ ranh giới tin cậy và yêu cầu nghiệp vụ.
 
-### Cơ sở chuyển sang Chương II
+### 1.8.2. Cơ sở chuyển sang Chương II
 
 Đối với quản lý văn bằng, hướng tiếp cận phù hợp ở mức khái niệm là giữ hồ sơ cá nhân ngoài chuỗi và chỉ sử dụng sổ cái cho bằng chứng tối thiểu cùng lịch sử trạng thái. Chương II sẽ chuyển các nguyên tắc này thành yêu cầu chức năng, yêu cầu an toàn, mô hình dữ liệu và luồng nghiệp vụ; đồng thời so sánh các phương án trước khi lựa chọn nền tảng, cấu trúc mạng và cơ chế triển khai cụ thể.
 
@@ -656,15 +656,15 @@ Bảng 3.3. Chín lần chạy hiệu năng tái kiểm chứng
 
 | Kích thước | Lần | Duyệt → issued (giây) | Giây/chứng thư | Chứng thư/giây | Thành công | Transaction |
 |---:|---:|---:|---:|---:|---:|---:|
-| 10 | 1 | 6,134 | 0,6134 | 1,6303 | 10/10 | 1 |
-| 10 | 2 | 6,118 | 0,6118 | 1,6345 | 10/10 | 1 |
-| 10 | 3 | 6,120 | 0,6120 | 1,6340 | 10/10 | 1 |
-| 100 | 1 | 10,400 | 0,1040 | 9,6154 | 100/100 | 1 |
-| 100 | 2 | 10,384 | 0,1038 | 9,6302 | 100/100 | 1 |
-| 100 | 3 | 10,334 | 0,1033 | 9,6768 | 100/100 | 1 |
-| 500 | 1 | 35,994 | 0,0720 | 13,8912 | 500/500 | 1 |
-| 500 | 2 | 38,433 | 0,0769 | 13,0097 | 500/500 | 1 |
-| 500 | 3 | 36,020 | 0,0720 | 13,8812 | 500/500 | 1 |
+| 10 | 1 | 6,106 | 0,6106 | 1,6377 | 10/10 | 1 |
+| 10 | 2 | 6,102 | 0,6102 | 1,6388 | 10/10 | 1 |
+| 10 | 3 | 6,094 | 0,6094 | 1,6410 | 10/10 | 1 |
+| 100 | 1 | 10,379 | 0,1038 | 9,6348 | 100/100 | 1 |
+| 100 | 2 | 10,368 | 0,1037 | 9,6451 | 100/100 | 1 |
+| 100 | 3 | 10,548 | 0,1055 | 9,4805 | 100/100 | 1 |
+| 500 | 1 | 35,943 | 0,0719 | 13,9109 | 500/500 | 1 |
+| 500 | 2 | 36,112 | 0,0722 | 13,8458 | 500/500 | 1 |
+| 500 | 3 | 35,798 | 0,0716 | 13,9673 | 500/500 | 1 |
 
 ### 3.9.2. Giá trị tổng hợp
 
@@ -672,11 +672,11 @@ Bảng 3.4. Tổng hợp theo kích thước batch
 
 | Batch | Số lần | Tổng chứng thư | Thành công | Thời gian TB ± SD (giây) | Giây/chứng thư TB | Throughput TB (chứng thư/giây) | Tx/batch |
 |---:|---:|---:|---:|---:|---:|---:|---:|
-| 10 | 3 | 30 | 100% | 6,124 ± 0,009 | 0,6124 | 1,6329 | 1,00 |
-| 100 | 3 | 300 | 100% | 10,373 ± 0,034 | 0,1037 | 9,6408 | 1,00 |
-| 500 | 3 | 1.500 | 100% | 36,816 ± 1,401 | 0,0736 | 13,5940 | 1,00 |
+| 10 | 3 | 30 | 100% | 6,101 ± 0,005 | 0,6101 | 1,6392 | 1,00 |
+| 100 | 3 | 300 | 100% | 10,432 ± 0,082 | 0,1043 | 9,5868 | 1,00 |
+| 500 | 3 | 1.500 | 100% | 35,951 ± 0,128 | 0,0719 | 13,9080 | 1,00 |
 
-Khi batch tăng từ 10 lên 500, kích thước tăng 50 lần nhưng thời gian trung bình tăng khoảng 6,01 lần. Throughput tăng khoảng 8,32 lần; thời gian trung bình mỗi chứng thư giảm khoảng 87,98%. Kết quả phản ánh lợi ích phân bổ chi phí cố định và batching trong môi trường thử nghiệm, không phải cam kết hiệu năng production.
+Khi batch tăng từ 10 lên 500, kích thước tăng 50 lần nhưng thời gian trung bình tăng khoảng 5,89 lần. Throughput tăng khoảng 8,48 lần; thời gian trung bình mỗi chứng thư giảm khoảng 88,21%. Kết quả phản ánh lợi ích phân bổ chi phí cố định và batching trong môi trường thử nghiệm, không phải cam kết hiệu năng production.
 
 ![Hình 3.6. Thời gian phát hành trung bình theo kích thước batch](report-assets/ch3-06-thoi-gian-batch.png)
 
@@ -692,11 +692,11 @@ Bảng 3.5. Tài nguyên hệ thống
 
 | Batch | CPU TB | CPU cực đại TB | Bộ nhớ dùng TB (MB) | Bộ nhớ cực đại TB (MB) | Backend RSS TB (MB) | Backend RSS cực đại TB (MB) |
 |---:|---:|---:|---:|---:|---:|---:|
-| 10 | 28,47% | 40,44% | 2.523,1 | 2.545,9 | 152,4 | 159,2 |
-| 100 | 55,53% | 100,00% | 2.709,0 | 3.069,0 | 172,7 | 180,3 |
-| 500 | 73,80% | 100,00% | 2.978,0 | 3.345,9 | 226,4 | 237,5 |
+| 10 | 29,00% | 42,71% | 2.508,9 | 2.543,7 | 166,9 | 169,4 |
+| 100 | 54,62% | 100,00% | 2.705,6 | 3.042,8 | 201,5 | 205,3 |
+| 500 | 74,45% | 100,00% | 2.912,7 | 3.323,4 | 221,3 | 235,6 |
 
-CPU và bộ nhớ tăng theo kích thước batch nhưng nằm trong giới hạn máy thử nghiệm. CPU cực đại chạm 100% ở nhóm 100 và 500; bộ nhớ dùng cực đại trung bình của nhóm 500 khoảng 3.345,9 MB. Số liệu chỉ đại diện cấu hình 4 vCPU và concurrency 16 đã nêu.
+CPU và bộ nhớ tăng theo kích thước batch nhưng nằm trong giới hạn máy thử nghiệm. CPU cực đại chạm 100% ở nhóm 100 và 500; bộ nhớ dùng cực đại trung bình của nhóm 500 khoảng 3.323,4 MB. Số liệu chỉ đại diện cấu hình 4 vCPU và concurrency 16 đã nêu.
 
 ![Hình 3.8. Mức sử dụng tài nguyên theo kích thước batch](report-assets/ch3-08-tai-nguyen.png)
 
@@ -704,7 +704,7 @@ Hình 3.8. Mức sử dụng tài nguyên theo kích thước batch
 
 ### 3.9.4. Kiểm toán artifact
 
-Script kiểm toán chạy lại trên dữ liệu vừa sinh và ghi nhận 9/9 run đạt, 1.830/1.830 chứng thư được phát hành, 1.830 certificate ID cùng target hash duy nhất, 1.830/1.830 Merkle proof khớp, 9 lô phát hành tương ứng 9 transaction đã xác nhận và 1.830/1.830 chứng thư được bộ `cert-verifier-js` kết luận `VALID`. Kiểm toán còn đối chiếu checksum từng file với manifest, dữ liệu DB theo `issuanceBatchId` và Merkle root trong `OP_RETURN`. `SHA256SUMS` kiểm tra 18/18 artifact tóm tắt được lưu trong repository.
+Script kiểm toán chạy lại trên dữ liệu vừa sinh và ghi nhận 9/9 run đạt, 1.830/1.830 chứng thư được phát hành, 1.830 certificate ID cùng target hash duy nhất, 1.830/1.830 Merkle proof khớp, 9 lô phát hành tương ứng 9 transaction đã xác nhận và 1.830/1.830 chứng thư được bộ `cert-verifier-js` kết luận `VALID`. Kiểm toán còn đối chiếu checksum từng file với manifest, dữ liệu DB theo `issuanceBatchId` và Merkle root trong `OP_RETURN`. `MANIFEST.json` đối chiếu đúng 35/35 payload của lượt chạy; `SHA256SUMS` kiểm tra đúng 37/37 tệp công bố (gồm manifest và bảng tổng hợp bổ sung) được lưu trong repository.
 
 Bảng 3.6. Kết quả kiểm toán
 
@@ -716,9 +716,10 @@ Bảng 3.6. Kết quả kiểm toán
 | Merkle proof được đối chiếu | 1.830/1.830 |
 | Xác minh đầy đủ bằng `cert-verifier-js` | 1.830/1.830 `VALID` |
 | Lô phát hành/transaction đã xác nhận | 9/9 |
-| Artifact checksum lưu trong repository | 18/18 |
+| Payload trong manifest lượt chạy | 35/35 |
+| Tệp công bố qua `SHA256SUMS` | 37/37 |
 
-Tổng 1.830 là tổng lượt/chứng thư của chín run: `3×10 + 3×100 + 3×500`. Không có việc cộng 1.830 chứng thư rồi nhân thêm ba lần; từng run sinh tập ID riêng. Kết quả áp dụng cho cây nguồn và stack regtest được ghi trong artifact, không phải tuyên bố cho mainnet hoặc production.
+Tổng 1.830 là tổng lượt/chứng thư của chín run: `3×10 + 3×100 + 3×500`. Không có việc cộng 1.830 chứng thư rồi nhân thêm ba lần; từng run sinh tập ID riêng. Kết quả áp dụng cho cây nguồn và stack regtest được ghi trong artifact, không phải tuyên bố cho mainnet hoặc production. Lượt chạy được thực hiện từ commit nguồn `2816de8aac13492b614dbcc6b3b3e1f3eba52bc1`, trạng thái Git sạch (`sourceDirty=false`), với fingerprint cây nguồn `6e0cd862daf5641b26995575d8e7ff9d755daf43396191dfc838fc6ffb0997cc`; manifest bao phủ cả `benchmark.mjs`, `run-tests.sh`, `audit-benchmark-artifacts.mjs`, `full-verifier-batch.cjs` và `source-manifest.py`.
 
 ## 3.10. Kết quả Kịch bản 3 – thu hồi, RBAC và audit
 
@@ -855,7 +856,7 @@ Trước khi triển khai thực tế, cần đánh giá pháp lý và quy trìn
 
 ## Phụ lục B. Bằng chứng thực nghiệm chính thức
 
-Bộ tái kiểm chứng hiện hành nằm trong `experiments/results/revalidation-20260930/`, gồm E2E chức năng/phục hồi, kết quả 12 suite backend, chín run benchmark, bảng tổng hợp, chín manifest, kiểm toán 1.830 chứng thư và `SHA256SUMS`. Artifact cũ trong `experiments/results/` được giữ để truy vết lịch sử nhưng không thay thế kết quả tái kiểm chứng này. Dữ liệu credential, private key, WIF, token, mật khẩu và tài khoản bootstrap không thuộc phạm vi công khai.
+Bộ tái kiểm chứng hiện hành nằm trong `experiments/results/final-revalidation-20260930/`, gồm E2E chức năng/phục hồi, kết quả 12 suite backend, chín run benchmark, bảng tổng hợp, chín manifest, kiểm toán 1.830 chứng thư và `SHA256SUMS`. Artifact cũ trong `experiments/results/` được giữ để truy vết lịch sử nhưng không thay thế kết quả tái kiểm chứng này. Dữ liệu credential, private key, WIF, token, mật khẩu và tài khoản bootstrap không thuộc phạm vi công khai.
 
 ## Phụ lục C. Hướng dẫn tái lập tóm tắt
 

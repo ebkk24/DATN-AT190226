@@ -55,6 +55,30 @@ const business = {
   diplomaNumber: `KMA-E2E-${Date.now()}`,
   trainingMode: "Chính quy",
 };
+// Hồi quy: hai lần duyệt từng phần của cùng một nhóm yêu cầu phải tạo hai lô phát hành riêng.
+const partialRecipients = [0, 1].map((index) => ({
+  studentCode: accounts.student.studentCode,
+  pubkey: process.env.ISSUING_ADDRESS,
+  identity: `partial-${index}-${accounts.runId}@example.invalid`,
+  ...business,
+  diplomaNumber: `KMA-PARTIAL-${index}-${Date.now()}`,
+}));
+const partialRequest = await call("/api/issue/batch/request", {
+  method: "POST", token: maker, body: { recipients: partialRecipients },
+});
+assert(partialRequest.status === 201 && partialRequest.body?.ids?.length === 2, `Tạo nhóm phiếu duyệt từng phần lỗi ${partialRequest.status}: ${JSON.stringify(partialRequest.body)}`);
+const partialRequestBatchId = partialRequest.body.requestBatchId || partialRequest.body.batchId;
+const partialFirst = await call("/api/issue/batch/approve", {
+  method: "POST", token: checker, body: { ids: [partialRequest.body.ids[0]] },
+});
+const partialSecond = await call("/api/issue/batch/approve", {
+  method: "POST", token: checker, body: { ids: [partialRequest.body.ids[1]] },
+});
+assert(partialFirst.status === 201 && partialSecond.status === 201, `Duyệt từng phần lỗi: ${partialFirst.status}/${partialSecond.status}`);
+const partialFirstIssuance = partialFirst.body.issuanceBatchId || partialFirst.body.batchId;
+const partialSecondIssuance = partialSecond.body.issuanceBatchId || partialSecond.body.batchId;
+assert(partialFirstIssuance && partialSecondIssuance && partialFirstIssuance !== partialSecondIssuance, "Hai lần duyệt từng phần dùng trùng issuanceBatchId");
+assert(partialFirst.body.requestBatchIds?.includes(partialRequestBatchId) && partialSecond.body.requestBatchIds?.includes(partialRequestBatchId), `Duyệt từng phần làm mất requestBatchId gốc: ${JSON.stringify([partialFirst.body, partialSecond.body])}`);
 const request = await call("/api/issue/request", { method: "POST", token: maker, body: { studentCode: accounts.student.studentCode, pubkey: process.env.ISSUING_ADDRESS, identity: `e2e-${accounts.runId}@example.invalid`, ...business } });
 assert(request.status === 201 && request.body?.id, `Maker lập phiếu lỗi ${request.status}`);
 const id = request.body.id;
@@ -164,6 +188,7 @@ const result = {
   runId: accounts.runId,
   startedAt: startedAt.toISOString(),
   completedAt: new Date().toISOString(),
+  partialApproval: { requestBatchId: partialRequestBatchId, issuanceBatchIds: [partialFirstIssuance, partialSecondIssuance], distinct: true },
   issuance: { id, certUid: row.certUid, txid: row.txid, merkleRoot: row.merkleRoot, seconds: issueSeconds, confirmations: await confirmations(row.txid), profile: certificate.proof.verificationMethod },
   rbac: { makerSelfApprove: makerApprove.status, otherMakerListVisible: otherMakerList.body.some((x) => x.id === id), otherMakerRead: otherMakerRead.status, otherMakerAuditVisible: otherMakerAudit.body.some((x) => x.targetId === id), studentRevoke: studentRevoke.status, makerRevoke: makerRevoke.status, checkerRevoke: revoked.status },
   verification: { original: original.body.status, tampered, afterRevoke: afterRevoke.body.status },

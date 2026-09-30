@@ -305,7 +305,7 @@ Bảng 2.1. Danh sách yêu cầu chức năng
 
 Yêu cầu mới có trạng thái `pending_approval`. Maker không được gọi API duyệt; Checker lấy danh tính từ JWT thay vì tin `approvedBy` do client gửi. Khi duyệt, yêu cầu chuyển `queued` và được đưa vào BullMQ. Worker chuyển lần lượt sang `processing`, `issued` hoặc `failed`. Checker chỉ thu hồi bản ghi `issued`; chứng thư thu hồi chuyển `revoked` và không bị xóa.
 
-Phát hành theo lô yêu cầu tất cả bản ghi thuộc trạng thái cho phép. Mỗi bản ghi vẫn có `certUid` riêng; các bản ghi trong cùng lô dùng chung `batchId`, Merkle root và transaction id. Cột `txid` không được đặt duy nhất, vì Merkle batching chủ ý cho phép nhiều chứng thư cùng neo vào một transaction [3], [14].
+Phát hành theo lô yêu cầu tất cả bản ghi thuộc trạng thái cho phép. Mô hình tách `requestBatchId` (nhóm phiếu Maker tạo) khỏi `issuanceBatchId` (một lần Checker duyệt/phát hành). Vì vậy một nhóm yêu cầu có thể được duyệt từng phần thành nhiều lô phát hành mà không xung đột khóa; mỗi phiếu chỉ chuyển khỏi `pending_approval` một lần. Các chứng thư trong cùng `issuanceBatchId` dùng chung Merkle root và transaction id nhưng có `certUid` riêng. Cột `txid` không được đặt duy nhất vì Merkle batching chủ ý cho phép nhiều chứng thư cùng neo vào một transaction [3], [14].
 
 ## 2.3. Yêu cầu phi chức năng và mô hình đe dọa
 
@@ -430,7 +430,7 @@ Bảng lưu `id`, `username` duy nhất, `passwordHash`, `role`, `studentCode` v
 
 ### 2.8.2. Bảng `issued_certificates`
 
-Mỗi dòng vừa là yêu cầu nghiệp vụ vừa là chứng thư sau phát hành. Nhóm đầu vào gồm dữ liệu văn bằng và khóa ngoại `studentId`; nhóm blockchain gồm `certUid`, `txid`, `merkleRoot`, `batchId`; nhóm Maker–Checker gồm `requestedBy`, `approvedBy`, `rejectedBy`, `rejectReason`; nhóm trạng thái gồm `status`, `errorMessage`; nhóm thu hồi gồm `revocationTxid`, raw transaction/txid checkpoint, số lần thử, người thực hiện, lý do và thời điểm.
+Mỗi dòng vừa là yêu cầu nghiệp vụ vừa là chứng thư sau phát hành. Nhóm đầu vào gồm dữ liệu văn bằng, khóa ngoại `studentId` và `requestBatchId`; nhóm blockchain gồm `certUid`, `txid`, `merkleRoot` và `issuanceBatchId`; nhóm Maker–Checker gồm `requestedBy`, `approvedBy`, `rejectedBy`, `rejectReason`; nhóm trạng thái gồm `status`, `errorMessage`; nhóm thu hồi gồm `revocationTxid`, raw transaction/txid checkpoint, số lần thử, người thực hiện, lý do và thời điểm.
 
 Thiết kế một bảng làm giảm số phép nối và phù hợp nguyên mẫu nhưng vẫn trộn dữ liệu yêu cầu với artifact phát hành. Hệ thống hiện đã liên kết Student bằng khóa ngoại và dùng `studentCode` duy nhất toàn hệ thống; khi mở rộng vẫn nên tách `issuance_requests`, `batches`, `certificates` và `revocation_requests`.
 
@@ -443,7 +443,7 @@ Bảng 2.4. Mô hình dữ liệu chính
 | Bảng | Khóa/định danh | Chức năng |
 |---|---|---|
 | `users` | UUID, username unique | Tài khoản và vai trò |
-| `issued_certificates` | UUID, certUid, batchId | Vòng đời yêu cầu/chứng thư |
+| `issued_certificates` | UUID, certUid, requestBatchId, issuanceBatchId | Vòng đời yêu cầu/chứng thư |
 | `verification_logs` | UUID, certId | Lịch sử xác minh |
 | `audit_logs` | UUID, targetId | Nhật ký hành động |
 
@@ -514,7 +514,7 @@ Chương 2 đã chuyển cơ sở lý thuyết thành thiết kế cụ thể: b
 
 ### 3.1.1. Môi trường thực nghiệm
 
-Bản thực nghiệm chính thức chạy trên Ubuntu Server 22.04.5 LTS, CPU Intel Xeon 16 lõi logic và khoảng 31 GiB RAM. Cấu hình được đóng băng bằng tag `b12-frozen-20260912-r2`; mọi số liệu định lượng lấy từ artifacts tạo sau mốc này. Bitcoin chạy regtest, cho phép chủ động tạo block mà không dùng tiền thật [18].
+Đợt tái kiểm chứng ngày 30/09/2026 chạy trên Ubuntu Server 22.04.5 LTS, 4 vCPU Intel Xeon Gold 6130 và 19 GiB RAM. Stack được dựng tách biệt trên Bitcoin regtest, PostgreSQL và Redis riêng. Mã nguồn được nhận diện bằng commit nền `9d1080434696c4ef2cae76e8a080cb6c45a27fd3` cùng hash cây nguồn chưa commit `ad860ab6138574639eb9e0bf0b90dabc353a7946719c1d4747f1a61b3f11e852`; các số liệu dưới đây lấy từ artifact của đúng lần chạy này. Regtest cho phép chủ động tạo block mà không dùng tiền thật [18].
 
 Bảng 3.1. Thành phần phần mềm
 
@@ -545,13 +545,13 @@ PostgreSQL, Redis và Bitcoin Core chạy bằng Docker với restart policy. Ba
 
 Backend gồm `AuthModule`, `AdminModule`, `IssuanceModule`, `VerificationModule`, `RevocationModule`, `AuditModule`, `IssuerModule` và health controller. Controller gắn `AuthGuard` rồi `RolesGuard` tại route cần bảo vệ; service thực thi nghiệp vụ; entity mô tả dữ liệu; processor nhận job BullMQ. NestJS được chọn vì hỗ trợ module, dependency injection, guard và validation rõ ràng [19].
 
-`AuthModule` đăng nhập, so khớp bcrypt và ký JWT. `AdminModule` cho Checker list/tạo tài khoản nhưng không trả `passwordHash`. `IssuanceModule` quản lý phiếu và worker. `VerificationModule` điều phối verifier service và lưu log. `RevocationModule` tạo transaction thu hồi. `IssuerModule` công bố profile cùng revocation list.
+`AuthModule` đăng nhập, so khớp bcrypt, ký JWT và cung cấp một hàm đăng ký dùng chung. Cả endpoint tự đăng ký và endpoint Checker tạo tài khoản đều gọi cùng hàm này, nên việc chuẩn hóa `studentCode`, kiểm tra trùng và lưu đầy đủ trường Student không còn bị tách thành hai luồng. `AdminModule` vẫn list/tạo tài khoản nhưng không trả `passwordHash`. `IssuanceModule` quản lý phiếu và worker. `VerificationModule` điều phối verifier service và lưu log. `RevocationModule` tạo transaction thu hồi. `IssuerModule` công bố profile cùng revocation list.
 
 ### 3.2.2. Migration và transaction
 
 TypeORM chạy `synchronize=false`; schema thay đổi qua migration [22]. Bốn bảng chính là `users`, `issued_certificates`, `verification_logs` và `audit_logs`. PostgreSQL transaction bảo đảm nhóm thay đổi DB được commit hoặc rollback như một đơn vị [20]. `txid` không có unique constraint vì nhiều chứng thư trong một batch dùng chung transaction.
 
-Bảng `issued_certificates` lưu cả yêu cầu và kết quả. Cách này làm workflow đơn giản nhưng tạo hạn chế đã nêu ở Chương 2. `batchId` bổ sung ở B12 để truy vết ổn định; worker cập nhật DB theo chunk 100 bản ghi nhằm tránh một câu lệnh quá lớn.
+Bảng `issued_certificates` lưu cả yêu cầu và kết quả. Cách này làm workflow đơn giản nhưng tạo hạn chế đã nêu ở Chương 2. Migration thứ 10 sao chép định danh nhóm cũ sang `requestBatchId`, đổi cột phát hành thành `issuanceBatchId`, để trống định danh phát hành cho phiếu chưa duyệt và tạo chỉ mục riêng cho hai mục đích. Worker cập nhật DB theo chunk 100 bản ghi nhằm tránh một câu lệnh quá lớn.
 
 ### 3.2.3. Audit và verification log
 
@@ -573,7 +573,7 @@ Thiết kế cuối chia roster thành chunk 10 hồ sơ; tối đa 16 chunk t�
 
 ![Hình 3.3. Luồng phát hành theo lô](report-assets/ch3-03-luong-phat-hanh-lo.png)
 
-Workspace có roster, unsigned, blockchain certificate, issuer work và manifest. Dữ liệu runtime được giữ cục bộ và bị loại khỏi Git. Sau khi giải mã receipt, worker lưu `certUid`, `txid`, Merkle root và `batchId`; thao tác DB được chia nhỏ. Mỗi job hiện tối đa 500 hồ sơ, nên mục tiêu là một transaction mỗi job.
+Workspace có roster, unsigned, blockchain certificate, issuer work và manifest. Dữ liệu runtime được giữ cục bộ và bị loại khỏi Git. Sau khi giải mã receipt, worker lưu `certUid`, `txid`, Merkle root và `issuanceBatchId`; `requestBatchId` vẫn giữ quan hệ với nhóm phiếu ban đầu. Thao tác DB được chia nhỏ. Mỗi job hiện tối đa 500 hồ sơ, nên mục tiêu là một transaction mỗi job.
 
 ### 3.3.3. Cấu trúc chứng thư đầu ra
 
@@ -599,7 +599,7 @@ Sau khi giao dịch được xác nhận, PostgreSQL cập nhật `revoked`, tra
 
 ## 3.5. Hiện thực ba frontend
 
-Cổng quản trị hiển thị dashboard, lập phiếu đơn/lô, duyệt nhiều phiếu, danh sách văn bằng, thu hồi, người dùng và audit. Menu được lọc theo Maker/Checker. Cổng Holder dùng tài khoản Student, lấy danh sách theo `recipientName`, cho xem/tải JSON và vẫn hiển thị bản ghi `revoked`. Cổng Verify không yêu cầu đăng nhập.
+Cổng quản trị hiển thị dashboard, lập phiếu đơn/lô, duyệt nhiều phiếu, danh sách văn bằng, thu hồi, người dùng và audit. Menu được lọc theo Maker/Checker. Cổng Holder dùng tài khoản Student, lấy danh sách theo khóa ngoại `studentId` từ JWT thay vì so tên, cho xem/tải JSON và vẫn hiển thị bản ghi `revoked`. Cổng Verify không yêu cầu đăng nhập; `INDETERMINATE` được hiển thị riêng là “Chưa thể kết luận”, không dùng màu/nhãn của `INVALID`.
 
 Một lỗi route đã được sửa bằng cách đặt `holder/certificates`, `batch/request`, `batch/approve` và `revoke/check` trước route tham số `:id`. Một lỗi khác xảy ra khi RolesGuard toàn cục chạy trước JWT strategy; giải pháp là gắn `AuthGuard('jwt')` và `RolesGuard` cục bộ đúng thứ tự. Các lỗi này được giữ trong nhật ký phát triển để giải thích quyết định thiết kế.
 
@@ -607,7 +607,7 @@ Một lỗi route đã được sửa bằng cách đặt `holder/certificates`,
 
 Mật khẩu được băm bằng bcrypt với cost 10, đáp ứng mức tối thiểu cho bcrypt mà OWASP nêu; đối với hệ thống mới, Argon2id vẫn là lựa chọn được ưu tiên [17]. JWT tuân theo cấu trúc RFC 7519 [15]. RBAC từ chối Student ở cổng quản trị và kiểm tra quyền tại backend; actor được lấy từ JWT. B12 bổ sung Helmet, throttling, CORS allowlist, giới hạn kích thước body, cấu hình Swagger và Nginx. Nguyên tắc kiểm quyền trên mọi request phù hợp với hướng dẫn OWASP [16]. Verifier đã giới hạn một số URL và chặn `localhost`/`127.0.0.1`; tuy nhiên, đối chiếu mã nguồn với hướng dẫn phòng chống SSRF cho thấy biện pháp hiện tại chưa bao phủ đầy đủ các dải địa chỉ nội bộ IPv4/IPv6, địa chỉ metadata và DNS rebinding [23]. Vì vậy, đây mới là mức giảm thiểu ban đầu, không phải bằng chứng SSRF đã được xử lý triệt để.
 
-Bản freeze R1 bị vô hiệu vì Nginx không có quyền ghi thư mục tạm cho request body lớn. Sau khi sửa quyền, preflight được chạy lại và đóng băng R2. Việc loại R1 khỏi thống kê nhưng lưu riêng bằng chứng lỗi giúp tránh lựa chọn dữ liệu có lợi và tăng khả năng truy vết.
+Các freeze R1/R2 cũ được giữ để truy vết lịch sử. Đợt ngày 30/09/2026 dựng lại stack cách ly, chạy đủ 10 migration và tạo bộ artifact mới; báo cáo này dùng bộ tái kiểm chứng mới thay cho việc suy diễn từ freeze cũ.
 
 ## 3.7. Phương pháp kiểm thử
 
@@ -615,7 +615,7 @@ Bản freeze R1 bị vô hiệu vì Nginx không có quyền ghi thư mục tạ
 
 Kiểm thử trả lời ba câu hỏi: chứng thư bị sửa có bị phát hiện và Maker có bị chặn tự duyệt hay không; Merkle batching có phát hành đủ 10, 100 và 500 chứng thư với một transaction/lô hay không; thu hồi có đúng quyền, được xác nhận và phản ánh nhất quán ở Verify, Revocation List cùng audit hay không.
 
-Bộ dữ liệu là dữ liệu giả lập, không dùng hồ sơ cá nhân thật. Mỗi kích thước hiệu năng lặp ba lần. Thời gian đo từ lúc Checker duyệt đến khi toàn bộ bản ghi `issued`. Artifacts gồm JSON thô, CSV, manifest, biểu đồ, trạng thái sau thử nghiệm và SHA-256 checksum. Lần chạy cấu hình sai được tách khỏi tập chính thức.
+Bộ dữ liệu là dữ liệu giả lập, không dùng hồ sơ cá nhân thật. Mỗi kích thước hiệu năng lặp ba lần. Thời gian đo từ lúc Checker duyệt đến khi toàn bộ bản ghi `issued`. Artifact tái kiểm chứng gồm JSON thô, manifest theo lô, kết quả E2E/kiểm toán và SHA-256 checksum. Những lần chạy lỗi trong quá trình sửa script không được đưa vào chín run đạt; mã lỗi vẫn được mô tả trong lịch sử phát triển thay vì tính vào thống kê.
 
 Thời gian mỗi chứng thư và throughput được tính:
 
@@ -627,7 +627,7 @@ Trong đó `T_batch` là thời gian từ duyệt đến phát hành hoàn tất
 
 ### 3.7.2. Kiểm thử tự động và chất lượng mã
 
-Backend có 10 test suite với 31/31 test đạt, gồm RBAC, DTO, issuance outbox/checkpoint/recovery, revocation checkpoint/reconciliation, audit hash chain, verifier và issuer profile. Bộ safe-fetch có 10/10 ca SSRF đạt. Cả ba frontend build thành công; `npm audit --omit=dev` của backend và ba frontend không phát hiện lỗ hổng tại thời điểm kiểm tra. Kết quả này không đồng nghĩa hệ thống không có lỗ hổng logic hoặc cấu hình.
+Đợt tái kiểm chứng có 12/12 backend test suite với 49/49 test đạt, gồm test hồi quy tiền điều kiện thu hồi, cạnh tranh duyệt/từ chối, duyệt từng phần, hợp nhất tạo Student, RBAC, DTO, outbox/checkpoint/recovery, audit, verifier và issuer profile. Dịch vụ verifier đạt 16/16 ca, gồm 10 ca SSRF và 6 ca phân loại trạng thái. Cả ba frontend build thành công. Kết quả này không đồng nghĩa hệ thống không có lỗ hổng logic hoặc cấu hình. E2E trên stack regtest còn xác nhận hai lần duyệt từng phần của cùng một `requestBatchId` tạo hai `issuanceBatchId` khác nhau, luồng phát hành–xác minh–thu hồi đạt và phục hồi sau lỗi ngay sau broadcast giữ nguyên txid, chỉ tăng một block.
 
 ## 3.8. Kết quả Kịch bản 1 – tính toàn vẹn và Maker–Checker
 
@@ -640,11 +640,11 @@ Bảng 3.2. Kết quả Kịch bản 1
 | S1-01 | Chứng thư gốc | `VALID` | `VALID` | Đạt |
 | S1-02 | Sửa tên người nhận | Không `VALID` | `INVALID` | Đạt |
 | S1-03 | Sửa tên văn bằng | Không `VALID` | `INVALID` | Đạt |
-| S1-04 | Sửa `proofValue` | Không `VALID` | `INDETERMINATE` | Đạt |
-| S1-05 | Sửa txid trong proof | Không `VALID` | `INDETERMINATE` | Đạt |
+| S1-04 | Sửa `proofValue` | Không `VALID` | `INVALID` | Đạt |
+| S1-05 | Sửa txid trong proof | Không `VALID` | `INVALID` | Đạt |
 | S1-06 | Maker tự duyệt | HTTP 403 | HTTP 403 | Đạt |
 
-Hai trường hợp sửa nội dung trả `INVALID`; hai trường hợp phá bằng chứng/anchor trả `INDETERMINATE`. Cả bốn đều không bị nhận là `VALID`. Ca S1-06 cho thấy guard Maker–Checker đã chặn đúng hành vi tự duyệt trong phạm vi API và cấu hình được kiểm thử, không chỉ ở giao diện.
+Bốn trường hợp sửa nội dung, proof hoặc txid đều trả `INVALID`; lỗi hạ tầng/RPC trong bộ test riêng mới trả `INDETERMINATE`. Ca S1-06 cho thấy guard Maker–Checker đã chặn đúng hành vi tự duyệt trong phạm vi API và cấu hình được kiểm thử, không chỉ ở giao diện.
 
 ![Hình 3.5. Tiến trình thực nghiệm Chương 3](report-assets/ch3-05-tien-trinh-thuc-nghiem.png)
 
@@ -652,19 +652,19 @@ Hai trường hợp sửa nội dung trả `INVALID`; hai trường hợp phá b
 
 ### 3.9.1. Kết quả từng lần
 
-Bảng 3.3. Chín lần chạy hiệu năng chính thức
+Bảng 3.3. Chín lần chạy hiệu năng tái kiểm chứng
 
 | Kích thước | Lần | Duyệt → issued (giây) | Giây/chứng thư | Chứng thư/giây | Thành công | Transaction |
 |---:|---:|---:|---:|---:|---:|---:|
-| 10 | 1 | 34,450 | 3,4450 | 0,2903 | 10/10 | 1 |
-| 10 | 2 | 32,406 | 3,2406 | 0,3086 | 10/10 | 1 |
-| 10 | 3 | 30,412 | 3,0412 | 0,3288 | 10/10 | 1 |
-| 100 | 1 | 38,794 | 0,3879 | 2,5777 | 100/100 | 1 |
-| 100 | 2 | 38,841 | 0,3884 | 2,5746 | 100/100 | 1 |
-| 100 | 3 | 40,965 | 0,4097 | 2,4411 | 100/100 | 1 |
-| 500 | 1 | 129,673 | 0,2593 | 3,8559 | 500/500 | 1 |
-| 500 | 2 | 123,850 | 0,2477 | 4,0371 | 500/500 | 1 |
-| 500 | 3 | 127,889 | 0,2558 | 3,9096 | 500/500 | 1 |
+| 10 | 1 | 6,134 | 0,6134 | 1,6303 | 10/10 | 1 |
+| 10 | 2 | 6,118 | 0,6118 | 1,6345 | 10/10 | 1 |
+| 10 | 3 | 6,120 | 0,6120 | 1,6340 | 10/10 | 1 |
+| 100 | 1 | 10,400 | 0,1040 | 9,6154 | 100/100 | 1 |
+| 100 | 2 | 10,384 | 0,1038 | 9,6302 | 100/100 | 1 |
+| 100 | 3 | 10,334 | 0,1033 | 9,6768 | 100/100 | 1 |
+| 500 | 1 | 35,994 | 0,0720 | 13,8912 | 500/500 | 1 |
+| 500 | 2 | 38,433 | 0,0769 | 13,0097 | 500/500 | 1 |
+| 500 | 3 | 36,020 | 0,0720 | 13,8812 | 500/500 | 1 |
 
 ### 3.9.2. Giá trị tổng hợp
 
@@ -672,46 +672,41 @@ Bảng 3.4. Tổng hợp theo kích thước batch
 
 | Batch | Số lần | Tổng chứng thư | Thành công | Thời gian TB ± SD (giây) | Giây/chứng thư TB | Throughput TB (chứng thư/giây) | Tx/batch |
 |---:|---:|---:|---:|---:|---:|---:|---:|
-| 10 | 3 | 30 | 100% | 32,423 ± 2,019 | 3,2423 | 0,3092 | 1,00 |
-| 100 | 3 | 300 | 100% | 39,533 ± 1,240 | 0,3953 | 2,5311 | 1,00 |
-| 500 | 3 | 1.500 | 100% | 127,137 ± 2,983 | 0,2543 | 3,9342 | 1,00 |
+| 10 | 3 | 30 | 100% | 6,124 ± 0,009 | 0,6124 | 1,6329 | 1,00 |
+| 100 | 3 | 300 | 100% | 10,373 ± 0,034 | 0,1037 | 9,6408 | 1,00 |
+| 500 | 3 | 1.500 | 100% | 36,816 ± 1,401 | 0,0736 | 13,5940 | 1,00 |
 
-![Hình 3.6. Thời gian phát hành theo kích thước batch](report-assets/ch3-06-thoi-gian-batch.png)
-
-![Hình 3.7. Thông lượng và thời gian trên mỗi chứng thư](report-assets/ch3-07-thong-luong-hieu-qua.png)
-
-Khi batch tăng từ 10 lên 500, kích thước tăng 50 lần nhưng thời gian trung bình tăng khoảng 3,92 lần. Throughput tăng khoảng 12,72 lần; thời gian trung bình mỗi chứng thư giảm khoảng 92,16%. Kết quả phản ánh lợi ích phân bổ chi phí cố định và batching trong môi trường thử nghiệm, không phải cam kết hiệu năng production.
+Khi batch tăng từ 10 lên 500, kích thước tăng 50 lần nhưng thời gian trung bình tăng khoảng 6,01 lần. Throughput tăng khoảng 8,32 lần; thời gian trung bình mỗi chứng thư giảm khoảng 87,98%. Kết quả phản ánh lợi ích phân bổ chi phí cố định và batching trong môi trường thử nghiệm, không phải cam kết hiệu năng production.
 
 ### 3.9.3. Tài nguyên
 
 Bảng 3.5. Tài nguyên hệ thống
 
-| Batch | CPU TB | CPU cực đại | Bộ nhớ dùng TB (MB) | Bộ nhớ cực đại TB (MB) | Backend RSS TB (MB) | Backend RSS cực đại TB (MB) |
+| Batch | CPU TB | CPU cực đại TB | Bộ nhớ dùng TB (MB) | Bộ nhớ cực đại TB (MB) | Backend RSS TB (MB) | Backend RSS cực đại TB (MB) |
 |---:|---:|---:|---:|---:|---:|---:|
-| 10 | 7,24% | 15,98% | 2.561,1 | 2.599,4 | 125,3 | 126,1 |
-| 100 | 21,20% | 78,63% | 2.877,6 | 3.130,1 | 134,5 | 138,1 |
-| 500 | 31,74% | 82,30% | 3.144,5 | 3.531,1 | 159,7 | 163,8 |
+| 10 | 28,47% | 40,44% | 2.523,1 | 2.545,9 | 152,4 | 159,2 |
+| 100 | 55,53% | 100,00% | 2.709,0 | 3.069,0 | 172,7 | 180,3 |
+| 500 | 73,80% | 100,00% | 2.978,0 | 3.345,9 | 226,4 | 237,5 |
 
-![Hình 3.8. Mức sử dụng tài nguyên](report-assets/ch3-08-tai-nguyen.png)
-
-CPU và bộ nhớ tăng theo kích thước batch nhưng nằm trong giới hạn máy thử nghiệm. CPU cực đại khoảng 82,30% ở nhóm 500; bộ nhớ dùng cực đại trung bình khoảng 3.531,1 MB. Số liệu chỉ đại diện cấu hình 16 lõi và concurrency 16 đã nêu.
+CPU và bộ nhớ tăng theo kích thước batch nhưng nằm trong giới hạn máy thử nghiệm. CPU cực đại chạm 100% ở nhóm 100 và 500; bộ nhớ dùng cực đại trung bình của nhóm 500 khoảng 3.345,9 MB. Số liệu chỉ đại diện cấu hình 4 vCPU và concurrency 16 đã nêu.
 
 ### 3.9.4. Kiểm toán artifact
 
-Script kiểm toán ghi nhận 9/9 run đạt, 1.830/1.830 chứng thư được phát hành, 1.830 certificate ID duy nhất, 1.830/1.830 Merkle proof hợp lệ, 9 batch tương ứng 9 transaction và các transaction có confirmation. `SHA256SUMS_PUBLIC` kiểm tra 25/25 artifact được công bố; hai artifact nhạy cảm trong manifest nội bộ không nằm trong snapshot công khai.
+Script kiểm toán chạy lại trên dữ liệu vừa sinh và ghi nhận 9/9 run đạt, 1.830/1.830 chứng thư được phát hành, 1.830 certificate ID cùng target hash duy nhất, 1.830/1.830 Merkle proof khớp, 9 lô phát hành tương ứng 9 transaction đã xác nhận và 1.830/1.830 chứng thư được bộ `cert-verifier-js` kết luận `VALID`. Kiểm toán còn đối chiếu checksum từng file với manifest, dữ liệu DB theo `issuanceBatchId` và Merkle root trong `OP_RETURN`. `SHA256SUMS` kiểm tra 18/18 artifact tóm tắt được lưu trong repository.
 
 Bảng 3.6. Kết quả kiểm toán
 
 | Chỉ số | Kết quả |
 |---|---:|
 | Lần chạy | 9/9 đạt |
-| Chứng thư | 1.830/1.830 |
-| Certificate ID duy nhất | 1.830 |
-| Merkle proof hợp lệ | 1.830/1.830 |
-| Batch/transaction | 9/9 |
-| Artifact checksum công khai | 25/25 |
+| Chứng thư phát hành | 1.830/1.830 |
+| Certificate ID/target hash duy nhất | 1.830/1.830 |
+| Merkle proof được đối chiếu | 1.830/1.830 |
+| Xác minh đầy đủ bằng `cert-verifier-js` | 1.830/1.830 `VALID` |
+| Lô phát hành/transaction đã xác nhận | 9/9 |
+| Artifact checksum lưu trong repository | 18/18 |
 
-Tổng 1.830 là tổng lượt/chứng thư của chín run: `3×10 + 3×100 + 3×500`. Không có việc cộng 1.830 chứng thư rồi nhân thêm ba lần; từng run sinh tập ID riêng.
+Tổng 1.830 là tổng lượt/chứng thư của chín run: `3×10 + 3×100 + 3×500`. Không có việc cộng 1.830 chứng thư rồi nhân thêm ba lần; từng run sinh tập ID riêng. Kết quả áp dụng cho cây nguồn và stack regtest được ghi trong artifact, không phải tuyên bố cho mainnet hoặc production.
 
 ## 3.10. Kết quả Kịch bản 3 – thu hồi, RBAC và audit
 
@@ -728,7 +723,7 @@ Bảng 3.7. Kết quả Kịch bản 3
 | S3-07 | Có trong Revocation List | Có | Có | Đạt |
 | S3-08 | Audit đủ role/action | 4 action | revoke/issue/approve/request | Đạt |
 
-Tám trên tám ca đạt. Trong phạm vi môi trường R2 và các ca đã thiết kế, kết quả ghi nhận chỉ Checker thực hiện được thao tác thu hồi; transaction có xác nhận; Verify, Revocation List và audit trả kết quả nhất quán.
+Tám trên tám ca đạt. Trong phạm vi môi trường tái kiểm chứng và các ca đã thiết kế, kết quả ghi nhận chỉ Checker thực hiện được thao tác thu hồi; transaction có xác nhận; Verify, Revocation List và audit trả kết quả nhất quán.
 
 ![Hình 3.9. Tổng hợp tỷ lệ đạt của ba kịch bản](report-assets/ch3-09-tong-hop-kich-ban.png)
 
@@ -747,7 +742,7 @@ Bảng 3.8. Đối chiếu yêu cầu và bằng chứng
 | Chỉ Checker thu hồi | S3-02 đến S3-04 | Đạt |
 | Verify nhận biết thu hồi | S3-05 đến S3-07 | Đạt |
 | Audit actor/action | S3-08 | Đạt |
-| Build/test/health | 31/31 backend test; 10/10 SSRF test; 3 frontend; `HEALTH_OK` | Đạt |
+| Build/test/health | 49/49 backend test; 16/16 verifier test; 3 frontend; health đạt với 10 migration | Đạt |
 
 ### 3.11.2. Hạn chế
 
@@ -1115,7 +1110,7 @@ Phần này tổng hợp các câu hỏi có khả năng xuất hiện khi đọ
 
 ## 3.13. Kết luận Chương 3
 
-Chương 3 đã trình bày môi trường, cách hiện thực backend, ba frontend, worker, Blockcerts toolchain, xác minh, thu hồi và hardening B12; đồng thời báo cáo kết quả thực nghiệm có artifact kiểm toán. Kịch bản 1 đạt 6/6, Kịch bản 2 có 9/9 run và 1.830/1.830 proof hợp lệ, Kịch bản 3 đạt 8/8. Kết quả cung cấp bằng chứng thực nghiệm rằng nguyên mẫu đáp ứng các yêu cầu đã kiểm thử và batching hoạt động trong môi trường regtest; kết quả không xác nhận tính đúng toàn diện và không được suy rộng thành mức sẵn sàng production.
+Chương 3 đã trình bày môi trường, cách hiện thực backend, ba frontend, worker, Blockcerts toolchain, xác minh, thu hồi và hardening B12; đồng thời báo cáo kết quả thực nghiệm có artifact kiểm toán. Kịch bản 1 đạt 6/6, Kịch bản 2 có 9/9 run, 1.830/1.830 proof được đối chiếu và 1.830/1.830 chứng thư được xác minh `VALID`, Kịch bản 3 đạt 8/8. Kết quả cung cấp bằng chứng thực nghiệm rằng nguyên mẫu đáp ứng các yêu cầu đã kiểm thử và batching hoạt động trong môi trường regtest; kết quả không xác nhận tính đúng toàn diện và không được suy rộng thành mức sẵn sàng production.
 
 
 # KẾT LUẬN VÀ KIẾN NGHỊ
@@ -1124,7 +1119,7 @@ Chương 3 đã trình bày môi trường, cách hiện thực backend, ba fron
 
 Đồ án đã nghiên cứu cơ sở blockchain, hàm băm, chữ ký số, cây Merkle, cơ chế đồng thuận và mô hình Verifiable Credentials; từ đó phân tích, thiết kế và xây dựng nguyên mẫu quản lý văn bằng số dựa trên Blockcerts V3 và Bitcoin. Hệ thống có ba vai trò xác thực Maker–Checker–Student, một nhóm người xác minh công khai, ba cổng web, phát hành theo lô, holder portal, thu hồi và audit.
 
-Về kỹ thuật, hệ thống chuẩn hóa và băm từng chứng thư, tạo cây Merkle, neo một root cho cả lô lên Bitcoin regtest và gắn proof riêng vào từng credential. Bộ xác minh tính lại payload hash, proof, anchor, confirmation và trạng thái thu hồi. Thực nghiệm chính thức hoàn thành 6/6 phép thử nghiệp vụ, 8/8 phép thử xác minh–thu hồi, chín lần benchmark không lỗi và kiểm toán thành công 1.830/1.830 chứng thư duy nhất.
+Về kỹ thuật, hệ thống chuẩn hóa và băm từng chứng thư, tạo cây Merkle, neo một root cho cả lô lên Bitcoin regtest và gắn proof riêng vào từng credential. Bộ xác minh tính lại payload hash, proof, anchor, confirmation và trạng thái thu hồi. Thực nghiệm chính thức hoàn thành 6/6 phép thử nghiệp vụ, 8/8 phép thử xác minh–thu hồi, chín lần benchmark không lỗi, kiểm toán 1.830/1.830 proof và xác minh đầy đủ 1.830/1.830 chứng thư là `VALID`.
 
 Kết quả cho thấy mô hình phù hợp để minh họa cách blockchain tăng khả năng phát hiện sửa đổi và giảm phụ thuộc vào tra cứu thủ công. Tuy nhiên, blockchain không tự chứng minh dữ liệu đầu vào là đúng và không thay thế quản trị của cơ sở đào tạo. Giá trị của chứng thư vẫn phụ thuộc vào danh tính issuer, quy trình phê duyệt, bảo vệ khóa và khả năng vận hành dịch vụ.
 
@@ -1202,7 +1197,7 @@ Trước khi triển khai thực tế, cần đánh giá pháp lý và quy trìn
 
 ## Phụ lục B. Bằng chứng thực nghiệm chính thức
 
-Bộ kết quả chính thức nằm trong `experiments/results/`, gồm tóm tắt kịch bản 1 và 3, chín kết quả benchmark, bảng tổng hợp hiệu năng, kiểm toán artifact, biểu đồ và `SHA256SUMS`. Freeze dùng cho báo cáo là `experiments/freeze/b12-freeze-r2.json`. Dữ liệu credential, private key, WIF, token, mật khẩu và tài khoản bootstrap không thuộc phạm vi công khai.
+Bộ tái kiểm chứng hiện hành nằm trong `experiments/results/revalidation-20260930/`, gồm E2E chức năng/phục hồi, kết quả 12 suite backend, chín run benchmark, bảng tổng hợp, chín manifest, kiểm toán 1.830 chứng thư và `SHA256SUMS`. Artifact cũ trong `experiments/results/` được giữ để truy vết lịch sử nhưng không thay thế kết quả tái kiểm chứng này. Dữ liệu credential, private key, WIF, token, mật khẩu và tài khoản bootstrap không thuộc phạm vi công khai.
 
 ## Phụ lục C. Hướng dẫn tái lập tóm tắt
 

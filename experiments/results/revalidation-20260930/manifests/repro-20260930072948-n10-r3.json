@@ -1,0 +1,70 @@
+{
+  "schema": "datn-batch-manifest-v1",
+  "batchId": "48a75e24-e869-4c3c-9d79-a70b260e8409",
+  "count": 10,
+  "txid": "2450f9def102a1546eff150008710a1b8d92f8789fbe08cc459c4cee2b59ac05",
+  "merkleRoot": "ece25899cd899ea6ac3d832b880afa976cca340b659107b03164927f02eb70ee",
+  "certificateFiles": [
+    {
+      "certUid": "e9de2ebf-a803-465e-a5f2-8aac27439edf",
+      "filename": "e9de2ebf-a803-465e-a5f2-8aac27439edf.json",
+      "bytes": 2939,
+      "sha256": "28a84e794e1a215a8edd402b3fd5846687bcb20df3db0008411b12a567016df4"
+    },
+    {
+      "certUid": "aa68ac34-5ffa-42a1-97d0-80da96a46aa9",
+      "filename": "aa68ac34-5ffa-42a1-97d0-80da96a46aa9.json",
+      "bytes": 3131,
+      "sha256": "5ba69864fa7cdefc850be90ead1bb6e4e49b3b8c1a1ae653c671672eae344d46"
+    },
+    {
+      "certUid": "77a450ea-023a-4a24-8c05-05be8f7e836e",
+      "filename": "77a450ea-023a-4a24-8c05-05be8f7e836e.json",
+      "bytes": 3131,
+      "sha256": "5f0154a03ec7925d21747153f360b9b57bac3a27eb7ebefa50352c4de5c07dc3"
+    },
+    {
+      "certUid": "5465604a-0a1a-4bf9-8b14-19e87036d7f3",
+      "filename": "5465604a-0a1a-4bf9-8b14-19e87036d7f3.json",
+      "bytes": 3131,
+      "sha256": "dfa72679c0bd0c92a4186d0351a6201faa83908cc90548075b1524cba7b2e54b"
+    },
+    {
+      "certUid": "66e3da80-434e-431a-977b-b0fe14b7222e",
+      "filename": "66e3da80-434e-431a-977b-b0fe14b7222e.json",
+      "bytes": 3131,
+      "sha256": "a1849e81e24279d22e8e234473e9c34e132964760d329c7802ea272e1ee2e053"
+    },
+    {
+      "certUid": "d56d7f8e-9adc-4da4-8f18-802c2de819b0",
+      "filename": "d56d7f8e-9adc-4da4-8f18-802c2de819b0.json",
+      "bytes": 2939,
+      "sha256": "b81afd6d07ad7441ebe7a79e7a7477184d07c26a3867fb18b952338bae4d85c4"
+    },
+    {
+      "certUid": "3d4845d7-9ede-4fc5-b328-31cbe3e5e4f8",
+      "filename": "3d4845d7-9ede-4fc5-b328-31cbe3e5e4f8.json",
+      "bytes": 3131,
+      "sha256": "f75ad09f8777c47d5bd5d48e472ad7ac1b8924f1e38320cd6c6af864dad593a3"
+    },
+    {
+      "certUid": "d39aba0c-c840-46f5-8c27-98f3157168fe",
+      "filename": "d39aba0c-c840-46f5-8c27-98f3157168fe.json",
+      "bytes": 3131,
+      "sha256": "392f0cf9b26525607ff4dce236086b6025321a3943b22e0a0cde0244f69f6982"
+    },
+    {
+      "certUid": "5ea1c5d4-4949-4c02-a678-5370beec354d",
+      "filename": "5ea1c5d4-4949-4c02-a678-5370beec354d.json",
+      "bytes": 3131,
+      "sha256": "6a551faa968e663a223d7e0a388bfe0d2f9c26aa9c715303621742286b5d5688"
+    },
+    {
+      "certUid": "535b74c0-cd0e-4005-9440-456e3c0b65ba",
+      "filename": "535b74c0-cd0e-4005-9440-456e3c0b65ba.json",
+      "bytes": 3131,
+      "sha256": "a1f66ce2ffc0efb1aae57eba9dd38fef1713025aee3ddad8c072ceed5776ad18"
+    }
+  ],
+  "completedAt": "2026-09-30T07:30:19.929Z"
+}

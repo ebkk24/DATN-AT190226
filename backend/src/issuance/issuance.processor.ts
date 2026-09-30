@@ -297,7 +297,7 @@ export class IssuanceProcessor extends WorkerHost {
     const rows = await this.repo.find({ where: { id: In(ids) } });
     if (rows.length !== ids.length)
       throw new Error('Có hồ sơ trong batch không tồn tại');
-    if (rows.some((row) => row.batchId !== batchId)) {
+    if (rows.some((row) => row.issuanceBatchId !== batchId)) {
       throw new Error('Có hồ sơ không thuộc batch');
     }
     const invalid = rows.filter(
@@ -354,7 +354,9 @@ export class IssuanceProcessor extends WorkerHost {
     }
 
     const nonceToRow = new Map<string, IssuedCertificate>();
-    const rosterLines = ['name,pubkey,identity,recipient_name,student_code,date_of_birth,email,cohort,degree_name,major,education_level,graduation_rank,graduation_year,issue_date,diploma_number,training_mode,nonce'];
+    const rosterLines = [
+      'name,pubkey,identity,recipient_name,student_code,date_of_birth,email,cohort,degree_name,major,education_level,graduation_rank,graduation_year,issue_date,diploma_number,training_mode,nonce',
+    ];
     for (const row of rows) {
       const nonce = this.stableNonce(batchId, row.id);
       nonceToRow.set(nonce, row);
@@ -384,7 +386,10 @@ export class IssuanceProcessor extends WorkerHost {
           .join(','),
       );
     }
-    fs.writeFileSync(rosterPath, `${rosterLines.join('\n')}\n`, { encoding: 'utf8', mode: 0o600 });
+    fs.writeFileSync(rosterPath, `${rosterLines.join('\n')}\n`, {
+      encoding: 'utf8',
+      mode: 0o600,
+    });
     const baseIssuerConfig = fs.readFileSync(
       path.join(root, 'blockcerts', 'cert-issuer', 'config', 'conf.ini'),
       'utf8',
@@ -395,7 +400,10 @@ export class IssuanceProcessor extends WorkerHost {
           `batch_size=${rows.length}`,
         )
       : `${baseIssuerConfig.trim()}\nbatch_size=${rows.length}\n`;
-    fs.writeFileSync(issuerConfigPath, issuerConfig, { encoding: 'utf8', mode: 0o600 });
+    fs.writeFileSync(issuerConfigPath, issuerConfig, {
+      encoding: 'utf8',
+      mode: 0o600,
+    });
 
     try {
       let checkpoint = this.readCheckpoint(checkpointPath);

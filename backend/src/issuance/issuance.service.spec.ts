@@ -197,11 +197,85 @@ describe('IssuanceService student identity mapping', () => {
     expect(repo.findOne).toHaveBeenCalledWith({ where: { id: row.id } });
   });
 
+  it('không cho reject ghi đè trạng thái queued khi approve thắng cạnh tranh', async () => {
+    const databaseRow: any = {
+      id: 'race-certificate-id',
+      status: 'pending_approval',
+      requestBatchId: null,
+      issuanceBatchId: null,
+      approvedBy: null,
+    };
+    let releaseRejectSave!: () => void;
+    let markRejectSaveStarted!: () => void;
+    const rejectSaveStarted = new Promise<void>((resolve) => {
+      markRejectSaveStarted = resolve;
+    });
+    const rejectMaySave = new Promise<void>((resolve) => {
+      releaseRejectSave = resolve;
+    });
+    const repo = {
+      findOne: jest.fn(async () => ({ ...databaseRow })),
+      update: jest.fn(async (criteria, changes) => {
+        markRejectSaveStarted();
+        await rejectMaySave;
+        if (
+          databaseRow.id !== criteria.id ||
+          databaseRow.status !== criteria.status
+        ) {
+          return { affected: 0 };
+        }
+        Object.assign(databaseRow, changes);
+        return { affected: 1 };
+      }),
+      save: jest.fn(),
+    };
+    const qb = {
+      setLock: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      orderBy: jest.fn().mockReturnThis(),
+      getMany: jest.fn(async () => [{ ...databaseRow }]),
+    };
+    const manager = {
+      getRepository: jest.fn(() => ({ createQueryBuilder: () => qb })),
+      create: jest.fn((_entity, value) => value),
+      save: jest.fn(async (entity, value) => {
+        if (Array.isArray(value)) Object.assign(databaseRow, value[0]);
+        return value;
+      }),
+    };
+    const dataSource = {
+      transaction: jest.fn(async (callback) => callback(manager)),
+    };
+    const audit = { log: jest.fn(), logMany: jest.fn() };
+    const dispatcher = { dispatchBatch: jest.fn() };
+    const service = new IssuanceService(
+      repo as never,
+      {} as never,
+      audit as never,
+      dataSource as never,
+      dispatcher as never,
+    );
+
+    const rejecting = service.reject(
+      databaseRow.id,
+      { reason: 'Không đạt' },
+      'checker-reject',
+    );
+    await rejectSaveStarted;
+    await service.approve(databaseRow.id, {}, 'checker-approve');
+    expect(databaseRow.status).toBe('queued');
+    releaseRejectSave();
+
+    await expect(rejecting).rejects.toBeInstanceOf(BadRequestException);
+    expect(databaseRow.status).toBe('queued');
+  });
+
   it('commit trạng thái và outbox trước; Redis lỗi không làm mất batch', async () => {
     const row = {
       id: 'certificate-id',
       status: 'pending_approval',
-      batchId: null,
+      requestBatchId: null,
+      issuanceBatchId: null,
       approvedBy: null,
     };
     const qb = {
@@ -244,5 +318,82 @@ describe('IssuanceService student identity mapping', () => {
     expect(dispatcher.dispatchBatch).toHaveBeenCalledWith(
       'single-certificate-id',
     );
+  });
+  it('duyệt từng phần của cùng nhóm yêu cầu tạo các lô phát hành độc lập', async () => {
+    const requestBatchId = 'request-batch-shared';
+    const queuedRows: any[] = [];
+    const createdBatches: any[] = [];
+    let currentRows: any[] = [];
+    const qb = {
+      setLock: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      orderBy: jest.fn().mockReturnThis(),
+      getMany: jest.fn(async () => currentRows),
+    };
+    const manager = {
+      getRepository: jest.fn(() => ({ createQueryBuilder: () => qb })),
+      create: jest.fn((_entity, value) => value),
+      save: jest.fn(async (entity, value) => {
+        if (Array.isArray(value))
+          queuedRows.push(...value.map((row) => ({ ...row })));
+        else if (value?.jobId) createdBatches.push({ ...value });
+        return value;
+      }),
+    };
+    const dataSource = {
+      transaction: jest.fn(async (callback) => callback(manager)),
+    };
+    const dispatcher = { dispatchBatch: jest.fn() };
+    const audit = { log: jest.fn(), logMany: jest.fn() };
+    const service = new IssuanceService(
+      {} as never,
+      {} as never,
+      audit as never,
+      dataSource as never,
+      dispatcher as never,
+    );
+
+    currentRows = [
+      {
+        id: 'certificate-a',
+        status: 'pending_approval',
+        requestBatchId,
+        issuanceBatchId: null,
+      },
+    ];
+    const first = await service.approveBatch(
+      { ids: ['certificate-a'] },
+      'checker-a',
+    );
+    currentRows = [
+      {
+        id: 'certificate-b',
+        status: 'pending_approval',
+        requestBatchId,
+        issuanceBatchId: null,
+      },
+    ];
+    const second = await service.approveBatch(
+      { ids: ['certificate-b'] },
+      'checker-a',
+    );
+
+    expect(first.batchId).not.toBe(second.batchId);
+    expect(createdBatches.map((batch) => batch.batchId)).toEqual([
+      first.batchId,
+      second.batchId,
+    ]);
+    expect(queuedRows).toEqual([
+      expect.objectContaining({
+        id: 'certificate-a',
+        requestBatchId,
+        issuanceBatchId: first.batchId,
+      }),
+      expect.objectContaining({
+        id: 'certificate-b',
+        requestBatchId,
+        issuanceBatchId: second.batchId,
+      }),
+    ]);
   });
 });

@@ -1,0 +1,16 @@
+{
+  "schema": "datn-batch-manifest-v1",
+  "batchId": "single-b755961d-d419-43e4-98b5-77bc5d0432a9",
+  "count": 1,
+  "txid": "4b9d54c8971970d31d2ac29d9739f42227b7452afe9aaf6953abdce9c4e2b3c5",
+  "merkleRoot": "c7d719ece209f3aeb6d5d0335f215c5a66081a260257bb373bbb1ec49f1dd6dc",
+  "certificateFiles": [
+    {
+      "certUid": "5baee89c-2c8e-40a0-a2c7-d744157185a0",
+      "filename": "5baee89c-2c8e-40a0-a2c7-d744157185a0.json",
+      "bytes": 2739,
+      "sha256": "30170116d0f4d1d6721f3a07abe64d141e823029f4c5ceb547100b0450193a07"
+    }
+  ],
+  "completedAt": "2026-09-30T07:26:46.933Z"
+}

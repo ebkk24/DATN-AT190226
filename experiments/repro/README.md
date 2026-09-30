@@ -46,6 +46,8 @@ nginx -v
 python3 --version
 ```
 
+Khi dùng `--benchmark`, runner chạy 9 lô `10/100/500 × 3`, sau đó `audit-benchmark-artifacts.mjs` đối chiếu DB, manifest, checksum từng chứng thư, Merkle proof, Bitcoin `OP_RETURN` và chạy `cert-verifier-js` trên toàn bộ 1.830 chứng thư trong một container. Kết quả nằm ở `runtime/results/benchmark-artifact-audit.json`.
+
 ## Triển khai từng bước
 
 ### 1. Chuẩn bị, build, tạo stack riêng và migration
@@ -55,7 +57,7 @@ cd /duong-dan/toi/datn-blockcerts
 bash experiments/repro/scripts/prepare.sh
 ```
 
-Lần chạy đầu sẽ: cài dependency khóa bởi lockfile; build backend, ba frontend và ba image Blockcerts; tạo `.env` bí mật; dựng PostgreSQL/Redis/Bitcoin regtest riêng; sinh WIF và Issuing Address; cấp UTXO; dựng watch-only wallet; sinh cấu hình Blockcerts; chạy đủ 9 migration; kiểm tra Nginx.
+Lần chạy đầu sẽ: cài dependency khóa bởi lockfile; build backend, ba frontend và ba image Blockcerts; tạo `.env` bí mật; dựng PostgreSQL/Redis/Bitcoin regtest riêng; sinh WIF và Issuing Address; cấp UTXO; dựng watch-only wallet; sinh cấu hình Blockcerts; chạy đủ 10 migration; kiểm tra Nginx.
 
 Chỉ khi cần xóa toàn bộ dữ liệu **của stack kiểm thử** và làm lại từ đầu:
 
@@ -80,7 +82,7 @@ bash experiments/repro/scripts/health.sh
 PASS khi xuất hiện:
 
 ```text
-HEALTH_PASS containers=3 migrations=9 api=200 admin=200 student=200 verify=200
+HEALTH_PASS containers=3 migrations=10 api=200 admin=200 student=200 verify=200
 ```
 
 ### 4. Kiểm thử chức năng và an toàn mặc định

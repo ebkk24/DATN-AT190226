@@ -81,8 +81,13 @@ export class IssuedCertificate {
   @Column({ type: 'varchar', length: 64, nullable: true })
   merkleRoot?: string | null;
 
+  // Nhóm phiếu do Maker tạo trong cùng một lần requestBatch.
   @Column({ type: 'varchar', length: 100, nullable: true })
-  batchId?: string | null;
+  requestBatchId?: string | null;
+
+  // Lần phát hành cụ thể do Checker duyệt; mỗi lần duyệt có một ID riêng.
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  issuanceBatchId?: string | null;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   requestedBy?: string | null;

@@ -1,0 +1,60 @@
+{
+  "schema": "datn-revalidation-performance-summary-v1",
+  "sourceCommit": "9d1080434696c4ef2cae76e8a080cb6c45a27fd3",
+  "sourceTreeSha256": "ad860ab6138574639eb9e0bf0b90dabc353a7946719c1d4747f1a61b3f11e852",
+  "startedAt": "2026-09-30T07:27:18.261Z",
+  "completedAt": "2026-09-30T07:33:32.720Z",
+  "runs": 9,
+  "totalCertificates": 1830,
+  "allPassed": true,
+  "bySize": [
+    {
+      "size": 10,
+      "runs": 3,
+      "issued": 30,
+      "successRatePercent": 100,
+      "approvalToIssuedSecondsMean": 6.1240000000000006,
+      "approvalToIssuedSecondsStd": 0.008717797887081406,
+      "secondsPerCertificateMean": 0.6124,
+      "throughputCertificatesPerSecondMean": 1.6329218647081085,
+      "cpuAveragePercentMean": 28.47189974204847,
+      "cpuMaxPercentMean": 40.440701771770286,
+      "memoryUsedAverageMbMean": 2523.1258138020835,
+      "memoryUsedMaxMbMean": 2545.8567708333335,
+      "backendRssAverageMbMean": 152.35953776041666,
+      "backendRssMaxMbMean": 159.171875
+    },
+    {
+      "size": 100,
+      "runs": 3,
+      "issued": 300,
+      "successRatePercent": 100,
+      "approvalToIssuedSecondsMean": 10.372666666666667,
+      "approvalToIssuedSecondsStd": 0.034428670223134686,
+      "secondsPerCertificateMean": 0.10372666666666668,
+      "throughputCertificatesPerSecondMean": 9.640793323010653,
+      "cpuAveragePercentMean": 55.53341892713176,
+      "cpuMaxPercentMean": 100,
+      "memoryUsedAverageMbMean": 2709.047417534722,
+      "memoryUsedMaxMbMean": 3069.03515625,
+      "backendRssAverageMbMean": 172.69249131944446,
+      "backendRssMaxMbMean": 180.33723958333334
+    },
+    {
+      "size": 500,
+      "runs": 3,
+      "issued": 1500,
+      "successRatePercent": 100,
+      "approvalToIssuedSecondsMean": 36.815666666666665,
+      "approvalToIssuedSecondsStd": 1.4007120808122313,
+      "secondsPerCertificateMean": 0.07363133333333334,
+      "throughputCertificatesPerSecondMean": 13.59401145867909,
+      "cpuAveragePercentMean": 73.80473341164982,
+      "cpuMaxPercentMean": 100,
+      "memoryUsedAverageMbMean": 2978.021310541025,
+      "memoryUsedMaxMbMean": 3345.8671875,
+      "backendRssAverageMbMean": 226.3942061470368,
+      "backendRssMaxMbMean": 237.4921875
+    }
+  ]
+}

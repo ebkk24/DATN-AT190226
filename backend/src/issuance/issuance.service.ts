@@ -165,13 +165,13 @@ export class IssuanceService {
           .join(', ')}`,
       );
     }
-    const batchId = crypto.randomUUID();
+    const requestBatchId = crypto.randomUUID();
     const rows = items.map((dto) => {
       const student = byCode.get(this.normalizeStudentCode(dto.studentCode))!;
       return this.repo.create({
         ...this.certificateValues(dto, student),
         requestedBy,
-        batchId,
+        requestBatchId,
         status: 'pending_approval' as IssuanceStatus,
       });
     });
@@ -186,7 +186,9 @@ export class IssuanceService {
       })),
     );
     return {
-      batchId,
+      requestBatchId,
+      // Tương thích API cũ; batchId ở kết quả lập lô là ID nhóm yêu cầu.
+      batchId: requestBatchId,
       count: saved.length,
       status: 'pending_approval',
       ids: saved.map((row) => row.id),
@@ -215,19 +217,15 @@ export class IssuanceService {
           `Có ${invalid.length} phiếu không ở trạng thái chờ duyệt`,
         );
       }
-      const existingBatchIds = [
-        ...new Set(rows.map((row) => row.batchId).filter(Boolean)),
-      ];
-      const batchId =
-        preferredBatchId ||
-        (existingBatchIds.length === 1
-          ? existingBatchIds[0]!
-          : crypto.randomUUID());
+      // Không tái sử dụng requestBatchId: một nhóm yêu cầu có thể được duyệt
+      // thành nhiều lần phát hành độc lập. issuanceBatchId vẫn là khóa
+      // idempotency ổn định của đúng lần duyệt này.
+      const batchId = preferredBatchId || crypto.randomUUID();
       const jobId = `issuance-${batchId}`;
       for (const row of rows) {
         row.status = 'queued';
         row.approvedBy = approvedBy;
-        row.batchId = batchId;
+        row.issuanceBatchId = batchId;
       }
       await manager.save(IssuedCertificate, rows, { chunk: 100 });
       await manager.save(
@@ -249,7 +247,10 @@ export class IssuanceService {
           attemptCount: 0,
         }),
       );
-      return { rows, batchId, jobId };
+      const requestBatchIds = [
+        ...new Set(rows.map((row) => row.requestBatchId).filter(Boolean)),
+      ];
+      return { rows, batchId, jobId, requestBatchIds };
     });
   }
 
@@ -271,6 +272,8 @@ export class IssuanceService {
       id,
       jobId: result.jobId,
       batchId: result.batchId,
+      issuanceBatchId: result.batchId,
+      requestBatchIds: result.requestBatchIds,
       status: 'queued',
     };
   }
@@ -295,29 +298,37 @@ export class IssuanceService {
     }
     return {
       jobId: result.jobId,
+      // batchId được giữ làm bí danh tương thích API cũ; trường chuẩn là issuanceBatchId.
       batchId: result.batchId,
+      issuanceBatchId: result.batchId,
+      requestBatchIds: result.requestBatchIds,
       count: result.rows.length,
       status: 'queued',
     };
   }
 
   async reject(id: string, dto: RejectDto, rejectedBy: string) {
-    const row = await this.repo.findOne({ where: { id } });
-    if (!row) throw new NotFoundException('Không tìm thấy phiếu');
-    if (row.status !== 'pending_approval') {
+    // Cập nhật có điều kiện giúp reject không thể ghi đè approve vừa commit.
+    const result = await this.repo.update(
+      { id, status: 'pending_approval' },
+      {
+        status: 'rejected',
+        rejectedBy,
+        rejectReason: dto.reason ?? null,
+      },
+    );
+    if (result.affected !== 1) {
+      const current = await this.repo.findOne({ where: { id } });
+      if (!current) throw new NotFoundException('Không tìm thấy phiếu');
       throw new BadRequestException(
-        `Chỉ từ chối được phiếu đang chờ (hiện tại: ${row.status})`,
+        `Chỉ từ chối được phiếu đang chờ (hiện tại: ${current.status})`,
       );
     }
-    row.status = 'rejected';
-    row.rejectedBy = rejectedBy;
-    row.rejectReason = dto.reason ?? null;
-    await this.repo.save(row);
     await this.audit.log({
       action: 'reject',
       actor: rejectedBy,
       actorRole: 'checker',
-      targetId: row.id,
+      targetId: id,
       detail: dto.reason ?? null,
     });
     return { id, status: 'rejected' };
@@ -434,7 +445,7 @@ export class IssuanceService {
     const where: Record<string, unknown> = {};
     if (role === 'maker') where.requestedBy = username;
     if (status) where.status = status;
-    if (batchId) where.batchId = batchId;
+    if (batchId) where.requestBatchId = batchId;
     return this.repo.find({ where, order: { createdAt: 'DESC' } });
   }
 }

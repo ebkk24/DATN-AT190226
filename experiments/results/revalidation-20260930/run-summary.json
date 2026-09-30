@@ -1,0 +1,18 @@
+{
+  "schema": "datn-run-summary-v1",
+  "default": "PASS",
+  "functional": true,
+  "recovery": true,
+  "backend_suites": 12,
+  "backend_tests": 49,
+  "ssrf_tests": 10,
+  "verification_status_tests": 6,
+  "verifier_tests": 16,
+  "migrations": 10,
+  "partialApproval": "PASS",
+  "benchmark": "PASS",
+  "benchmark_runs": 9,
+  "benchmark_certificates": 1830,
+  "artifact_audit": "PASS",
+  "full_verifier_valid": 1830
+}

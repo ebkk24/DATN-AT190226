@@ -137,7 +137,7 @@ PY
 chmod 600 "$PROJECT/storage/credentials/pk_issuer.txt"
 (cd "$PROJECT" && sh scripts/setup-regtest-watch-wallet.sh)
 
-echo "[6/8] Chạy 9 migration trên cơ sở dữ liệu kiểm thử"
+echo "[6/8] Chạy 10 migration trên cơ sở dữ liệu kiểm thử"
 set -a; source "$ENV_FILE"; set +a
 (cd "$REPO/backend" && DATN_ENV_FILE="$ENV_FILE" npm run migration:run)
 

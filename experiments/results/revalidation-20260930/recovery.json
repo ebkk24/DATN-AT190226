@@ -1,0 +1,12 @@
+{
+  "kind": "ISSUANCE_RECOVERY",
+  "id": "9ea7faf9-71e6-4f54-b64c-d6fb26c0e54f",
+  "batchId": "single-9ea7faf9-71e6-4f54-b64c-d6fb26c0e54f",
+  "attemptCount": 2,
+  "txid": "76a61393e1c77564b0f4b00d7cfdae74819e2e79d0590545c1bbc7b6ca05b5d8",
+  "blockBefore": 184,
+  "blockAfter": 185,
+  "blockDelta": 1,
+  "passed": true,
+  "completedAt": "2026-09-30T07:27:15.310Z"
+}

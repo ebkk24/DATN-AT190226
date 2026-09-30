@@ -1,0 +1,93 @@
+{
+  "kind": "B12_E2E_PREFLIGHT",
+  "runId": "20260930072634",
+  "startedAt": "2026-09-30T07:26:35.290Z",
+  "completedAt": "2026-09-30T07:27:00.517Z",
+  "partialApproval": {
+    "requestBatchId": "e5ea3ed8-4331-466d-89c1-8353a9781c01",
+    "issuanceBatchIds": [
+      "ba8dad3d-2097-4211-a313-2cad60fcc174",
+      "92a212ce-3943-4e75-a208-1bcda303ec61"
+    ],
+    "distinct": true
+  },
+  "issuance": {
+    "id": "b755961d-d419-43e4-98b5-77bc5d0432a9",
+    "certUid": "5baee89c-2c8e-40a0-a2c7-d744157185a0",
+    "txid": "4b9d54c8971970d31d2ac29d9739f42227b7452afe9aaf6953abdce9c4e2b3c5",
+    "merkleRoot": "c7d719ece209f3aeb6d5d0335f215c5a66081a260257bb373bbb1ec49f1dd6dc",
+    "seconds": 12.589,
+    "confirmations": 2,
+    "profile": "http://127.0.0.1:18088/api/blockcerts/issuers/kma/profile.json"
+  },
+  "rbac": {
+    "makerSelfApprove": 403,
+    "otherMakerListVisible": false,
+    "otherMakerRead": 404,
+    "otherMakerAuditVisible": false,
+    "studentRevoke": 403,
+    "makerRevoke": 403,
+    "checkerRevoke": 201
+  },
+  "verification": {
+    "original": "VALID",
+    "tampered": {
+      "recipientName": "INVALID",
+      "credentialName": "INVALID",
+      "proofValue": "INVALID",
+      "txid": "INVALID"
+    },
+    "afterRevoke": "REVOKED"
+  },
+  "revocation": {
+    "txid": "40433db3077afa027ee5f150ee8164a7da3a74d3a106a8b1e951aceaec9632d8",
+    "confirmations": 1,
+    "listed": true,
+    "publicReasonIsGeneric": true
+  },
+  "holder": {
+    "visible": true,
+    "returnedCount": 3,
+    "sameNameIsolation": true,
+    "twinReturnedCount": 0
+  },
+  "privacy": {
+    "verificationLogsSanitized": true,
+    "certificateFileMode": "600"
+  },
+  "audit": [
+    {
+      "action": "revoke",
+      "actor": "repro_checker_20260930072634",
+      "actorRole": "checker",
+      "targetId": "b755961d-d419-43e4-98b5-77bc5d0432a9",
+      "txid": "40433db3077afa027ee5f150ee8164a7da3a74d3a106a8b1e951aceaec9632d8",
+      "createdAt": "2026-09-30T07:26:58.384Z"
+    },
+    {
+      "action": "issue",
+      "actor": "repro_checker_20260930072634",
+      "actorRole": "checker",
+      "targetId": "b755961d-d419-43e4-98b5-77bc5d0432a9",
+      "txid": "4b9d54c8971970d31d2ac29d9739f42227b7452afe9aaf6953abdce9c4e2b3c5",
+      "createdAt": "2026-09-30T07:26:46.946Z"
+    },
+    {
+      "action": "approve",
+      "actor": "repro_checker_20260930072634",
+      "actorRole": "checker",
+      "targetId": "b755961d-d419-43e4-98b5-77bc5d0432a9",
+      "txid": null,
+      "createdAt": "2026-09-30T07:26:36.326Z"
+    },
+    {
+      "action": "request",
+      "actor": "repro_maker_20260930072634",
+      "actorRole": "maker",
+      "targetId": "b755961d-d419-43e4-98b5-77bc5d0432a9",
+      "txid": null,
+      "createdAt": "2026-09-30T07:26:35.993Z"
+    }
+  ],
+  "passed": true
+}

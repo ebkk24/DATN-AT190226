@@ -12,8 +12,12 @@ const resultCopy: Record<string, { title: string; description: string }> = {
     description: "Chứng thư từng được phát hành nhưng hiện không còn hiệu lực.",
   },
   INVALID: {
-    title: "Không thể xác thực",
+    title: "Văn bằng không hợp lệ",
     description: "Nội dung chứng thư không hợp lệ hoặc bằng chứng blockchain không khớp.",
+  },
+  INDETERMINATE: {
+    title: "Chưa thể kết luận",
+    description: "Quá trình xác minh chưa hoàn tất do lỗi hạ tầng hoặc trạng thái đang được đối soát. Đây không phải kết luận văn bằng không hợp lệ.",
   },
 };
 
@@ -82,8 +86,14 @@ export default function App() {
     if (fileInput.current) fileInput.current.value = "";
   }
 
-  const resultState = result?.status === "VALID" ? "valid" : result?.status === "REVOKED" ? "revoked" : "invalid";
-  const copy = result ? (resultCopy[result.status] || resultCopy.INVALID) : null;
+  const resultState = result?.status === "VALID"
+    ? "valid"
+    : result?.status === "REVOKED"
+      ? "revoked"
+      : result?.status === "INVALID"
+        ? "invalid"
+        : "indeterminate";
+  const copy = result ? (resultCopy[result.status] || resultCopy.INDETERMINATE) : null;
 
   return (
     <div className="public-shell">
@@ -152,7 +162,7 @@ export default function App() {
             {result && copy && (
               <section aria-live="polite" className={`result-panel ${resultState}`}>
                 <div className="result-heading">
-                  <span className="result-icon">{resultState === "valid" ? <Icon name="check" size={26} /> : <Icon name="shield" size={26} />}</span>
+                  <span className="result-icon">{resultState === "valid" ? <Icon name="check" size={26} /> : resultState === "indeterminate" ? <Icon name="clock" size={26} /> : <Icon name="shield" size={26} />}</span>
                   <div><p>KẾT QUẢ XÁC MINH</p><h3>{copy.title}</h3><span>{copy.description}</span></div>
                 </div>
                 <dl className="result-details">

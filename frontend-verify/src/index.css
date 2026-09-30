@@ -117,7 +117,8 @@ textarea:focus { border-color: var(--blue); background: #fff; box-shadow: 0 0 0 
 .result-panel { margin-top: 25px; overflow: hidden; border: 1px solid; border-radius: 13px; animation: reveal 230ms ease-out both; }
 .result-panel.valid { color: var(--green); background: #fbfefc; border-color: #bfe4d5; }
 .result-panel.revoked { color: var(--red); background: #fffafb; border-color: #f0bbc3; }
-.result-panel.invalid { color: var(--amber); background: #fffdf8; border-color: #edd9af; }
+.result-panel.invalid { color: var(--red); background: #fffafb; border-color: #f0bbc3; }
+.result-panel.indeterminate { color: var(--amber); background: #fffdf8; border-color: #edd9af; }
 .result-heading { padding: 18px; display: flex; gap: 13px; border-bottom: 1px solid currentColor; border-bottom-color: color-mix(in srgb, currentColor 22%, transparent); }
 .result-icon { width: 45px; height: 45px; display: grid; place-items: center; flex: 0 0 auto; color: currentColor; background: color-mix(in srgb, currentColor 9%, #fff); border-radius: 11px; }
 .result-heading p { margin: 0 0 3px; opacity: .78; font-size: .6rem; font-weight: 800; letter-spacing: .11em; }

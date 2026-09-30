@@ -1,0 +1,70 @@
+{
+  "schema": "datn-batch-manifest-v1",
+  "batchId": "914098b1-78fa-45c8-aac9-aeaf2751b2d3",
+  "count": 10,
+  "txid": "114c6e657531f7e60ef7ea5f2e41ccb09ca5bfaa15333ef44ff2806bd763d72e",
+  "merkleRoot": "811b1e6be918fe0c3356c7060884b13f46a46e57fd1cef8f75482adf611b9b0a",
+  "certificateFiles": [
+    {
+      "certUid": "05c1b1e2-7025-4733-a323-b1f0f26fd6bf",
+      "filename": "05c1b1e2-7025-4733-a323-b1f0f26fd6bf.json",
+      "bytes": 3131,
+      "sha256": "d7ab5296e53acfd9670f72690e45dd26a9b859b7b7606fa7e8c04f6ec09c8998"
+    },
+    {
+      "certUid": "7d9ef9ac-293d-4ec2-872a-10a7dc3f0ab2",
+      "filename": "7d9ef9ac-293d-4ec2-872a-10a7dc3f0ab2.json",
+      "bytes": 3131,
+      "sha256": "a8eaf8e63f4fa619a37070452f5a76667860bcc0668e561ccb10fb5dec3ca3f6"
+    },
+    {
+      "certUid": "9fd2fe6f-3fea-493d-85cb-92ec846d38f2",
+      "filename": "9fd2fe6f-3fea-493d-85cb-92ec846d38f2.json",
+      "bytes": 3131,
+      "sha256": "e4a556082955818e97a2c8a3965c33474a61c8d7a226b78c9dd2f8d85e19fb68"
+    },
+    {
+      "certUid": "b9b7840e-3e32-4112-a69d-30a0b135b588",
+      "filename": "b9b7840e-3e32-4112-a69d-30a0b135b588.json",
+      "bytes": 3131,
+      "sha256": "5b6311752667c74ca7530e52693ceb28f40271e0805d9928698abf3a57e88315"
+    },
+    {
+      "certUid": "e9193422-b17b-429e-9ab6-4544fcf880e9",
+      "filename": "e9193422-b17b-429e-9ab6-4544fcf880e9.json",
+      "bytes": 2939,
+      "sha256": "411bdfa2a3d52af0b70fee529fc5abf8e617632e64f9bda1cd28042f3eb01bbb"
+    },
+    {
+      "certUid": "c9579818-16a3-4e5b-b15f-f89026091d1a",
+      "filename": "c9579818-16a3-4e5b-b15f-f89026091d1a.json",
+      "bytes": 3131,
+      "sha256": "9bd28e56b16c6168dbfe55bee3a17fbe986b47bdffd2938629c930da302e8f26"
+    },
+    {
+      "certUid": "32dfe245-c766-4bff-8206-8147c270945d",
+      "filename": "32dfe245-c766-4bff-8206-8147c270945d.json",
+      "bytes": 3131,
+      "sha256": "c284b76f8de052aec13b1d527dc6e548e4b50c7b598774579998278a8b7c0ba0"
+    },
+    {
+      "certUid": "e5b2f9db-007c-4c2d-a8a8-cc45c2795198",
+      "filename": "e5b2f9db-007c-4c2d-a8a8-cc45c2795198.json",
+      "bytes": 2939,
+      "sha256": "d2986ba578d3620497d0537e16af149a538b729f7e9e1c2424a3acb1880a3da4"
+    },
+    {
+      "certUid": "3fc53391-3a25-4547-9cb3-45482b5068d5",
+      "filename": "3fc53391-3a25-4547-9cb3-45482b5068d5.json",
+      "bytes": 3131,
+      "sha256": "3d33da9a29b44e8bf01e8720ea70b4142929f54a6e4f09b246e7d688aa7158d4"
+    },
+    {
+      "certUid": "c64036a9-0f7d-4fb5-a939-460e02a83fb2",
+      "filename": "c64036a9-0f7d-4fb5-a939-460e02a83fb2.json",
+      "bytes": 3131,
+      "sha256": "a8ed2ff6088e712cd7f54d44ceea569791163718358a3f5e84a95f166970bd96"
+    }
+  ],
+  "completedAt": "2026-09-30T07:30:07.070Z"
+}

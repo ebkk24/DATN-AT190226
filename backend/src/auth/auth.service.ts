@@ -50,6 +50,10 @@ export class AuthService {
       recipientName:
         dto.role === 'student' ? dto.recipientName?.trim() || null : null,
       studentCode,
+      dateOfBirth: dto.role === 'student' ? dto.dateOfBirth : null,
+      email:
+        dto.role === 'student' ? dto.email?.trim().toLowerCase() || null : null,
+      cohort: dto.role === 'student' ? dto.cohort?.trim() || null : null,
     });
     await this.users.save(user);
     await this.audit.log({
@@ -65,6 +69,9 @@ export class AuthService {
       role: user.role,
       recipientName: user.recipientName,
       studentCode: user.studentCode,
+      dateOfBirth: user.dateOfBirth,
+      email: user.email,
+      cohort: user.cohort,
     };
   }
 

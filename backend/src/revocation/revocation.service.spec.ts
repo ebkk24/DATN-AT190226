@@ -117,6 +117,24 @@ describe('RevocationService checkpoint/idempotency', () => {
     rmSync(h.root, { recursive: true, force: true });
   });
 
+  it.each(['pending_approval', 'rejected', 'queued', 'failed'])(
+    'không thay đổi trạng thái %s khi yêu cầu thu hồi bị từ chối',
+    async (status) => {
+      const h = makeHarness({ status });
+      (global as any).fetch = jest.fn();
+
+      await expect(
+        h.service.revoke(h.row.id, 'Không hợp lệ', 'checker1'),
+      ).rejects.toThrow('Chi thu hoi duoc chung thu da phat hanh');
+
+      expect(h.row.status).toBe(status);
+      expect(h.row.revocationError).toBeUndefined();
+      expect(h.manager.save).not.toHaveBeenCalled();
+      expect((global as any).fetch).not.toHaveBeenCalled();
+      rmSync(h.root, { recursive: true, force: true });
+    },
+  );
+
   it('trả kết quả cũ khi chứng thư đã thu hồi, không gọi Bitcoin RPC', async () => {
     const h = makeHarness({ status: 'revoked', revocationTxid: TXID });
     (global as any).fetch = jest.fn();

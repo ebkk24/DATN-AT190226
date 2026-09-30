@@ -180,6 +180,7 @@ export class RevocationService implements OnModuleInit, OnModuleDestroy {
   async revoke(id: string, reason: string, revokedBy: string) {
     const queryRunner = this.dataSource.createQueryRunner();
     let row: IssuedCertificate | null = null;
+    let revocationStarted = false;
     await queryRunner.connect();
     try {
       await queryRunner.query(`SELECT pg_advisory_lock(hashtext('datn-revocation'))`);
@@ -196,6 +197,10 @@ export class RevocationService implements OnModuleInit, OnModuleDestroy {
         row.revokeReason = reason || null;
         row.revocationError = null;
         await queryRunner.manager.save(row);
+        revocationStarted = true;
+      } else {
+        // Hai trạng thái này chứng minh tiến trình thu hồi đã được checkpoint trước đó.
+        revocationStarted = true;
       }
       const certUid = row.certUid || row.id;
       row.revocationAttemptCount = (row.revocationAttemptCount || 0) + 1;
@@ -246,7 +251,7 @@ export class RevocationService implements OnModuleInit, OnModuleDestroy {
       this.logger.log(`Revoked ${row.certUid} -> tx ${row.revocationTxid}`);
       return this.response(row);
     } catch (error: any) {
-      if (row && row.status !== 'revoked') {
+      if (row && revocationStarted && row.status !== 'revoked') {
         row.status = row.revocationIntentTxid
           ? 'revocation_reconciliation_required'
           : 'revocation_pending';

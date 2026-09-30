@@ -5,12 +5,12 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-WorkingDirectory=/home/khai/DATN_work/datn-blockcerts/backend
-EnvironmentFile=/home/khai/DATN_work/datn-blockcerts/.env
+WorkingDirectory=@DATN_ROOT@/backend
+EnvironmentFile=@DATN_ROOT@/.env
 Environment=NODE_ENV=production
 UMask=0077
-ExecStartPre=/home/khai/.hermes/node/bin/npm run migration:run
-ExecStart=/home/khai/.hermes/node/bin/node dist/src/main.js
+ExecStartPre="@NPM@" run migration:run
+ExecStart="@NODE@" dist/src/main.js
 Restart=on-failure
 RestartSec=5
 TimeoutStartSec=240

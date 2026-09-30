@@ -58,8 +58,8 @@ export default function App() {
     if (!file) return;
     setError("");
     setResult(null);
-    if (file.size > 5 * 1024 * 1024) {
-      setError("Tệp quá lớn. Vui lòng chọn tệp JSON nhỏ hơn 5 MB.");
+    if (file.size > 2 * 1024 * 1024) {
+      setError("Tệp quá lớn. Vui lòng chọn tệp JSON không quá 2 MB.");
       event.target.value = "";
       return;
     }
@@ -128,7 +128,7 @@ export default function App() {
               <input accept=".json,application/json" className="visually-hidden" onChange={(event) => void loadFile(event)} ref={fileInput} type="file" />
               <button className="upload-zone" onClick={() => fileInput.current?.click()} type="button">
                 <span className="upload-icon"><Icon name="upload" /></span>
-                <span><strong>{fileName || "Chọn tệp chứng thư JSON"}</strong><small>{fileName ? "Tệp đã sẵn sàng để xác minh" : "Tối đa 5 MB · định dạng .json"}</small></span>
+                <span><strong>{fileName || "Chọn tệp chứng thư JSON"}</strong><small>{fileName ? "Tệp đã sẵn sàng để xác minh" : "Tối đa 2 MB · định dạng .json"}</small></span>
                 <span className="choose-label">Chọn tệp</span>
               </button>
               <div className="separator"><span>hoặc dán nội dung</span></div>

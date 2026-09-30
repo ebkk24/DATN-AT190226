@@ -101,14 +101,20 @@ export class IssuanceController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('maker', 'checker')
   @Get(':id')
-  status(@Param('id') id: string) {
-    return this.svc.getStatus(id);
+  status(@Param('id') id: string, @Req() req: Request) {
+    const user = req.user as AuthUser;
+    return this.svc.getStatus(id, user.username, user.role);
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('maker', 'checker')
   @Get()
-  list(@Query('status') status?: string, @Query('batchId') batchId?: string) {
-    return this.svc.list(status, batchId);
+  list(
+    @Req() req: Request,
+    @Query('status') status?: string,
+    @Query('batchId') batchId?: string,
+  ) {
+    const user = req.user as AuthUser;
+    return this.svc.list(status, batchId, user.username, user.role);
   }
 }

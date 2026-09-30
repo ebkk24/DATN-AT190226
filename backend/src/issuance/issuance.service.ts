@@ -71,7 +71,10 @@ export class IssuanceService {
   private certificateValues(dto: IssueRequestDto, student: User) {
     this.assertCompleteStudent(student);
     const issueDate = new Date(`${dto.issueDate}T00:00:00Z`);
-    if (Number.isNaN(issueDate.getTime()) || issueDate.toISOString().slice(0, 10) !== dto.issueDate) {
+    if (
+      Number.isNaN(issueDate.getTime()) ||
+      issueDate.toISOString().slice(0, 10) !== dto.issueDate
+    ) {
       throw new BadRequestException('Ngày cấp không hợp lệ');
     }
     if (dto.graduationYear > issueDate.getUTCFullYear()) {
@@ -100,7 +103,9 @@ export class IssuanceService {
   // Maker chỉ cung cấp mã sinh viên và dữ liệu văn bằng; backend chụp hồ sơ từ DB.
   async request(dto: IssueRequestDto, requestedBy: string) {
     const student = await this.studentByCode(dto.studentCode);
-    const duplicate = await this.repo.findOne({ where: { diplomaNumber: dto.diplomaNumber } });
+    const duplicate = await this.repo.findOne({
+      where: { diplomaNumber: dto.diplomaNumber },
+    });
     if (duplicate) throw new ConflictException('Số hiệu văn bằng đã tồn tại');
     const row = this.repo.create({
       ...this.certificateValues(dto, student),
@@ -113,7 +118,7 @@ export class IssuanceService {
       actor: requestedBy,
       actorRole: 'maker',
       targetId: saved.id,
-      detail: `${student.studentCode}:${saved.recipientName}`,
+      detail: `student:${student.id}`,
     });
     return {
       id: saved.id,
@@ -149,9 +154,16 @@ export class IssuanceService {
     if (new Set(diplomaNumbers).size !== diplomaNumbers.length) {
       throw new ConflictException('Lô có số hiệu văn bằng bị trùng');
     }
-    const existing = await this.repo.find({ where: { diplomaNumber: In(diplomaNumbers) } });
+    const existing = await this.repo.find({
+      where: { diplomaNumber: In(diplomaNumbers) },
+    });
     if (existing.length) {
-      throw new ConflictException(`Số hiệu văn bằng đã tồn tại: ${existing.slice(0, 10).map((row) => row.diplomaNumber).join(', ')}`);
+      throw new ConflictException(
+        `Số hiệu văn bằng đã tồn tại: ${existing
+          .slice(0, 10)
+          .map((row) => row.diplomaNumber)
+          .join(', ')}`,
+      );
     }
     const batchId = crypto.randomUUID();
     const rows = items.map((dto) => {
@@ -170,7 +182,7 @@ export class IssuanceService {
         actor: requestedBy,
         actorRole: 'maker',
         targetId: row.id,
-        detail: `batch:${row.studentId}:${row.recipientName}`,
+        detail: `batch:student:${row.studentId}`,
       })),
     );
     return {
@@ -311,8 +323,12 @@ export class IssuanceService {
     return { id, status: 'rejected' };
   }
 
-  async getStatus(id: string) {
-    return this.repo.findOne({ where: { id } });
+  async getStatus(id: string, username: string, role: string) {
+    const where: Record<string, unknown> = { id };
+    if (role === 'maker') where.requestedBy = username;
+    const row = await this.repo.findOne({ where });
+    if (!row) throw new NotFoundException('Không tìm thấy phiếu');
+    return row;
   }
 
   async retryBatch(batchId: string) {
@@ -409,8 +425,14 @@ export class IssuanceService {
     });
   }
 
-  async list(status?: string, batchId?: string) {
+  async list(
+    status: string | undefined,
+    batchId: string | undefined,
+    username: string,
+    role: string,
+  ) {
     const where: Record<string, unknown> = {};
+    if (role === 'maker') where.requestedBy = username;
     if (status) where.status = status;
     if (batchId) where.batchId = batchId;
     return this.repo.find({ where, order: { createdAt: 'DESC' } });

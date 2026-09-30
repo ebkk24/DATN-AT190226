@@ -1,0 +1,124 @@
+name: datn-blockcerts-repro
+
+services:
+  postgres:
+    image: postgres:17-bookworm
+    container_name: datn-repro-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "127.0.0.1:${REPRO_POSTGRES_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+    networks: [repro_internal]
+
+  redis:
+    image: redis:7.4-bookworm
+    container_name: datn-repro-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD}"]
+    ports:
+      - "127.0.0.1:${REPRO_REDIS_PORT}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli --no-auth-warning -a \"$${REDIS_PASSWORD}\" ping"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+    networks: [repro_internal]
+
+  bitcoin-core:
+    image: bitcoin/bitcoin:31.1
+    container_name: datn-repro-bitcoin-core
+    restart: unless-stopped
+    environment:
+      BITCOIN_RPC_USER: ${BITCOIN_RPC_USER}
+      BITCOIN_RPC_PASSWORD: ${BITCOIN_RPC_PASSWORD}
+    command:
+      - -regtest=1
+      - -server=1
+      - -txindex=1
+      - -fallbackfee=0.0002
+      - -rpcbind=0.0.0.0
+      - -rpcallowip=0.0.0.0/0
+      - -rpcuser=${BITCOIN_RPC_USER}
+      - -rpcpassword=${BITCOIN_RPC_PASSWORD}
+      - -printtoconsole=1
+      - -discover=0
+      - -dnsseed=0
+      - -listenonion=0
+      - -networkactive=0
+    ports:
+      - "127.0.0.1:${REPRO_BITCOIN_PORT}:18443"
+    volumes:
+      - bitcoin_data:/home/bitcoin/.bitcoin
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/bitcoin-31.1/bin/bitcoin-cli -regtest -rpcconnect=127.0.0.1 -rpcuser=\"$${BITCOIN_RPC_USER}\" -rpcpassword=\"$${BITCOIN_RPC_PASSWORD}\" getblockchaininfo >/dev/null 2>&1"]
+      interval: 3s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
+    networks: [repro_internal]
+
+  cert-tools:
+    image: datn/cert-tools:3.0.2
+    user: "${LOCAL_UID}:${LOCAL_GID}"
+    working_dir: /workspace
+    volumes:
+      - ./blockcerts/cert-tools:/workspace
+    profiles: [tools]
+    networks: [repro_internal]
+
+  cert-issuer:
+    image: datn/cert-issuer:3.13.1
+    user: "${LOCAL_UID}:${LOCAL_GID}"
+    environment:
+      HOME: /tmp/cert-issuer
+      BITCOIN_RPC_HOST: bitcoin-core
+      BITCOIN_RPC_PORT: "18443"
+      BITCOIN_RPC_USER: ${BITCOIN_RPC_USER}
+      BITCOIN_RPC_PASSWORD: ${BITCOIN_RPC_PASSWORD}
+    depends_on:
+      bitcoin-core: {condition: service_healthy}
+    volumes:
+      - ./blockcerts/cert-issuer/config:/workspace/config:ro
+      - ./blockcerts/cert-tools/unsigned_certificates:/workspace/unsigned_certificates:ro
+      - ./blockcerts/cert-issuer/signed_certificates:/workspace/signed_certificates
+      - ./blockcerts/cert-issuer/blockchain_certificates:/workspace/blockchain_certificates
+      - ./blockcerts/cert-issuer/work:/workspace/work
+      - ./storage/credentials/pk_issuer.txt:/run/secrets/pk_issuer.txt:ro
+    profiles: [tools]
+    networks: [repro_internal]
+
+  verifier-service:
+    image: datn/verifier-service:0.1.0
+    user: "${LOCAL_UID}:${LOCAL_GID}"
+    environment:
+      BITCOIN_RPC_URL: http://bitcoin-core:18443
+      BITCOIN_RPC_USER: ${BITCOIN_RPC_USER}
+      BITCOIN_RPC_PASSWORD: ${BITCOIN_RPC_PASSWORD}
+      CERT_VERIFIER_JS_PATH: /opt/cert-verifier-js/verifier-node/index.js
+      REGTEST_ANCHOR_ADAPTER_PATH: /app/adapter/src/verify-anchor.mjs
+    depends_on:
+      bitcoin-core: {condition: service_healthy}
+    volumes:
+      - ./blockcerts/cert-issuer/blockchain_certificates:/workspace/blockcerts/cert-issuer/blockchain_certificates:ro
+      - ./blockcerts/issuer:/workspace/blockcerts/issuer:ro
+    profiles: [tools]
+    networks: [repro_internal]
+
+volumes:
+  postgres_data: {name: datn_repro_postgres_data}
+  redis_data: {name: datn_repro_redis_data}
+  bitcoin_data: {name: datn_repro_bitcoin_data}
+networks:
+  repro_internal: {name: datn_repro_internal, driver: bridge}

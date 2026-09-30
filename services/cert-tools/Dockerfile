@@ -14,6 +14,10 @@ RUN python -m venv /opt/venv \
     && /opt/venv/bin/pip check \
     && rm /tmp/requirements.lock
 
+COPY vendor_schema_refs.py /tmp/vendor_schema_refs.py
+RUN /opt/venv/bin/python /tmp/vendor_schema_refs.py \
+    && rm /tmp/vendor_schema_refs.py
+
 ENV PATH="/opt/venv/bin:${PATH}"
 WORKDIR /workspace
 CMD ["create-certificate-template", "--help"]

@@ -255,7 +255,7 @@ Quá trình xác minh gồm nhiều lớp kiểm tra:
 
 Checker chỉ được thu hồi chứng thư đang ở trạng thái `issued`. Khi thu hồi:
 
-1. Backend khóa tuần tự luồng thu hồi, chuyển trạng thái sang `revocation_pending` và tạo giao dịch đã ký.
+1. Trong một tiến trình backend, service tuần tự hóa thao tác thu hồi cùng chứng thư; sau đó chuyển trạng thái sang `revocation_pending` và tạo giao dịch đã ký. Cơ chế khóa này chưa phải distributed lock cho triển khai nhiều replica.
 2. Raw transaction và `txid` dự kiến được checkpoint vào PostgreSQL **trước khi broadcast**.
 3. Backend broadcast đúng raw transaction đã checkpoint; nếu timeout/crash, reconciliation kiểm tra `txid` trên chain hoặc phát lại chính raw transaction đó, không tạo giao dịch mới.
 4. Chỉ sau khi xác nhận đúng `OP_RETURN` chứa `REVOKE:<certUid>`, trạng thái mới chuyển thành `revoked` và lưu lý do/người thực hiện/thời điểm.
@@ -412,6 +412,8 @@ REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
 
 JWT_SECRET=<secret-ngẫu-nhiên-tối-thiểu-32-byte>
+JWT_EXPIRES_IN=8h
+JSON_BODY_LIMIT=2mb
 
 REDIS_PASSWORD=<mật-khẩu-Redis-mạnh>
 
@@ -874,31 +876,20 @@ Một số artifact nhạy cảm của môi trường thực nghiệm không đ�
 
 ---
 
-## 10. Triển khai sau Nginx và systemd
+## 10. Triển khai cổng 8088 bằng Nginx và systemd user
 
-Tài liệu chi tiết:
+Tài liệu đầy đủ nằm tại [deploy/README.md](deploy/README.md). Sau khi tạo `.env`, chuẩn bị hạ tầng và khóa regtest, quy trình chuẩn là:
 
-- [Hướng dẫn triển khai](deploy/README.md)
-- [Phát hành Blockcerts trên regtest](docs/installation/05-phat-hanh-regtest.md)
-
-Quy trình tổng quát:
-
-1. Build ba frontend bằng `npm run build`.
-2. Sao chép hoặc trỏ Nginx đến các thư mục `dist/`.
-3. Chạy backend bằng service systemd không đặc quyền.
-4. Chạy PostgreSQL, Redis, Bitcoin Core và verifier bằng Docker.
-5. Chỉ mở Nginx ra mạng; giữ PostgreSQL, Redis và Bitcoin RPC ở localhost/mạng nội bộ.
-6. Cấu hình HTTPS nếu truy cập ngoài máy.
-7. Kiểm tra health, đăng nhập và một luồng xác minh trước khi bàn giao.
-
-Mẫu cấu hình nằm tại:
-
-```text
-deploy/nginx/blockcerts.conf
-deploy/systemd/blockcerts-backend.service
+```bash
+python3 scripts/configure-public-base.py --check "$PUBLIC_BASE_URL"
+bash scripts/install-user-services.sh --dry-run
+bash scripts/deploy-b12.sh
+bash scripts/health-check-b12.sh
 ```
 
-Các tệp này là **mẫu**, cần thay đường dẫn, tên người dùng, domain và credential theo máy triển khai.
+`deploy-b12.sh` tự phát hiện repository và binary thực tế, render các template `deploy/systemd/*.service.in`, build ba frontend/backend, chạy migration, redaction verification log cũ, kiểm tra Nginx rồi restart dịch vụ. Quy trình không phụ thuộc đường dẫn cài đặt hay tên người dùng cố định.
+
+Đích mặc định: backend `127.0.0.1:4000`, Nginx cổng `8088`, ba cổng web ở `/admin/`, `/student/`, `/verify/`. PostgreSQL, Redis và Bitcoin RPC chỉ bind loopback. Cổng `8088` là HTTP; phải dùng VPN/reverse proxy TLS hoặc bổ sung HTTPS trước khi truyền dữ liệu thật qua mạng không tin cậy.
 
 ---
 
@@ -1037,20 +1028,13 @@ Khuyến nghị khi triển khai:
 
 ## 13. Dữ liệu thực nghiệm và giới hạn kết luận
 
-Bộ thực nghiệm chính thức được đóng băng bằng manifest `b12-frozen-20260912-r2`. Kết quả cung cấp bằng chứng cho pipeline Blockcerts/Merkle trong môi trường kiểm soát, bao gồm 1.830 chứng thư và 1.830 Merkle proof được script kiểm toán xác nhận.
+Bộ tái lập chính nằm tại `experiments/repro/`. Mỗi lượt `run-tests.sh` tạo `runId` mới, fingerprint cây nguồn bằng `sourceTreeSha256`, chuyển kết quả cũ sang `runtime/history/`, chạy E2E/recovery và tùy chọn benchmark, rồi đóng băng kết quả tại `runtime/evidence/<runId>/MANIFEST.json` cùng SHA-256 từng tệp. Vì working tree có thể chưa commit, phải dùng đồng thời commit nền và tree fingerprint; không được dùng commit đơn lẻ làm bằng chứng phiên bản.
 
-Các giới hạn cần hiểu đúng:
+Benchmark `10/100/500 × 3` đo xử lý **một lô** trong regtest. Mỗi lượt kiểm tra đủ số bản ghi phát hành, một TXID, một Merkle root, UID duy nhất, block delta và confirmation; chỉ ba chứng thư ở vị trí đầu/giữa/cuối được đưa qua API Verify. Vì vậy kết quả không chứng minh toàn bộ 500 chứng thư đã được verifier chạy lại và không được diễn giải thành 500 người dùng đồng thời.
 
-- Dữ liệu được sinh/kiểm soát phục vụ thí nghiệm, không phải dữ liệu trường thật.
-- Bitcoin regtest không phản ánh phí, thời gian xác nhận, reorg và điều kiện mainnet.
-- Đã có bằng chứng unit/E2E cho idempotency, checkpoint và reconciliation của issuance/revocation; chưa có fault-injection bằng cách kill tiến trình đúng thời điểm, tải production, reorg, failover, pentest hoặc nhiều Checker đồng thời ở quy mô lớn.
-- Freeze và SHA-256 chứng minh tính toàn vẹn của artifact sau khi chốt; không tự chứng minh dữ liệu đại diện cho mọi môi trường thực tế.
+Các kết luận chỉ áp dụng cho cấu hình, cây nguồn và gói bằng chứng được định danh trong lượt chạy. Regtest, khóa thử nghiệm, Docker daemon và phép đo trên một máy không chứng minh khả năng production/mainnet, HA, tải đồng thời hoặc an toàn trước mọi mối đe dọa.
 
-Cách diễn đạt phù hợp:
-
-> Hệ thống được kiểm chứng trong phạm vi nguyên mẫu và kịch bản regtest đã công bố; chưa được chứng nhận sẵn sàng production.
-
----
+Các giới hạn thiết kế còn lại phải được giữ rõ: địa chỉ người nhận do Maker nhập, chưa có challenge/chữ ký proof-of-possession; audit được ghi ngay sau nghiệp vụ nhưng chưa cùng một database transaction hoặc audit outbox; khóa thu hồi chỉ tuần tự trong một tiến trình; dấu `REVOKE:<certUid>` là mở rộng của nguyên mẫu, còn API Verify sử dụng PostgreSQL/Issuer Revocation List làm trạng thái vận hành và một verifier Blockcerts bên ngoài không tự hiểu mở rộng này.
 
 ## 14. Tài liệu tham khảo trong repository
 

@@ -47,7 +47,12 @@ export class AuditService {
     private readonly dataSource: DataSource,
   ) {}
 
-  private async append(manager: EntityManager, input: AuditInput, previous: AuditLog | null, createdAt: Date) {
+  private async append(
+    manager: EntityManager,
+    input: AuditInput,
+    previous: AuditLog | null,
+    createdAt: Date,
+  ) {
     const row = manager.create(AuditLog, {
       id: randomUUID(),
       action: input.action,
@@ -73,15 +78,25 @@ export class AuditService {
     try {
       await this.dataSource.transaction(async (manager) => {
         // Tuần tự hóa đầu chuỗi trên mọi tiến trình backend.
-        await manager.query(`SELECT pg_advisory_xact_lock(hashtext('datn-audit-chain'))`);
+        await manager.query(
+          `SELECT pg_advisory_xact_lock(hashtext('datn-audit-chain'))`,
+        );
         const latest = await manager.find(AuditLog, {
           order: { createdAt: 'DESC', id: 'DESC' },
           take: 1,
         });
         let previous = latest[0] ?? null;
-        let timestamp = Math.max(Date.now(), previous ? previous.createdAt.getTime() + 1 : 0);
+        let timestamp = Math.max(
+          Date.now(),
+          previous ? previous.createdAt.getTime() + 1 : 0,
+        );
         for (const input of items) {
-          previous = await this.append(manager, input, previous, new Date(timestamp));
+          previous = await this.append(
+            manager,
+            input,
+            previous,
+            new Date(timestamp),
+          );
           timestamp += 1;
         }
       });
@@ -91,12 +106,30 @@ export class AuditService {
     }
   }
 
-  async list(limit = 200) {
-    return this.repo.find({ order: { createdAt: 'DESC', id: 'DESC' }, take: limit });
+  async list(limit = 200, username?: string, role?: string) {
+    if (role !== 'maker' || !username) {
+      return this.repo.find({
+        order: { createdAt: 'DESC', id: 'DESC' },
+        take: limit,
+      });
+    }
+    return this.repo
+      .createQueryBuilder('audit')
+      .where('audit.actor = :username', { username })
+      .orWhere(
+        `audit."targetId" IN (SELECT certificate.id::text FROM issued_certificates certificate WHERE certificate."requestedBy" = :username)`,
+        { username },
+      )
+      .orderBy('audit.createdAt', 'DESC')
+      .addOrderBy('audit.id', 'DESC')
+      .take(limit)
+      .getMany();
   }
 
   async verifyIntegrity() {
-    const rows = await this.repo.find({ order: { createdAt: 'ASC', id: 'ASC' } });
+    const rows = await this.repo.find({
+      order: { createdAt: 'ASC', id: 'ASC' },
+    });
     let previousHash: string | null = null;
     for (const row of rows) {
       const expected = calculateAuditHash({ ...row, previousHash });

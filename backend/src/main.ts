@@ -5,13 +5,19 @@ import helmet from 'helmet';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { json, urlencoded } from 'express';
 import { AppModule } from './app.module';
 
 dotenv.config({ path: path.resolve(process.cwd(), '../.env'), quiet: true });
 dotenv.config({ quiet: true });
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bodyParser: false });
+  // BatchIssueRequestDto cho phép tối đa 500 bản ghi; giới hạn mặc định 100 KB
+  // của Express không đủ cho payload nghiệp vụ đầy đủ. Vẫn giữ trần hữu hạn.
+  const bodyLimit = process.env.JSON_BODY_LIMIT || '2mb';
+  app.use(json({ limit: bodyLimit }));
+  app.use(urlencoded({ extended: true, limit: bodyLimit }));
   const express = app.getHttpAdapter().getInstance();
   express.disable('x-powered-by');
   express.set('trust proxy', 1);

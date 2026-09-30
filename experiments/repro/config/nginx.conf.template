@@ -1,45 +1,35 @@
 worker_processes 1;
-pid runtime/nginx.pid;
-error_log logs/nginx-error.log warn;
+pid @@RUNTIME@@/pids/nginx.pid;
+error_log @@RUNTIME@@/logs/nginx-error.log warn;
 
-events { worker_connections 1024; }
-
+events { worker_connections 512; }
 http {
   include /etc/nginx/mime.types;
   default_type application/octet-stream;
-  log_format main '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent"';
-  access_log logs/nginx-access.log main;
+  access_log @@RUNTIME@@/logs/nginx-access.log;
   sendfile on;
   server_tokens off;
-  keepalive_timeout 65;
-  client_max_body_size 2m;
-  client_body_buffer_size 256k;
-  client_body_temp_path runtime/client_body 1 2;
-  proxy_temp_path runtime/proxy_temp 1 2;
-
+  client_max_body_size 10m;
+  client_body_temp_path @@RUNTIME@@/nginx/client_body 1 2;
+  proxy_temp_path @@RUNTIME@@/nginx/proxy_temp 1 2;
   server {
-    listen 8088;
+    listen 127.0.0.1:@@WEB_PORT@@;
     server_name _;
-    root www;
+    root @@PROJECT@@/deploy/www;
     index index.html;
-
     add_header X-Content-Type-Options nosniff always;
     add_header Referrer-Policy same-origin always;
     add_header X-Frame-Options DENY always;
     add_header Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'" always;
-    add_header Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()" always;
-
     location = / { return 302 /verify/; }
     location = /student { return 301 /student/; }
     location = /admin { return 301 /admin/; }
     location = /verify { return 301 /verify/; }
-
     location /student/ { try_files $uri $uri/ /student/index.html; }
     location /admin/ { try_files $uri $uri/ /admin/index.html; }
     location /verify/ { try_files $uri $uri/ /verify/index.html; }
-
     location ~ ^/(api|health|docs)(/|$) {
-      proxy_pass http://127.0.0.1:4000;
+      proxy_pass http://127.0.0.1:@@API_PORT@@;
       proxy_http_version 1.1;
       proxy_set_header Host $host;
       proxy_set_header X-Real-IP $remote_addr;
@@ -47,7 +37,6 @@ http {
       proxy_set_header X-Forwarded-Proto $scheme;
       proxy_read_timeout 300s;
     }
-
     location ~ /\. { deny all; }
   }
 }

@@ -9,6 +9,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, In, QueryRunner, Repository } from 'typeorm';
 import * as fs from 'fs';
+import * as path from 'path';
 import { AuditService } from '../audit/audit.service';
 import { IssuedCertificate } from '../issuance/issuance.entity';
 
@@ -83,7 +84,7 @@ export class RevocationService implements OnModuleInit, OnModuleDestroy {
   }
 
   private wif(): string {
-    const root = process.env.DATN_ROOT || '/home/khai/DATN_work/datn-blockcerts';
+    const root = process.env.DATN_ROOT || path.resolve(process.cwd(), '..');
     const value = fs.readFileSync(`${root}/storage/credentials/pk_issuer.txt`, 'utf8').trim();
     if (!value) throw new Error('Tep WIF cua issuer dang rong');
     return value;

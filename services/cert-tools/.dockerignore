@@ -1,3 +1,4 @@
 *
 !Dockerfile
 !requirements.lock
+!vendor_schema_refs.py

@@ -36,7 +36,7 @@ export class AdminService {
     if (dto.email !== undefined) student.email = dto.email.trim().toLowerCase();
     if (dto.cohort !== undefined) student.cohort = dto.cohort.trim();
     const saved = await this.users.save(student);
-    await this.audit.log({ action: 'update_profile', actor: updatedBy, actorRole: 'checker', targetId: saved.id, detail: saved.studentCode ?? null });
+    await this.audit.log({ action: 'update_profile', actor: updatedBy, actorRole: 'checker', targetId: saved.id, detail: 'student-profile-updated' });
     return { id: saved.id, recipientName: saved.recipientName, studentCode: saved.studentCode, dateOfBirth: saved.dateOfBirth, email: saved.email, cohort: saved.cohort };
   }
 

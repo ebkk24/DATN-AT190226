@@ -20,7 +20,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "migration:run": "npm run build && typeorm -d dist/src/data-source.js migration:run",
     "migration:show": "npm run build && typeorm -d dist/src/data-source.js migration:show",
-    "migration:revert": "npm run build && typeorm -d dist/src/data-source.js migration:revert"
+    "migration:revert": "npm run build && typeorm -d dist/src/data-source.js migration:revert",
+    "privacy:redact-verification-logs": "node dist/src/privacy/redact-verification-logs.js"
   },
   "dependencies": {
     "@nestjs/bullmq": "^12.0.0",

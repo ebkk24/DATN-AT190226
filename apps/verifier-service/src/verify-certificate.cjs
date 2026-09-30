@@ -2,6 +2,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const { createSafeFetch } = require('./safe-fetch.cjs');
+const { classifyAnchorAdapterFailure } = require('./status-classification.cjs');
 
 const root = process.cwd();
 const certificateArgument = process.argv[2];
@@ -119,9 +120,10 @@ function runAnchorAdapter() {
       details
     };
   } catch (error) {
+    const failure = (execution.stderr || execution.stdout || error.message).trim();
     return {
-      status: 'INDETERMINATE',
-      error: (execution.stderr || execution.stdout || error.message).trim()
+      status: classifyAnchorAdapterFailure(failure),
+      error: failure
     };
   }
 }

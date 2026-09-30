@@ -54,7 +54,7 @@ export class IssuerService {
       issuer: `${base}/api/blockcerts/issuers/kma/profile.json`,
       revokedAssertions: rows.map((row) => ({
         id: row.certUid ? `urn:uuid:${row.certUid}` : row.id,
-        revocationReason: row.revokeReason || 'Thu hồi bởi đơn vị phát hành',
+        revocationReason: 'Chứng thư đã bị thu hồi',
         revokedAt: row.revokedAt?.toISOString() || null,
         revocationTxid: row.revocationTxid || null,
       })),

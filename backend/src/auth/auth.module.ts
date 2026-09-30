@@ -19,7 +19,8 @@ import { AuditModule } from '../audit/audit.module';
         if (!secret || secret.length < 32) {
           throw new Error('JWT_SECRET phải có ít nhất 32 ký tự');
         }
-        return { secret, signOptions: { expiresIn: '8h' } };
+        const expiresIn = config.get<string>('JWT_EXPIRES_IN') || '8h';
+        return { secret, signOptions: { expiresIn } as any };
       },
     }),
     AuditModule,

@@ -65,3 +65,5 @@ experiments/results/e2e-preflight-failed-attempts.json
 experiments/results/invalidated-r1-nginx-body-temp/
 experiments/freeze/b12-freeze.json
 report-work/
+# Dữ liệu, khóa và bằng chứng của stack tái lập cục bộ
+experiments/repro/runtime/

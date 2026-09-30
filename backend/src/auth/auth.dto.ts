@@ -13,9 +13,11 @@ import { Transform, TransformFnParams } from 'class-transformer';
 
 export class RegisterDto {
   @IsString()
+  @Length(3, 64)
   username: string;
 
   @IsString()
+  @Length(12, 128, { message: 'password phải có từ 12 đến 128 ký tự' })
   password: string;
 
   @IsIn(['maker', 'checker', 'student'])
@@ -60,8 +62,10 @@ export class UpdateStudentProfileDto {
 
 export class LoginDto {
   @IsString()
+  @Length(3, 64)
   username: string;
 
   @IsString()
+  @Length(1, 128)
   password: string;
 }

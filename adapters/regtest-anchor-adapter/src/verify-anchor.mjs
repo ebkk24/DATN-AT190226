@@ -135,19 +135,20 @@ async function callBitcoinCore(
     }
   );
 
-  if (!response.ok) {
-    throw new Error(
-      `Bitcoin Core trả mã HTTP ${response.status}.`
-    );
+  let responseBody = null;
+  try {
+    responseBody = await response.json();
+  } catch {
+    if (!response.ok) {
+      throw new Error(`Bitcoin Core trả mã HTTP ${response.status}.`);
+    }
+    throw new Error('Bitcoin Core trả phản hồi không phải JSON hợp lệ.');
   }
-
-  const responseBody =
-    await response.json();
-
-  if (responseBody.error) {
-    throw new Error(
-      `Bitcoin Core báo lỗi: ${responseBody.error.message}`
-    );
+  if (responseBody?.error) {
+    throw new Error(`Bitcoin Core báo lỗi: ${responseBody.error.message}`);
+  }
+  if (!response.ok) {
+    throw new Error(`Bitcoin Core trả mã HTTP ${response.status}.`);
   }
 
   return responseBody.result;

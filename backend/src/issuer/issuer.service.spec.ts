@@ -44,7 +44,7 @@ describe('IssuerService', () => {
     expect(list.revokedAssertions).toHaveLength(1);
     expect(list.revokedAssertions[0]).toMatchObject({
       id: 'urn:uuid:cert-1',
-      revocationReason: 'Sai thông tin',
+      revocationReason: 'Chứng thư đã bị thu hồi',
       revocationTxid: 'tx-1',
     });
   });

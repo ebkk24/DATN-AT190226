@@ -349,7 +349,8 @@ export class IssuanceProcessor extends WorkerHost {
       checkpointDir,
       globalBlockchainDir,
     ]) {
-      fs.mkdirSync(dir, { recursive: true });
+      fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
+      fs.chmodSync(dir, 0o700);
     }
 
     const nonceToRow = new Map<string, IssuedCertificate>();
@@ -383,7 +384,7 @@ export class IssuanceProcessor extends WorkerHost {
           .join(','),
       );
     }
-    fs.writeFileSync(rosterPath, `${rosterLines.join('\n')}\n`, 'utf8');
+    fs.writeFileSync(rosterPath, `${rosterLines.join('\n')}\n`, { encoding: 'utf8', mode: 0o600 });
     const baseIssuerConfig = fs.readFileSync(
       path.join(root, 'blockcerts', 'cert-issuer', 'config', 'conf.ini'),
       'utf8',
@@ -394,7 +395,7 @@ export class IssuanceProcessor extends WorkerHost {
           `batch_size=${rows.length}`,
         )
       : `${baseIssuerConfig.trim()}\nbatch_size=${rows.length}\n`;
-    fs.writeFileSync(issuerConfigPath, issuerConfig, 'utf8');
+    fs.writeFileSync(issuerConfigPath, issuerConfig, { encoding: 'utf8', mode: 0o600 });
 
     try {
       let checkpoint = this.readCheckpoint(checkpointPath);
@@ -635,7 +636,9 @@ export class IssuanceProcessor extends WorkerHost {
         ) {
           throw new Error('Proof không khớp anchor checkpoint');
         }
-        fs.copyFileSync(sourcePath, path.join(globalBlockchainDir, filename));
+        const destination = path.join(globalBlockchainDir, filename);
+        fs.copyFileSync(sourcePath, destination);
+        fs.chmodSync(destination, 0o600);
         row.certUid = filename.replace(/\.json$/i, '');
         row.txid = anchor.txid;
         row.merkleRoot = anchor.merkleRoot;
@@ -646,17 +649,29 @@ export class IssuanceProcessor extends WorkerHost {
       if (matched.size !== rows.length)
         throw new Error(`Chỉ ánh xạ được ${matched.size}/${rows.length} hồ sơ`);
 
+      const certificateChecksums = rows.map((row) => {
+        const filename = `${row.certUid}.json`;
+        const data = fs.readFileSync(path.join(globalBlockchainDir, filename));
+        return {
+          certUid: row.certUid,
+          filename,
+          bytes: data.length,
+          sha256: crypto.createHash('sha256').update(data).digest('hex'),
+        };
+      });
       const manifest = {
+        schema: 'datn-batch-manifest-v1',
         batchId,
         count: rows.length,
-        txids: [checkpoint.anchorTxid],
-        certificateIds: rows.map((row) => row.certUid),
+        txid: checkpoint.anchorTxid,
+        merkleRoot: checkpoint.merkleRoot,
+        certificateFiles: certificateChecksums,
         completedAt: new Date().toISOString(),
       };
       fs.writeFileSync(
         path.join(batchRoot, 'manifest.json'),
         JSON.stringify(manifest, null, 2),
-        'utf8',
+        { encoding: 'utf8', mode: 0o600 },
       );
       await this.dataSource.transaction(async (manager) => {
         await manager.save(IssuedCertificate, rows, { chunk: 100 });

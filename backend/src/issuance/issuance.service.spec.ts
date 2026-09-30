@@ -1,7 +1,11 @@
 jest.mock('@nestjs/bullmq', () => ({ InjectQueue: () => () => undefined }));
 
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-return, @typescript-eslint/require-await, @typescript-eslint/no-unsafe-call */
-import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { IssuanceService } from './issuance.service';
 
 describe('IssuanceService student identity mapping', () => {
@@ -46,13 +50,13 @@ describe('IssuanceService student identity mapping', () => {
         studentCode: 'at180001',
         pubkey: 'mmtMJVNrauBfzn8sr8E6DXEeLVp6WVg1kT',
         degreeName: 'Bằng tốt nghiệp đại học',
-      major: 'An Toàn Thông Tin',
-      educationLevel: 'Đại học',
-      graduationRank: 'Giỏi',
-      graduationYear: 2027,
-      issueDate: '2027-06-30',
-      diplomaNumber: 'KMA-2027-0001',
-      trainingMode: 'Chính quy',
+        major: 'An Toàn Thông Tin',
+        educationLevel: 'Đại học',
+        graduationRank: 'Giỏi',
+        graduationYear: 2027,
+        issueDate: '2027-06-30',
+        diplomaNumber: 'KMA-2027-0001',
+        trainingMode: 'Chính quy',
       },
       'maker-a',
     );
@@ -141,19 +145,58 @@ describe('IssuanceService student identity mapping', () => {
             studentCode: 'AT999999',
             pubkey: 'mmtMJVNrauBfzn8sr8E6DXEeLVp6WVg1kT',
             degreeName: 'Bằng tốt nghiệp đại học',
-      major: 'An Toàn Thông Tin',
-      educationLevel: 'Đại học',
-      graduationRank: 'Giỏi',
-      graduationYear: 2027,
-      issueDate: '2027-06-30',
-      diplomaNumber: 'KMA-2027-9999',
-      trainingMode: 'Chính quy',
+            major: 'An Toàn Thông Tin',
+            educationLevel: 'Đại học',
+            graduationRank: 'Giỏi',
+            graduationYear: 2027,
+            issueDate: '2027-06-30',
+            diplomaNumber: 'KMA-2027-9999',
+            trainingMode: 'Chính quy',
           },
         ],
         'maker-a',
       ),
     ).rejects.toBeInstanceOf(NotFoundException);
   });
+  it('Maker chỉ liệt kê yêu cầu do chính mình tạo', async () => {
+    const { service, repo } = setup();
+    await service.list(undefined, undefined, 'maker-a', 'maker');
+    expect(repo.find).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ requestedBy: 'maker-a' }),
+      }),
+    );
+  });
+
+  it('Checker có thể liệt kê yêu cầu toàn hệ thống', async () => {
+    const { service, repo } = setup();
+    await service.list('queued', undefined, 'checker-a', 'checker');
+    expect(repo.find).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { status: 'queued' } }),
+    );
+  });
+
+  it('Maker không đọc được chi tiết yêu cầu của Maker khác', async () => {
+    const { service, repo } = setup();
+    repo.findOne.mockResolvedValue(null);
+    await expect(
+      service.getStatus('request-of-maker-b', 'maker-a', 'maker'),
+    ).rejects.toBeInstanceOf(NotFoundException);
+    expect(repo.findOne).toHaveBeenCalledWith({
+      where: { id: 'request-of-maker-b', requestedBy: 'maker-a' },
+    });
+  });
+
+  it('Checker đọc chi tiết yêu cầu mà không bị lọc theo requestedBy', async () => {
+    const { service, repo } = setup();
+    const row = { id: 'request-of-maker-b', requestedBy: 'maker-b' };
+    repo.findOne.mockResolvedValue(row);
+    await expect(
+      service.getStatus(row.id, 'checker-a', 'checker'),
+    ).resolves.toBe(row);
+    expect(repo.findOne).toHaveBeenCalledWith({ where: { id: row.id } });
+  });
+
   it('commit trạng thái và outbox trước; Redis lỗi không làm mất batch', async () => {
     const row = {
       id: 'certificate-id',

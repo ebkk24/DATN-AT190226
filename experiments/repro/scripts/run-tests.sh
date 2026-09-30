@@ -20,7 +20,7 @@ if [[ -d "$RESULTS" || -d "$LOGS" ]]; then
   [[ -d "$LOGS" ]] && mv "$LOGS" "$previous/logs"
 fi
 mkdir -p "$RESULTS" "$LOGS"
-python3 "$REPRO/scripts/source-manifest.py" "$RESULTS/source-manifest.json" | tee "$LOGS/source-manifest.log"
+python3 "$REPRO/scripts/source-manifest.py" --require-clean "$RESULTS/source-manifest.json" | tee "$LOGS/source-manifest.log"
 "$REPRO/scripts/start.sh" | tee "$LOGS/start-initial.log"
 "$REPRO/scripts/health.sh" | tee "$LOGS/health-initial.log"
 

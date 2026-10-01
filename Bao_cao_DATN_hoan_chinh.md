@@ -2,7 +2,7 @@
 
 Trong quá trình thực hiện đồ án tốt nghiệp này, em đã nhận được sự giúp đỡ tận tình của cán bộ hướng dẫn TS. Trần Trung – Giảng viên Khoa CNTT Trường Đại học Điện lực; cán bộ quản lý ThS. Nguyễn Đức Ngân – Giảng viên Khoa ATTT Học viện Kỹ thuật Mật Mã, cùng với sự quan tâm sâu sát của Hệ quản lý sinh viên, sự động viên của người thân và bạn bè.
 
-Em xin chân thành cảm ơn!
+Em xin trân trọng cảm ơn.
 
 # LỜI NÓI ĐẦU
 
@@ -166,7 +166,9 @@ Blockchain có thể được phân loại theo nhiều trục độc lập. Tr�
 
 ### 1.5.2. So sánh các mô hình triển khai
 
-Bảng 1-1: So sánh khái quát các mô hình triển khai Blockchain
+Các đặc điểm chính của ba mô hình triển khai được đối chiếu trong Bảng 1.1.
+
+Bảng 1.1. So sánh khái quát các mô hình triển khai Blockchain
 
 | Tiêu chí | Công khai, không cấp quyền | Riêng, cấp quyền | Liên minh, cấp quyền |
 | --- | --- | --- | --- |
@@ -279,9 +281,15 @@ Hệ thống có ba vai trò xác thực và một tác nhân công khai:
 
 Không có vai trò `Admin` độc lập trong phiên bản mã nguồn được báo cáo. Tên “cổng Admin” chỉ mô tả cổng nghiệp vụ phía cơ sở đào tạo dành cho Maker và Checker, không phải một role thứ tư.
 
+Hình 2.1 khái quát các tác nhân và nhóm chức năng tương ứng trong phạm vi hệ thống.
+
 ![Hình 2.1. Tác nhân và nhóm chức năng](report-assets/usecase.png)
 
+Hình 2.1. Tác nhân và nhóm chức năng của hệ thống
+
 ### 2.2.2. Yêu cầu chức năng
+
+Các yêu cầu chức năng của hệ thống được tổng hợp trong Bảng 2.1.
 
 Bảng 2.1. Danh sách yêu cầu chức năng
 
@@ -323,6 +331,8 @@ Phát hành theo lô yêu cầu tất cả bản ghi thuộc trạng thái cho p
 
 Tài sản gồm WIF phát hành, JWT secret, RPC/database credential, tài khoản, chứng thư, trạng thái phát hành–thu hồi, audit và cấu hình triển khai. Đối thủ có thể là người ngoài gửi chứng thư giả, tài khoản nội bộ vượt quyền, kẻ lấy được khóa, hoặc người vận hành sửa DB. Các bề mặt chính là API công khai, cổng đăng nhập, reverse proxy, queue, RPC Bitcoin, tệp workspace và chuỗi cung ứng phần mềm.
 
+Các đe dọa chính và biện pháp kiểm soát tương ứng được trình bày trong Bảng 2.2.
+
 Bảng 2.2. Đe dọa và kiểm soát
 
 | Đe dọa | Hậu quả | Kiểm soát thiết kế | Giới hạn còn lại |
@@ -347,7 +357,11 @@ Bitcoin regtest được chọn thay vì hợp đồng thông minh. Giá trị o
 
 ### 2.4.2. Kiến trúc thành phần
 
+Hình 2.2 thể hiện kiến trúc thành phần và ranh giới giữa các cổng giao diện, backend, hàng đợi, cơ sở dữ liệu và Bitcoin.
+
 ![Hình 2.2. Kiến trúc thành phần](report-assets/architecture.png)
+
+Hình 2.2. Kiến trúc thành phần của hệ thống
 
 Hệ thống gồm ba frontend React; Nginx reverse proxy; backend NestJS; PostgreSQL; Redis/BullMQ; worker; container `cert-tools`; container `cert-issuer`; verifier service; Bitcoin Core regtest. Các thành phần dữ liệu và RPC chỉ bind loopback. Cổng quản trị, Holder và Verify được tách để giảm nhầm lẫn quyền và cho phép triển khai độc lập.
 
@@ -361,7 +375,11 @@ Maker gửi thông tin người nhận và khóa công khai tới backend. Backe
 
 ### 2.5.1. Luồng phát hành
 
+Hình 2.3 mô tả trình tự phát hành theo lô từ lúc Maker tạo yêu cầu đến khi worker hoàn tất chứng thư.
+
 ![Hình 2.3. Trình tự phát hành theo lô](report-assets/issuance-sequence.png)
+
+Hình 2.3. Trình tự phát hành chứng thư theo lô
 
 1. Maker đăng nhập và gửi một yêu cầu hoặc mảng tối đa 500 phần tử.
 2. Backend lấy actor từ JWT, kiểm tra DTO và lưu `pending_approval`.
@@ -374,9 +392,15 @@ Maker gửi thông tin người nhận và khóa công khai tới backend. Backe
 
 ### 2.5.2. Trạng thái
 
+Hình 2.4 biểu diễn các trạng thái và điều kiện chuyển trạng thái của yêu cầu phát hành.
+
 ![Hình 2.4. Máy trạng thái yêu cầu phát hành](report-assets/state.png)
 
+Hình 2.4. Máy trạng thái của yêu cầu phát hành
+
 Luồng chính: `pending_approval → queued → processing → issued → revoked`. Hai nhánh thay thế là `pending_approval → rejected` và `queued/processing → failed`. Không cho chuyển ngược tự do, vì điều đó làm mất ý nghĩa audit. Yêu cầu thất bại chỉ được xử lý lại bằng quy trình vận hành có kiểm soát.
+
+Ý nghĩa các trạng thái nghiệp vụ được tổng hợp trong Bảng 2.3.
 
 Bảng 2.3. Ý nghĩa trạng thái
 
@@ -408,7 +432,11 @@ Tên người nhận có thể trùng và tên file do tool tạo không nên d�
 
 ### 2.7.1. Xác minh
 
+Hình 2.5 trình bày trình tự xác minh công khai và cách tổng hợp các kết quả kiểm tra.
+
 ![Hình 2.5. Trình tự xác minh công khai](report-assets/verification.png)
+
+Hình 2.5. Trình tự xác minh chứng thư công khai
 
 Verify API tiếp nhận toàn bộ JSON. Backend kiểm tra semantic tối thiểu, sau đó gửi chứng thư đến verifier service. Verifier giải mã `proofValue` bằng `LDMerkleProof2019`, kiểm tra cấu trúc/chứng thư; adapter regtest lấy transaction theo `txid`, kiểm tra đầu vào gắn với issuer, tìm `OP_RETURN`, so Merkle root và yêu cầu ít nhất một confirmation. Nếu lớp mật mã/anchor đạt, backend lấy `certUid` để tra thu hồi. Kết luận gồm `VALID`, `INVALID`, `REVOKED` hoặc `INDETERMINATE`.
 
@@ -422,7 +450,11 @@ Thu hồi có hai dấu vết: transaction Bitcoin và chỉ mục DB/Revocation
 
 ## 2.8. Thiết kế dữ liệu ngoài chuỗi
 
+Hình 2.6 khái quát các thực thể dữ liệu chính và quan hệ giữa chúng.
+
 ![Hình 2.6. Mô hình dữ liệu](report-assets/erd.png)
+
+Hình 2.6. Mô hình dữ liệu của hệ thống
 
 ### 2.8.1. Bảng `users`
 
@@ -438,6 +470,8 @@ Thiết kế một bảng làm giảm số phép nối và phù hợp nguyên m�
 
 `verification_logs` lưu `certId`, trạng thái, kết quả verifier, kết quả adapter, confirmation, phản hồi thô và thời gian. `audit_logs` lưu action, actor, role, target, detail, txid và thời gian; mỗi dòng còn có `previousHash` và `entryHash` để tạo chuỗi hash SHA-256, cho phép phát hiện sửa/xóa ở giữa chuỗi qua endpoint kiểm tra toàn vẹn. Cơ chế này chỉ mang tính tamper-evident: DBA vẫn có thể viết lại toàn bộ chuỗi hoặc xóa phần đuôi nếu không đối chiếu head hash với kho log ngoài hệ thống. Vì vậy vẫn cần kiểm soát truy cập, backup và hệ thống log append-only độc lập khi triển khai production.
 
+Các thực thể dữ liệu chính được khái quát trong Bảng 2.4.
+
 Bảng 2.4. Mô hình dữ liệu chính
 
 | Bảng | Khóa/định danh | Chức năng |
@@ -448,6 +482,8 @@ Bảng 2.4. Mô hình dữ liệu chính
 | `audit_logs` | UUID, targetId | Nhật ký hành động |
 
 ## 2.9. Thiết kế API và phân quyền
+
+Các nhóm API và quyền truy cập tương ứng được tổng hợp trong Bảng 2.5.
 
 Bảng 2.5. API chính và quyền
 
@@ -489,6 +525,8 @@ Thiết kế pilot dùng HTTP bên trong mạng riêng. HTTPS công khai, HSTS, 
 
 ## 2.12. Tiêu chí chấp nhận và kế hoạch kiểm thử
 
+Các tiêu chí chấp nhận của nguyên mẫu được liệt kê trong Bảng 2.6.
+
 Bảng 2.6. Tiêu chí chấp nhận
 
 | Mã | Tiêu chí | Bằng chứng dự kiến |
@@ -516,6 +554,8 @@ Chương 2 đã chuyển cơ sở lý thuyết thành thiết kế cụ thể: b
 
 Đợt tái kiểm chứng ngày 30/09/2026 chạy trên Ubuntu Server 22.04.5 LTS, 4 vCPU Intel Xeon Gold 6130 và 19 GiB RAM. Stack được dựng tách biệt trên Bitcoin regtest, PostgreSQL và Redis riêng. Mã nguồn được nhận diện bằng commit nền `9d1080434696c4ef2cae76e8a080cb6c45a27fd3` cùng hash cây nguồn chưa commit `ad860ab6138574639eb9e0bf0b90dabc353a7946719c1d4747f1a61b3f11e852`; các số liệu dưới đây lấy từ artifact của đúng lần chạy này. Regtest cho phép chủ động tạo block mà không dùng tiền thật [18].
 
+Các thành phần phần mềm của môi trường thực nghiệm được trình bày trong Bảng 3.1.
+
 Bảng 3.1. Thành phần phần mềm
 
 | Thành phần | Phiên bản/dòng phiên bản | Vai trò |
@@ -533,7 +573,11 @@ Bảng 3.1. Thành phần phần mềm
 
 Repository cung cấp Compose, migration, `.env.example`, script triển khai/health check và script thực nghiệm. PostgreSQL, Redis và Bitcoin RPC chỉ bind loopback. WIF, mật khẩu, JWT secret, RPC credential và tài khoản thử nghiệm nằm ngoài Git.
 
+Hình 3.1 thể hiện kiến trúc triển khai của môi trường thực nghiệm.
+
 ![Hình 3.1. Kiến trúc triển khai](report-assets/ch3-01-kien-truc-trien-khai.png)
+
+Hình 3.1. Kiến trúc triển khai môi trường thực nghiệm
 
 ### 3.1.2. Tổ chức triển khai
 
@@ -563,7 +607,11 @@ Audit được gắn vào đăng nhập, đăng ký, lập phiếu, duyệt, t�
 
 Maker gọi `/api/issue/request`. Backend lấy username từ JWT, không tin `requestedBy` trong body, và lưu bản ghi `pending_approval`. Checker gọi approve/reject. Yêu cầu được duyệt chuyển `queued`; BullMQ tách công việc nặng khỏi request HTTP [21]. Worker chuyển `processing`, tạo roster, gọi toolchain, tạo block và cập nhật `issued` hoặc `failed`.
 
+Hình 3.2 mô tả luồng xử lý khi phát hành một văn bằng.
+
 ![Hình 3.2. Luồng phát hành một văn bằng](report-assets/ch3-02-luong-phat-hanh-don.png)
+
+Hình 3.2. Luồng phát hành một văn bằng
 
 ### 3.3.2. Tối ưu phát hành theo lô
 
@@ -571,7 +619,11 @@ Phương án tuần tự ban đầu lặp `cert-tools → cert-issuer → mine` 
 
 Thiết kế cuối chia roster thành chunk 10 hồ sơ; tối đa 16 chunk tạo unsigned certificate song song, mỗi chunk dùng workspace riêng. Sau khi hoàn tất, worker gom output, đặt `batch_size` bằng số hồ sơ và gọi `cert-issuer` một lần. Tool tạo một Merkle tree và một transaction cho toàn batch. Mỗi output mang nonce để ánh xạ đúng bản ghi, không phụ thuộc tên hoặc thứ tự file.
 
+Hình 3.3 mô tả luồng tối ưu phát hành nhiều chứng thư trong cùng một lô.
+
 ![Hình 3.3. Luồng phát hành theo lô](report-assets/ch3-03-luong-phat-hanh-lo.png)
+
+Hình 3.3. Luồng phát hành chứng thư theo lô
 
 Workspace có roster, unsigned, blockchain certificate, issuer work và manifest. Dữ liệu runtime được giữ cục bộ và bị loại khỏi Git. Sau khi giải mã receipt, worker lưu `certUid`, `txid`, Merkle root và `issuanceBatchId`; `requestBatchId` vẫn giữ quan hệ với nhóm phiếu ban đầu. Thao tác DB được chia nhỏ. Mỗi job hiện tối đa 500 hồ sơ, nên mục tiêu là một transaction mỗi job.
 
@@ -595,7 +647,11 @@ Chỉ Checker gọi được `POST /api/revoke/:id`. Service tạo `REVOKE:<cert
 
 Sau khi giao dịch được xác nhận, PostgreSQL cập nhật `revoked`, transaction, actor, lý do và thời gian. Revocation List đọc các bản ghi này. Verify trước hết kiểm tra credential/anchor, sau đó trả `REVOKED` nếu DB ghi nhận thu hồi. Hình 3.4 mô tả luồng hai lớp.
 
+Hình 3.4 thể hiện mối liên hệ giữa quy trình thu hồi và kết quả xác minh.
+
 ![Hình 3.4. Luồng thu hồi và xác minh](report-assets/ch3-04-luong-thu-hoi-xac-minh.png)
+
+Hình 3.4. Luồng thu hồi và xác minh chứng thư
 
 ## 3.5. Hiện thực ba frontend
 
@@ -633,6 +689,8 @@ Trong đó `T_batch` là thời gian từ duyệt đến phát hành hoàn tất
 
 Kịch bản bắt đầu từ chứng thư gốc hợp lệ, lần lượt sửa tên người nhận, tên văn bằng, `proofValue`, transaction id và thử để Maker tự duyệt. Sáu trên sáu ca đạt.
 
+Kết quả kiểm tra tính toàn vẹn và cơ chế Maker–Checker được tổng hợp trong Bảng 3.2.
+
 Bảng 3.2. Kết quả Kịch bản 1
 
 | Mã | Ca kiểm thử | Kỳ vọng | Quan sát | Đánh giá |
@@ -646,11 +704,17 @@ Bảng 3.2. Kết quả Kịch bản 1
 
 Bốn trường hợp sửa nội dung, proof hoặc txid đều trả `INVALID`; lỗi hạ tầng/RPC trong bộ test riêng mới trả `INDETERMINATE`. Ca S1-06 cho thấy guard Maker–Checker đã chặn đúng hành vi tự duyệt trong phạm vi API và cấu hình được kiểm thử, không chỉ ở giao diện.
 
+Hình 3.5 khái quát trình tự chuẩn bị, thực thi và kiểm toán thực nghiệm.
+
 ![Hình 3.5. Tiến trình thực nghiệm Chương 3](report-assets/ch3-05-tien-trinh-thuc-nghiem.png)
+
+Hình 3.5. Tiến trình thực nghiệm Chương 3
 
 ## 3.9. Kết quả Kịch bản 2 – hiệu năng Merkle batching
 
 ### 3.9.1. Kết quả từng lần
+
+Kết quả của chín lần chạy hiệu năng tái kiểm chứng được trình bày trong Bảng 3.3.
 
 Bảng 3.3. Chín lần chạy hiệu năng tái kiểm chứng
 
@@ -667,6 +731,8 @@ Bảng 3.3. Chín lần chạy hiệu năng tái kiểm chứng
 | 500 | 3 | 35,798 | 0,0716 | 13,9673 | 500/500 | 1 |
 
 ### 3.9.2. Giá trị tổng hợp
+
+Các giá trị tổng hợp theo kích thước lô được trình bày trong Bảng 3.4.
 
 Bảng 3.4. Tổng hợp theo kích thước batch
 
@@ -688,6 +754,8 @@ Hình 3.7. Thông lượng và thời gian trung bình trên mỗi chứng thư
 
 ### 3.9.3. Tài nguyên
 
+Mức sử dụng tài nguyên theo kích thước lô được tổng hợp trong Bảng 3.5.
+
 Bảng 3.5. Tài nguyên hệ thống
 
 | Batch | CPU TB | CPU cực đại TB | Bộ nhớ dùng TB (MB) | Bộ nhớ cực đại TB (MB) | Backend RSS TB (MB) | Backend RSS cực đại TB (MB) |
@@ -706,6 +774,8 @@ Hình 3.8. Mức sử dụng tài nguyên theo kích thước batch
 
 Script kiểm toán chạy lại trên dữ liệu vừa sinh và ghi nhận 9/9 run đạt, 1.830/1.830 chứng thư được phát hành, 1.830 certificate ID cùng target hash duy nhất, 1.830/1.830 Merkle proof khớp, 9 lô phát hành tương ứng 9 transaction đã xác nhận và 1.830/1.830 chứng thư được bộ `cert-verifier-js` kết luận `VALID`. Kiểm toán còn đối chiếu checksum từng file với manifest, dữ liệu DB theo `issuanceBatchId` và Merkle root trong `OP_RETURN`. `MANIFEST.json` đối chiếu đúng 35/35 payload của lượt chạy; `SHA256SUMS` kiểm tra đúng 37/37 tệp công bố (gồm manifest và bảng tổng hợp bổ sung) được lưu trong repository.
 
+Kết quả kiểm toán artifact được tổng hợp trong Bảng 3.6.
+
 Bảng 3.6. Kết quả kiểm toán
 
 | Chỉ số | Kết quả |
@@ -723,6 +793,8 @@ Tổng 1.830 là tổng lượt/chứng thư của chín run: `3×10 + 3×100 + 
 
 ## 3.10. Kết quả Kịch bản 3 – thu hồi, RBAC và audit
 
+Kết quả kiểm tra thu hồi, phân quyền và audit được tổng hợp trong Bảng 3.7.
+
 Bảng 3.7. Kết quả Kịch bản 3
 
 | Mã | Ca kiểm thử | Kỳ vọng | Quan sát | Đánh giá |
@@ -738,11 +810,17 @@ Bảng 3.7. Kết quả Kịch bản 3
 
 Tám trên tám ca đạt. Trong phạm vi môi trường tái kiểm chứng và các ca đã thiết kế, kết quả ghi nhận chỉ Checker thực hiện được thao tác thu hồi; transaction có xác nhận; Verify, Revocation List và audit trả kết quả nhất quán.
 
+Hình 3.9 tổng hợp tỷ lệ đạt của ba nhóm kịch bản kiểm thử đã thực hiện.
+
 ![Hình 3.9. Tổng hợp tỷ lệ đạt của ba kịch bản](report-assets/ch3-09-tong-hop-kich-ban.png)
+
+Hình 3.9. Tổng hợp tỷ lệ đạt của ba kịch bản kiểm thử
 
 ## 3.11. Đánh giá kết quả
 
 ### 3.11.1. Mức đáp ứng
+
+Mức đáp ứng yêu cầu và bằng chứng tương ứng được đối chiếu trong Bảng 3.8.
 
 Bảng 3.8. Đối chiếu yêu cầu và bằng chứng
 
@@ -867,357 +945,3 @@ Bộ tái kiểm chứng hiện hành nằm trong `experiments/results/final-rev
 5. Tạo tài khoản thử nghiệm không chứa dữ liệu cá nhân thật.
 6. Chạy preflight, đóng băng cấu hình và thực thi các kịch bản.
 7. Kiểm toán Merkle proof, tạo checksum và chỉ công bố artifact đã khử dữ liệu nhạy cảm.
-
-# PHỤ LỤC D. CÂU HỎI TỰ PHẢN BIỆN
-
-Phần này tổng hợp các câu hỏi có khả năng xuất hiện khi đọc, phản biện hoặc bảo vệ đồ án. Câu trả lời phân biệt rõ năng lực đã được chứng minh trong môi trường regtest với các yêu cầu bổ sung trước khi triển khai production; vì vậy chúng không được hiểu là cam kết hệ thống hiện tại đã sẵn sàng vận hành thực tế.
-
-## D.1. Chi phí, Bitcoin và mô hình vận hành
-
-**Q1: Nếu triển khai production ngoài đời thì chi phí như thế nào? Có mất Bitcoin thật không?**
-
-**A:** Có. Trên Bitcoin mainnet, tổ chức phải sở hữu một lượng bitcoin để trả phí giao dịch neo dữ liệu; hệ thống không cần chuyển một bitcoin nguyên vẹn cho người nhận. Chi phí mỗi lô xấp xỉ kích thước giao dịch nhân với mức phí satoshi/vbyte tại thời điểm phát hành, cộng chi phí máy chủ, lưu trữ, giám sát, sao lưu, tên miền, TLS, nhân sự vận hành và quản lý khóa. Merkle batching giúp nhiều văn bằng dùng chung một giao dịch nên chi phí bình quân trên mỗi văn bằng giảm mạnh.
-
-**Q2: Có phải mỗi văn bằng tốn một giao dịch Bitcoin không?**
-
-**A:** Không. Hệ thống băm các chứng thư thành cây Merkle rồi chỉ neo một Merkle root cho cả lô. Mỗi chứng thư giữ Merkle proof riêng để chứng minh nó thuộc lô, do đó một giao dịch có thể phục vụ nhiều văn bằng.
-
-**Q3: Phí phát hành có cố định không?**
-
-**A:** Không. Phí mainnet biến động theo nhu cầu không gian khối, kích thước giao dịch và chính sách chọn mức phí. Khi vận hành thật cần cơ chế ước lượng phí, ngưỡng ngân sách, lịch phát hành theo lô và chính sách tăng phí hoặc phát hành lại khi giao dịch bị treo.
-
-**Q4: Nguyên mẫu hiện tại có tiêu tiền thật không?**
-
-**A:** Không. Thực nghiệm dùng Bitcoin regtest, nơi block và coin được tạo cục bộ, không có giá trị kinh tế. Kết quả regtest chứng minh luồng kỹ thuật nhưng không đại diện cho phí, độ trễ, thanh khoản hay rủi ro vận hành của mainnet.
-
-**Q5: Ngoài phí blockchain còn những khoản nào?**
-
-**A:** Các khoản chính gồm hạ tầng ứng dụng và cơ sở dữ liệu, Bitcoin node hoặc nhà cung cấp RPC, lưu trữ bản sao, giám sát và cảnh báo, HSM/KMS, kiểm thử xâm nhập, chứng thư TLS, tên miền, trực vận hành, hỗ trợ người dùng và tuân thủ pháp lý. Trong nhiều triển khai, chi phí con người và an toàn khóa lớn hơn phí neo blockchain.
-
-**Q6: Có thể dùng testnet để vận hành thật nhằm tiết kiệm không?**
-
-**A:** Không nên. Testnet không bảo đảm giá trị kinh tế, độ ổn định hay tính chống viết lại tương đương mainnet và có thể được reset hoặc gián đoạn. Testnet phù hợp tích hợp trước triển khai; dữ liệu cần giá trị xác minh lâu dài phải dùng mạng có mô hình tin cậy phù hợp.
-
-**Q7: Có thể giảm phí bằng cách chờ gom đủ lô không?**
-
-**A:** Có, nhưng phải đánh đổi với thời gian chờ phát hành. Production nên đặt ngưỡng theo số lượng hoặc thời gian, ví dụ phát hành khi đủ lô hoặc đến hạn dịch vụ, đồng thời cho phép lô khẩn cấp với mức phí cao hơn.
-
-## D.2. Lý do chọn Blockchain và Bitcoin
-
-**Q8: Tại sao cần Blockchain, cơ sở dữ liệu ký số thông thường có đủ không?**
-
-**A:** Cơ sở dữ liệu kết hợp chữ ký số có thể đủ nếu mọi bên luôn tin tưởng và truy cập được tổ chức phát hành. Blockchain bổ sung mốc thời gian và cam kết mật mã trên một hạ tầng độc lập, giúp bên thứ ba kiểm tra mà không chỉ dựa vào bản ghi nội bộ. Tuy nhiên Blockchain không tự bảo đảm dữ liệu đầu vào đúng và không thay thế quản trị nghiệp vụ.
-
-**Q9: Tại sao chọn Bitcoin thay vì Ethereum?**
-
-**A:** Blockcerts có mô hình neo Merkle root phù hợp với giao dịch Bitcoin và không cần smart contract. Bitcoin cung cấp lịch sử giao dịch lâu dài và mô hình xác minh đơn giản; Ethereum có thể phù hợp khi cần logic on-chain phong phú nhưng làm tăng bề mặt hợp đồng, phí và độ phức tạp mà bài toán này chưa cần.
-
-**Q10: Tại sao không dùng Blockchain riêng hoặc Hyperledger Fabric?**
-
-**A:** Mạng cấp quyền cho hiệu năng và quản trị thành viên tốt hơn, nhưng người xác minh phải tin vào liên minh vận hành mạng. Bitcoin công khai tạo điểm neo độc lập hơn. Nếu yêu cầu chủ quyền dữ liệu, thông lượng và quản trị nội bộ quan trọng hơn tính kiểm chứng công khai, Fabric có thể là lựa chọn hợp lý.
-
-**Q11: Blockchain có làm văn bằng trở thành “đúng” tuyệt đối không?**
-
-**A:** Không. Blockchain chỉ giúp phát hiện thay đổi và chứng minh dữ liệu đã được neo bởi khóa của tổ chức tại một thời điểm. Nếu Maker nhập sai hoặc Checker duyệt sai, bản ghi sai vẫn có thể được neo bất biến; vì vậy quy trình Maker–Checker, đối soát nguồn và thu hồi vẫn bắt buộc.
-
-**Q12: Hệ thống có phải ứng dụng phi tập trung hoàn toàn không?**
-
-**A:** Không. Backend, cơ sở dữ liệu, Issuer Profile, khóa phát hành và quy trình phê duyệt vẫn do tổ chức quản lý. Thành phần phi tập trung chủ yếu là lớp neo và kiểm chứng bằng chứng; báo cáo không tuyên bố loại bỏ hoàn toàn điểm tin cậy trung tâm.
-
-**Q13: Bitcoin ngừng hoạt động thì sao?**
-
-**A:** Khả năng này thấp nhưng không thể coi bằng không. Chứng thư và dữ liệu nghiệp vụ vẫn còn ngoài chuỗi, song xác minh anchor mới hoặc đọc lịch sử sẽ bị ảnh hưởng. Production cần cache có kiểm soát, nhiều node/nhà cung cấp độc lập, quy trình gián đoạn và kế hoạch chuyển cơ chế neo nếu tiêu chuẩn thay đổi.
-
-**Q14: Proof of Work có gây lãng phí năng lượng cho từng văn bằng không?**
-
-**A:** Một văn bằng không tạo riêng một quá trình đào; nó sử dụng bảo mật chung của mạng. Dù vậy, tác động môi trường của mạng là vấn đề hợp lệ. Merkle batching, tần suất neo hợp lý và đánh giá lựa chọn mạng theo chính sách ESG là các biện pháp cần xem xét.
-
-## D.3. Tính đúng đắn mật mã và xác minh
-
-**Q15: Merkle proof chứng minh điều gì?**
-
-**A:** Nó chứng minh hash của chứng thư thuộc tập lá tạo ra Merkle root đã neo. Proof không tự chứng minh danh tính người học hay tính đúng của nội dung; các yếu tố đó phụ thuộc chữ ký, Issuer Profile và quy trình nghiệp vụ.
-
-**Q16: Nếu sửa một ký tự trong chứng thư thì sao?**
-
-**A:** Hash của chứng thư thay đổi nên đường Merkle proof không còn dẫn tới root đã neo và kết quả phải là INVALID. Đây là tính chất chống sửa đổi, không phải cơ chế mã hóa nội dung.
-
-**Q17: Hai chứng thư có thể có cùng hash không?**
-
-**A:** Về lý thuyết va chạm hash tồn tại, nhưng với hàm băm mật mã phù hợp xác suất thực tế là cực nhỏ. Production vẫn phải cố định thuật toán được tiêu chuẩn hỗ trợ và có kế hoạch chuyển đổi nếu thuật toán bị suy yếu.
-
-**Q18: Xác minh có cần truy cập máy chủ trường không?**
-
-**A:** Để kiểm tra đầy đủ thường cần truy cập Issuer Profile, danh sách thu hồi và nguồn blockchain hoặc node. Một phần kiểm tra cấu trúc/hash có thể làm cục bộ, nhưng kết luận về danh tính tổ chức, trạng thái thu hồi và anchor mới nhất cần dữ liệu đáng tin cậy.
-
-**Q19: Tại sao kết quả có trạng thái INDETERMINATE?**
-
-**A:** Trạng thái này dùng khi thiếu bằng chứng để kết luận, chẳng hạn RPC lỗi, Issuer Profile không truy cập được hoặc dịch vụ verifier gián đoạn. Không được biến lỗi hạ tầng thành INVALID vì điều đó có thể kết tội nhầm một chứng thư hợp lệ.
-
-**Q20: Bao nhiêu confirmation là đủ?**
-
-**A:** Nguyên mẫu yêu cầu tối thiểu một confirmation để hoàn tất thử nghiệm nhanh. Production phải chọn ngưỡng theo giá trị rủi ro và thời gian chấp nhận; càng nhiều confirmation thì rủi ro reorg càng thấp nhưng người dùng chờ lâu hơn.
-
-**Q21: Nếu Bitcoin xảy ra reorg thì chứng thư có mất không?**
-
-**A:** Reorg ngắn có thể làm giao dịch tạm thời mất confirmation hoặc quay lại mempool. Worker và verifier phải theo dõi trạng thái đến ngưỡng xác nhận, không coi broadcast là hoàn tất, và có quy trình phát hành lại/đối soát nếu giao dịch bị loại.
-
-**Q22: Làm sao phân biệt tổ chức phát hành thật với kẻ giả mạo?**
-
-**A:** Người xác minh phải kiểm tra Issuer Profile, miền công bố, khóa/địa chỉ được ủy quyền và chuỗi tin cậy quản trị của tổ chức. Blockchain chỉ chứng minh giao dịch đến từ một khóa; việc gắn khóa đó với một trường hợp pháp vẫn cần cơ chế định danh đáng tin cậy.
-
-## D.4. Khóa, danh tính và quyền sở hữu
-
-**Q23: Nếu khóa phát hành bị lộ thì hậu quả gì?**
-
-**A:** Kẻ tấn công có thể neo chứng thư giả hoặc tạo bằng chứng gây nhầm lẫn dưới khóa bị xâm phạm. Cần ngừng phát hành, xoay khóa, công bố sự cố, cập nhật Issuer Profile theo quy trình có kiểm soát, rà soát các giao dịch trong khoảng ảnh hưởng và dùng HSM/KMS cùng phê duyệt nhiều người.
-
-**Q24: Tại sao không lưu private key trong cơ sở dữ liệu?**
-
-**A:** Cơ sở dữ liệu là mục tiêu thường xuyên của tấn công và được nhiều thành phần truy cập. Tách khóa khỏi dữ liệu nghiệp vụ, hạn chế quyền đọc và dùng HSM/KMS giúp giảm bán kính ảnh hưởng; bản nguyên mẫu dùng tệp WIF cục bộ chỉ phù hợp thí nghiệm.
-
-**Q25: Sinh viên mất khóa thì có mất văn bằng không?**
-
-**A:** Văn bằng và bằng chứng neo không biến mất, nhưng người học có thể mất khả năng chứng minh quyền kiểm soát khóa nếu quy trình yêu cầu. Tổ chức cần chính sách cấp lại hoặc liên kết khóa mới, giữ lịch sử và thu hồi phiên bản cũ thay vì sửa blockchain.
-
-**Q26: Public key của sinh viên có phải dữ liệu cá nhân không?**
-
-**A:** Có thể có, đặc biệt khi khóa được liên kết với danh tính và lịch sử học tập. Cần đánh giá pháp lý, tối thiểu hóa dữ liệu, thông báo mục đích sử dụng và tránh tái sử dụng cùng một định danh công khai cho nhiều ngữ cảnh nếu gây khả năng theo dõi.
-
-**Q27: Có thể dùng ví Bitcoin thông thường của sinh viên không?**
-
-**A:** Về kỹ thuật có thể dùng loại địa chỉ/khóa được chuẩn hỗ trợ, nhưng trải nghiệm quản lý khóa và khôi phục phải được thiết kế rõ. Không nên yêu cầu sinh viên giữ số dư; khóa nhận văn bằng và ví tài sản nên tách biệt để giảm rủi ro và hiểu nhầm.
-
-**Q28: Maker hoặc Checker nghỉ việc thì sao?**
-
-**A:** Tài khoản phải bị vô hiệu hóa, token bị thu hồi, quyền được rà soát và audit được lưu giữ. Khóa phát hành không nên thuộc cá nhân; nó thuộc tổ chức và được quản lý bằng vai trò, phê duyệt nhiều người và quy trình bàn giao.
-
-**Q29: Một Checker có thể tự ý cấp văn bằng không?**
-
-**A:** Trong thiết kế hiện tại, Checker duyệt nhưng Maker tạo yêu cầu, giúp tách nhiệm vụ. Tuy nhiên nếu hai người thông đồng hoặc Checker có thêm quyền quản trị dữ liệu ngoài luồng thì kiểm soát có thể bị vượt qua; production cần đối soát hệ thống đào tạo, giới hạn quyền, cảnh báo bất thường và phê duyệt nhiều cấp cho lô nhạy cảm.
-
-## D.5. Dữ liệu cá nhân, pháp lý và quyền riêng tư
-
-**Q30: Thông tin nào được ghi trực tiếp lên Bitcoin?**
-
-**A:** Chỉ cam kết mật mã như Merkle root và dữ liệu kỹ thuật cần thiết của giao dịch; họ tên, mã sinh viên và chi tiết văn bằng không nên ghi trực tiếp lên chuỗi. Chứng thư đầy đủ được lưu và chia sẻ ngoài chuỗi.
-
-**Q31: Hash có chắc chắn không phải dữ liệu cá nhân không?**
-
-**A:** Không thể khẳng định trong mọi bối cảnh. Nếu hash có thể liên kết với một cá nhân hoặc bị thử lại từ tập dữ liệu nhỏ, nó vẫn có thể chịu yêu cầu bảo vệ dữ liệu. Cần đánh giá tác động quyền riêng tư và tránh neo dữ liệu có entropy thấp một cách trực tiếp.
-
-**Q32: Quyền được xóa dữ liệu được xử lý thế nào khi blockchain bất biến?**
-
-**A:** Không ghi dữ liệu cá nhân trực tiếp lên blockchain là biện pháp chính. Dữ liệu off-chain có thể xóa hoặc hạn chế theo chính sách; cam kết mật mã trên chuỗi không thể xóa nên phải được đánh giá pháp lý trước triển khai và giải thích minh bạch cho chủ thể dữ liệu.
-
-**Q33: Văn bằng blockchain có giá trị pháp lý tự động không?**
-
-**A:** Không. Giá trị pháp lý phụ thuộc luật, quy chế văn bằng điện tử, chữ ký số, thẩm quyền tổ chức và quy trình chứng thực tại từng quốc gia. Blockchain là bằng chứng kỹ thuật, không tự thay thế con dấu, chữ ký số chuyên dùng hoặc quy định của cơ quan quản lý.
-
-**Q34: Có cần sự đồng ý của sinh viên không?**
-
-**A:** Tùy căn cứ xử lý dữ liệu và quy định áp dụng. Dù dựa trên nghĩa vụ pháp lý hay sự đồng ý, tổ chức vẫn cần thông báo mục đích, phạm vi công bố, thời hạn lưu, quyền của người học và kênh xử lý khiếu nại.
-
-**Q35: Công khai cổng Verify có làm rò rỉ dữ liệu không?**
-
-**A:** Có nguy cơ nếu API lưu toàn bộ chứng thư, log quá chi tiết hoặc cho phép dò mã sinh viên. Cần tối thiểu hóa log, giới hạn tốc độ, không cung cấp API liệt kê, đặt thời hạn lưu verification log và chỉ hiển thị dữ liệu cần cho mục đích xác minh.
-
-**Q36: Có nên đưa bản scan PDF văn bằng lên blockchain không?**
-
-**A:** Không. Dung lượng, chi phí, quyền riêng tư và tính không thể xóa khiến cách đó không phù hợp. Nên lưu tệp ngoài chuỗi, ký/băm tệp và chỉ neo cam kết mật mã tối thiểu.
-
-## D.6. Thu hồi, sửa sai và vòng đời văn bằng
-
-**Q37: Blockchain bất biến thì sửa sai bằng cách nào?**
-
-**A:** Không sửa giao dịch cũ. Tổ chức thu hồi chứng thư sai, ghi rõ lý do theo mức công khai phù hợp, tạo chứng thư mới và giữ liên kết audit giữa hai phiên bản. Bất biến giúp lịch sử không bị âm thầm viết lại.
-
-**Q38: Thu hồi có xóa văn bằng cũ không?**
-
-**A:** Không. Tệp cũ và anchor vẫn tồn tại nhưng trạng thái xác minh phải trả REVOKED. Người đọc cần kiểm tra trạng thái hiện tại thay vì chỉ nhìn thấy giao dịch đã được xác nhận.
-
-**Q39: Nếu dịch vụ danh sách thu hồi bị tắt thì sao?**
-
-**A:** Verifier không nên tự kết luận VALID khi không kiểm tra được nguồn thu hồi; kết quả phù hợp là INDETERMINATE hoặc cảnh báo rõ phần kiểm tra chưa hoàn thành. Production cần nhiều bản sao, cache có thời hạn và cơ chế công bố thu hồi bền vững.
-
-**Q40: Lý do thu hồi có nên công khai hoàn toàn không?**
-
-**A:** Không phải lúc nào cũng nên, vì lý do có thể chứa dữ liệu nhạy cảm. Có thể công bố mã lý do tối thiểu và giữ diễn giải chi tiết trong audit nội bộ theo phân quyền.
-
-**Q41: Số hiệu văn bằng trùng được xử lý thế nào?**
-
-**A:** Phiên cập nhật áp dụng ràng buộc duy nhất trên toàn hệ thống và backend kiểm tra trước khi phát hành. Ràng buộc cơ sở dữ liệu vẫn là lớp quyết định cuối để chống race condition giữa các request đồng thời.
-
-**Q42: Nếu đã neo blockchain nhưng cập nhật database thất bại thì sao?**
-
-**A:** Đây là lỗi phân tán không thể giải quyết chỉ bằng transaction cơ sở dữ liệu. Worker phải lưu checkpoint, idempotency key và artifact, sau đó đối soát giao dịch để tiếp tục cập nhật thay vì phát hành trùng; cần job reconciliation và cảnh báo vận hành.
-
-**Q43: Có thể cấp lại đúng số hiệu đã thu hồi không?**
-
-**A:** Không nên tái sử dụng định danh nếu nó làm lịch sử mơ hồ. Chính sách an toàn là giữ số hiệu cũ gắn với trạng thái thu hồi và cấp phiên bản hoặc số hiệu mới có tham chiếu đến bản được thay thế.
-
-## D.7. Bảo mật ứng dụng và mô hình đe dọa
-
-**Q44: Ẩn nút trên giao diện có đủ để phân quyền không?**
-
-**A:** Không. Người dùng có thể gọi API trực tiếp. Backend phải xác thực JWT, role, quyền trên tài nguyên và trạng thái workflow cho mọi endpoint; frontend chỉ cải thiện trải nghiệm.
-
-**Q45: JWT bị đánh cắp thì sao?**
-
-**A:** Kẻ tấn công có thể hành động trong phạm vi token đến khi token hết hạn hoặc bị chặn. Production cần TLS, thời hạn access token ngắn, refresh token xoay vòng, thu hồi phiên, bảo vệ XSS/CSRF theo cách lưu token, MFA cho vai trò nhạy cảm và phát hiện đăng nhập bất thường.
-
-**Q46: SSRF nguy hiểm ở đâu trong cổng Verify?**
-
-**A:** Chứng thư có thể chứa URL do người dùng kiểm soát khiến verifier truy cập loopback, metadata cloud hoặc mạng nội bộ. Verifier hiện chỉ cho HTTPS, chặn dải IP riêng/đặc biệt sau mọi lần phân giải DNS và redirect, ghim IP, giới hạn redirect, thời gian và dung lượng; bộ regression test bao phủ các trường hợp chính. Cô lập mạng/tiến trình và allowlist miền hẹp hơn vẫn là biện pháp production nên bổ sung.
-
-**Q47: Tải lên JSON có thể dẫn đến thực thi mã không?**
-
-**A:** JSON thuần không tự thực thi, nhưng parser, thư viện và quy trình gọi công cụ có thể có lỗ hổng. Cần giới hạn kích thước/độ sâu, schema validation, không ghép dữ liệu vào shell command, chạy container không đặc quyền và cập nhật dependency.
-
-**Q48: Audit log có thể bị quản trị viên sửa không?**
-
-**A:** Có. Chuỗi hash SHA-256 hiện tại giúp phát hiện một dòng bị sửa/xóa ở giữa chuỗi, nhưng quản trị viên cơ sở dữ liệu vẫn có thể viết lại toàn bộ chuỗi hoặc xóa phần đuôi. Production phải định kỳ xuất/neo head hash sang kho append-only/WORM hoặc SIEM độc lập, đồng bộ thời gian và cảnh báo khi có khoảng trống.
-
-**Q49: Rate limiting có chống được DDoS không?**
-
-**A:** Chỉ giảm lạm dụng ở mức ứng dụng và không thay thế bảo vệ tầng mạng. Cần reverse proxy, CDN/WAF khi phù hợp, quota theo danh tính, giới hạn kích thước, circuit breaker, autoscaling và phương án hấp thụ hoặc lọc lưu lượng.
-
-**Q50: Nếu dependency Blockcerts có lỗ hổng thì sao?**
-
-**A:** Phải khóa phiên bản, tạo SBOM, quét CVE, kiểm tra chữ ký/nguồn gói và có quy trình cập nhật khẩn cấp. Container và worker cần quyền tối thiểu để lỗi của thư viện không trở thành quyền điều khiển toàn hệ thống.
-
-**Q51: CORS có phải cơ chế bảo mật API chính không?**
-
-**A:** Không. CORS chủ yếu giới hạn trình duyệt, không ngăn curl hoặc server độc hại gọi API. Xác thực, phân quyền, validation, rate limit và kiểm soát mạng mới là lớp bảo vệ chính.
-
-## D.8. Độ tin cậy, mở rộng và vận hành production
-
-**Q52: Hệ thống hiện tại đã production-ready chưa?**
-
-**A:** Chưa. Hệ thống chứng minh được luồng nghiệp vụ và kỹ thuật trên regtest, nhưng còn cần HSM/KMS, HA, backup/restore được diễn tập, quan sát hệ thống, mainnet staging, kiểm thử tải đồng thời, kiểm thử xâm nhập, quản trị sự cố và rà soát pháp lý.
-
-**Q53: Điểm lỗi đơn hiện tại là gì?**
-
-**A:** Một backend/worker, một PostgreSQL, một Redis, một Bitcoin node và lưu trữ cục bộ đều có thể là điểm lỗi đơn. Production cần nhân bản phù hợp, tách worker, lưu trữ bền vững, health check, failover và mục tiêu RPO/RTO rõ ràng.
-
-**Q54: Redis mất dữ liệu thì chứng thư có mất không?**
-
-**A:** PostgreSQL và artifact mới là nguồn trạng thái lâu dài; Redis chỉ điều phối. Tuy nhiên job đang chờ có thể mất hoặc lặp, nên cần cấu hình persistence phù hợp, job id ổn định và tiến trình reconciliation quét bản ghi queued/processing để phục hồi.
-
-**Q55: Làm sao tránh phát hành trùng khi worker chạy lại?**
-
-**A:** Issuance hiện dùng `batchId`/`jobId` ổn định, transactional outbox, checkpoint raw transaction/txid và đối soát on-chain; revocation cũng lưu checkpoint trước broadcast và khóa advisory. Retry chỉ kiểm tra hoặc phát lại đúng raw transaction cũ, không tạo giao dịch mới một cách mù quáng.
-
-**Q56: Một lô quá lớn có vấn đề gì?**
-
-**A:** Tạo proof và artifact tốn CPU, RAM, I/O và làm tăng phạm vi ảnh hưởng nếu lô lỗi. Cần giới hạn kích thước lô, chia chunk, đo thời gian, lưu checkpoint và bảo đảm một chứng thư lỗi không làm trạng thái các chứng thư khác mơ hồ.
-
-**Q57: Có thể phục vụ hàng triệu văn bằng không?**
-
-**A:** Về nguyên lý batching giảm số giao dịch, nhưng nguyên mẫu chưa chứng minh quy mô đó. Cần benchmark theo tải thật, partition/index database, object storage, nhiều worker, queue partition, cache xác minh, lifecycle dữ liệu và kiểm thử chi phí trước khi tuyên bố khả năng mở rộng.
-
-**Q58: Cần giám sát những chỉ số nào?**
-
-**A:** Nên theo dõi độ trễ và tỷ lệ lỗi API, độ sâu queue, tuổi job, số bản ghi mắc ở queued/processing, thời gian phát hành, confirmation, số dư ví phí, lỗi RPC, tỷ lệ VALID/INVALID/INDETERMINATE, dung lượng đĩa, backup và các sự kiện quyền cao.
-
-**Q59: Kế hoạch sao lưu tối thiểu là gì?**
-
-**A:** Sao lưu mã cấu hình không bí mật, PostgreSQL, artifact chứng thư, Issuer Profile, audit và metadata khóa; khóa phải sao lưu riêng bằng cơ chế mã hóa/quorum. Quan trọng hơn là định kỳ phục hồi thử trên môi trường cô lập và đo RPO/RTO.
-
-**Q60: Nếu mất toàn bộ máy chủ nhưng blockchain còn thì khôi phục được hết không?**
-
-**A:** Không. Blockchain chỉ chứa cam kết mật mã, không chứa hồ sơ đầy đủ, tài khoản, audit hay tệp chứng thư. Muốn khôi phục dịch vụ phải có backup off-chain và vật liệu khóa; blockchain không thay thế chiến lược sao lưu.
-
-## D.9. Kiểm thử, bằng chứng và giới hạn thực nghiệm
-
-**Q61: Tại sao kết quả regtest không chứng minh mainnet sẽ giống hệt?**
-
-**A:** Regtest cho phép tạo block theo yêu cầu, gần như không có cạnh tranh phí, reorg thực tế hay độ trễ mạng công khai. Nó chứng minh tích hợp API và định dạng giao dịch, nhưng mainnet cần staging/testnet, theo dõi mempool và thử nghiệm vận hành riêng.
-
-**Q62: Các bài test tự động chứng minh được điều gì?**
-
-**A:** Chúng chứng minh các trường hợp đã mã hóa đang cho kết quả mong đợi tại phiên bản hiện tại. Chúng không chứng minh không có lỗi ngoài phạm vi, không thay thế review kiến trúc, pentest, kiểm thử tải và đánh giá người dùng.
-
-**Q63: Ảnh chụp màn hình có phải bằng chứng đủ mạnh không?**
-
-**A:** Không. Ảnh hỗ trợ tái hiện giao diện nhưng có thể thiếu ngữ cảnh và không chứng minh trạng thái backend. Bằng chứng tốt hơn gồm log đã khử bí mật, JSON kết quả, txid, hash artifact, phiên bản commit, script tái lập và kiểm tra chéo dữ liệu.
-
-**Q64: Benchmark trong báo cáo có thể suy rộng không?**
-
-**A:** Chỉ trong cấu hình phần cứng, dữ liệu, tải và điều kiện được mô tả. Không nên dùng số đo đơn máy/regtest để cam kết SLA; cần nhiều lần chạy, percentile, tải đồng thời và phân tích nút thắt ở môi trường gần production.
-
-**Q65: Làm sao bảo đảm thí nghiệm tái lập được?**
-
-**A:** Cố định commit và phiên bản dependency/image, công bố cấu hình không chứa bí mật, migration, seed tối thiểu, script chạy, tiêu chí pass/fail và hash artifact. Các dữ liệu nhạy cảm phải được thay bằng fixture giả chứ không đưa credential thật vào repository.
-
-**Q66: Tại sao ba kịch bản vẫn chứa tám bước thao tác?**
-
-**A:** Ba kịch bản là ba nhóm mục tiêu đánh giá tổng hợp, còn tám bước là quy trình chi tiết để tái hiện toàn bộ coverage trước đó. Việc nhóm lại nhằm giảm phân mảnh trình bày, không xóa trường hợp kiểm thử.
-
-**Q67: Có trường hợp kiểm thử nào còn thiếu?**
-
-**A:** Có. Các khoảng trống đáng chú ý gồm tải đồng thời lớn, reorg dài, mempool fee spike, node lệch chuỗi, crash đúng thời điểm broadcast, phục hồi backup, xoay khóa, tấn công chuỗi cung ứng, kiểm thử trình duyệt/thiết bị và accessibility.
-
-## D.10. Trải nghiệm người dùng và khả năng tương tác
-
-**Q68: Người tuyển dụng có phải cài ví Bitcoin không?**
-
-**A:** Không. Cổng Verify hoặc thư viện xác minh đọc chứng thư và blockchain thay người dùng. Người xác minh chỉ cần tệp/QR hoặc liên kết phù hợp; hệ thống không yêu cầu họ sở hữu bitcoin.
-
-**Q69: Tại sao phát hành JSON thay vì chỉ PDF?**
-
-**A:** JSON chứa dữ liệu có cấu trúc, chữ ký/proof và tham chiếu cần cho xác minh máy. PDF dễ đọc nhưng không đủ để mang toàn bộ bằng chứng một cách chuẩn hóa; có thể cung cấp PDF trình bày kèm QR/hash liên kết tới chứng thư JSON.
-
-**Q70: QR code có làm giả được không?**
-
-**A:** Có thể thay QR để trỏ tới trang giả. Người dùng vẫn phải kiểm tra tên miền, HTTPS, danh tính issuer và kết quả verifier; QR chỉ là phương tiện nhập dữ liệu, không phải bằng chứng tin cậy.
-
-**Q71: Nếu đổi tên miền Issuer Profile thì chứng thư cũ ra sao?**
-
-**A:** URL cũ trong chứng thư vẫn được tham chiếu. Tổ chức nên duy trì redirect/hosting dài hạn hoặc cơ chế định danh bền vững; thay miền không kế hoạch có thể khiến xác minh thành INDETERMINATE dù anchor còn nguyên.
-
-**Q72: Hệ thống có tương tác với ví danh tính số hoặc chuẩn khác không?**
-
-**A:** Blockcerts dựa trên Verifiable Credentials nhưng khả năng tương tác thực tế phụ thuộc profile, proof và verifier. Muốn tích hợp ví khác cần kiểm thử theo từng implementation, ánh xạ schema và tránh tuyên bố tương thích chỉ dựa vào tên chuẩn.
-
-**Q73: Người khuyết tật có sử dụng được ba cổng không?**
-
-**A:** Nguyên mẫu chưa phải bằng chứng tuân thủ accessibility. Production cần kiểm tra bàn phím, screen reader, độ tương phản, nhãn biểu mẫu, thông báo lỗi, responsive và tiêu chuẩn WCAG phù hợp.
-
-**Q74: Có thể xác minh hoàn toàn bằng điện thoại không?**
-
-**A:** Có thể nếu giao diện, tải tệp và QR được tối ưu, nhưng cần kiểm thử trên Android/iOS và nhiều trình duyệt. Các tệp lớn, quyền truy cập file và chuyển ứng dụng là các điểm dễ gây lỗi trải nghiệm.
-
-## D.11. Quản trị, đạo đức và hướng phát triển
-
-**Q75: Ai chịu trách nhiệm khi văn bằng sai?**
-
-**A:** Trách nhiệm vẫn thuộc quy trình và tổ chức có thẩm quyền, không chuyển cho blockchain. Audit giúp xác định ai tạo, ai duyệt và hệ thống xử lý thế nào, nhưng chính sách nhân sự/pháp lý phải quy định trách nhiệm và kênh sửa sai.
-
-**Q76: Có nguy cơ dùng công nghệ để giám sát người học không?**
-
-**A:** Có nếu cùng một định danh công khai được tái sử dụng hoặc lịch sử xác minh bị lưu quá mức. Cần privacy by design, định danh theo ngữ cảnh, tối thiểu hóa log, thời hạn lưu và quyền truy cập minh bạch.
-
-**Q77: Làm sao tránh phụ thuộc một nhà cung cấp?**
-
-**A:** Dùng chuẩn mở, giữ dữ liệu và artifact ở định dạng có thể xuất, tự vận hành node hoặc hỗ trợ nhiều RPC, container hóa có kiểm soát và diễn tập chuyển nhà cung cấp. Tuy nhiên vẫn phải quản lý rủi ro phụ thuộc thư viện Blockcerts và phiên bản chuẩn.
-
-**Q78: Nếu Blockcerts ngừng được duy trì thì sao?**
-
-**A:** Tệp và anchor vẫn có thể được kiểm tra nếu đặc tả, mã nguồn và dependency được lưu trữ. Tổ chức cần archive verifier, SBOM, test vector và có kế hoạch chuyển đổi sang chuẩn/chữ ký khác mà vẫn duy trì xác minh chứng thư cũ.
-
-**Q79: Đóng góp mới của đồ án nằm ở đâu?**
-
-**A:** Giá trị không phải phát minh blockchain mới mà là tích hợp có kiểm soát: ba cổng tách biệt, Maker–Checker, RBAC, pipeline bất đồng bộ, Merkle batching, xác minh/thu hồi, dữ liệu nghiệp vụ văn bằng và bộ thực nghiệm tái lập trong một hệ thống hoàn chỉnh.
-
-**Q80: Hạn chế lớn nhất của đồ án là gì?**
-
-**A:** Hạn chế lớn nhất là khoảng cách giữa nguyên mẫu regtest một máy và production có giá trị pháp lý: quản lý khóa, HA, tải lớn, mainnet, quyền riêng tư, vận hành sự cố và đánh giá pháp lý chưa được chứng minh đầy đủ.
-
-**Q81: Ưu tiên phát triển tiếp theo nên là gì?**
-
-**A:** Ưu tiên theo rủi ro: HSM/KMS và xoay khóa; idempotency/reconciliation; backup-restore và HA; quan sát hệ thống; testnet/mainnet staging cùng quản lý phí; pentest; đánh giá pháp lý/quyền riêng tư; sau đó mới tối ưu trải nghiệm và mở rộng tích hợp.
-
-**Q82: Tiêu chí nào để quyết định có nên đưa hệ thống vào vận hành?**
-
-**A:** Chỉ nên triển khai khi có chủ sở hữu nghiệp vụ, đánh giá pháp lý, threat model được phê duyệt, kiểm thử xâm nhập, diễn tập mất khóa/khôi phục, SLO và trực vận hành, kiểm soát thay đổi, ngân sách phí, kế hoạch ngừng dịch vụ và chấp nhận rủi ro bằng văn bản.

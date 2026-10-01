@@ -14,7 +14,9 @@ text,n=re.subn(r'^<div align="center">.*?</div>\s*(?:\\newpage\s*)?', '', text, 
 a.output_markdown.write_text(text.lstrip())
 doc=Document(a.reference)
 for name in ('Heading 1','Heading 2','Heading 3','Heading 4'):
-    style=doc.styles[name]
+    style=next((s for s in doc.styles if s.name == name), None)
+    if style is None:
+        continue
     ppr=style.element.pPr
     if ppr is not None and ppr.numPr is not None:
         ppr.remove(ppr.numPr)

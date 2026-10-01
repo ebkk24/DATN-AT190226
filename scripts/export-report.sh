@@ -33,12 +33,22 @@ command -v "$SOFFICE_BIN" >/dev/null || { echo "Thiếu libreoffice" >&2; exit 1
 "$UNO_PYTHON" "$ROOT/scripts/update-docx-indexes-and-export.py" \
   "$SOFFICE_BIN" "$TMP/Bao_cao_DATN_hoan_chinh.docx" \
   "$TMP/Bao_cao_DATN_hoan_chinh.pdf"
+"$PYTHON_BIN" "$ROOT/scripts/freeze-report-page-references.py" \
+  "$TMP/Bao_cao_DATN_hoan_chinh.docx" "$TMP/Bao_cao_DATN_hoan_chinh.pdf"
+"$UNO_PYTHON" "$ROOT/scripts/update-docx-indexes-and-export.py" \
+  "$SOFFICE_BIN" "$TMP/Bao_cao_DATN_hoan_chinh.docx" \
+  "$TMP/Bao_cao_DATN_hoan_chinh.pdf"
+"$PYTHON_BIN" "$ROOT/scripts/freeze-report-page-references.py" \
+  "$TMP/Bao_cao_DATN_hoan_chinh.docx" "$TMP/Bao_cao_DATN_hoan_chinh.pdf"
+"$UNO_PYTHON" "$ROOT/scripts/update-docx-indexes-and-export.py" \
+  "$SOFFICE_BIN" "$TMP/Bao_cao_DATN_hoan_chinh.docx" \
+  "$TMP/Bao_cao_DATN_hoan_chinh.pdf"
 
 mv "$TMP/Bao_cao_DATN_hoan_chinh.docx" "$DOCX"
 mv "$TMP/Bao_cao_DATN_hoan_chinh.pdf" "$PDF"
 (
   cd "$ROOT"
-  sha256sum Bao_cao_DATN_hoan_chinh.md Bao_cao_DATN_hoan_chinh.docx Bao_cao_DATN_hoan_chinh.pdf \
+  sha256sum Bao_cao_DATN_hoan_chinh.md Bao_cao_DATN_hoan_chinh.docx Bao_cao_DATN_hoan_chinh.pdf Cau_hoi_tu_phan_bien_DATN.txt \
     report-assets/ch3-06-thoi-gian-batch.png \
     report-assets/ch3-07-thong-luong-hieu-qua.png \
     report-assets/ch3-08-tai-nguyen.png > SHA256SUMS_BAO_CAO

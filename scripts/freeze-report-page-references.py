@@ -12,7 +12,7 @@ with tempfile.TemporaryDirectory() as td:
 if pages and not pages[-1].strip(): pages.pop()
 def norm(s): return re.sub(r'\s+',' ',s).strip()
 npages=[norm(x) for x in pages]
-chapter='CHƯƠNG I. CƠ SỞ LÝ THUYẾT VỀ CÔNG NGHỆ BLOCKCHAIN'
+chapter='CHƯƠNG I. CƠ SỞ LÝ THUYẾT BLOCKCHAIN'
 body_page=next((i+1 for i,x in enumerate(npages) if i>=9 and chapter in x),None)
 if body_page is None: raise SystemExit('Không xác định được trang bắt đầu Chương I')
 

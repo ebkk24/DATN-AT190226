@@ -32,7 +32,7 @@ def shade_cell(cell, fill):
     shd.set(qn('w:fill'),fill)
 
 
-def set_cell_margins(cell, top=80, start=90, bottom=80, end=90):
+def set_cell_margins(cell, top=60, start=20, bottom=60, end=20):
     tc=cell._tc; tcPr=tc.get_or_add_tcPr(); tcMar=tcPr.first_child_found_in('w:tcMar')
     if tcMar is None: tcMar=OxmlElement('w:tcMar'); tcPr.append(tcMar)
     for m,v in [('top',top),('start',start),('bottom',bottom),('end',end)]:
@@ -94,7 +94,7 @@ def make_index_entry(text, bookmark, level=1):
     p=make_paragraph(text,style=f'TOC {min(level,3)}')
     pPr=p.find(qn('w:pPr'))
     tabs=OxmlElement('w:tabs'); tab=OxmlElement('w:tab'); tab.set(qn('w:val'),'right'); tab.set(qn('w:leader'),'dot'); tab.set(qn('w:pos'),'8787'); tabs.append(tab); pPr.append(tabs)
-    ind=OxmlElement('w:ind'); ind.set(qn('w:left'),str((level-1)*360)); ind.set(qn('w:hanging'),'0'); ind.set(qn('w:right'),'0'); pPr.append(ind)
+    ind=OxmlElement('w:ind'); ind.set(qn('w:left'),str((level-1)*360)); ind.set(qn('w:hanging'),'0'); ind.set(qn('w:right'),'720'); pPr.append(ind)
     add_pageref(p,bookmark)
     return p
 
@@ -147,7 +147,7 @@ def configure_styles(doc):
         st.font.name=BODY_FONT; st.font.size=Pt(14); st._element.get_or_add_rPr().rFonts.set(qn('w:eastAsia'),BODY_FONT)
         st.paragraph_format.alignment=WD_ALIGN_PARAGRAPH.JUSTIFY; st.paragraph_format.line_spacing=1.3; st.paragraph_format.space_after=Pt(0); st.paragraph_format.first_line_indent=Cm(1.25)
     for name,size,bold,italic,before,after,first,center in [
-        ('Title',16,True,False,0,12,0,True),('Heading 1',14,True,False,12,12,0,True),
+        ('Title',14,True,False,0,12,0,True),('Heading 1',14,True,False,12,12,0,True),
         ('Heading 2',14,True,False,9,3,0,False),('Heading 3',14,True,True,6,3,0,False),
         ('Heading 4',14,True,False,6,3,0,False)]:
         st=style_by_name(doc,name)
@@ -158,7 +158,8 @@ def configure_styles(doc):
     style_by_name(doc,'Heading 1').paragraph_format.page_break_before=True
     for name in ('Caption','Tên hình vẽ','Tên bảng'):
         st=ensure_style(doc,name,'Caption'); st.font.name=BODY_FONT; st.font.size=Pt(14); st.font.italic=True; st.font.color.rgb=RGBColor(0,0,0); st._element.get_or_add_rPr().rFonts.set(qn('w:eastAsia'),BODY_FONT)
-        st.paragraph_format.alignment=WD_ALIGN_PARAGRAPH.CENTER; st.paragraph_format.first_line_indent=Cm(0); st.paragraph_format.space_before=Pt(3); st.paragraph_format.space_after=Pt(6); st.paragraph_format.keep_with_next=True
+        st.paragraph_format.alignment=WD_ALIGN_PARAGRAPH.CENTER; st.paragraph_format.first_line_indent=Cm(0); st.paragraph_format.space_before=Pt(3); st.paragraph_format.space_after=Pt(6); st.paragraph_format.keep_together=True
+        st.paragraph_format.keep_with_next=(name=='Tên bảng')
     for level in range(1,4):
         name=f'TOC {level}'; st=ensure_style(doc,name,'Normal'); st.font.name=BODY_FONT; st.font.size=Pt(14); st.font.bold=(level==1); st._element.get_or_add_rPr().rFonts.set(qn('w:eastAsia'),BODY_FONT)
         st.paragraph_format.first_line_indent=Cm(0); st.paragraph_format.space_before=Pt(1); st.paragraph_format.space_after=Pt(1); st.paragraph_format.line_spacing=1.15
@@ -193,35 +194,51 @@ def rebuild_source_tables(doc):
         old._element.getparent().remove(old._element)
 
 
-def create_cover_table(doc):
-    table=doc.add_table(rows=1,cols=1); table.alignment=WD_TABLE_ALIGNMENT.CENTER; table.autofit=False
+def create_cover_table(doc, logo_path):
+    """Tạo trang bìa bốn vùng, logo và khung kép theo đúng cấu trúc mẫu CDCS."""
+    table=doc.add_table(rows=4,cols=1); table.alignment=WD_TABLE_ALIGNMENT.CENTER; table.autofit=False
     table.columns[0].width=Cm(16.5)
-    cell=table.cell(0,0); cell.width=Cm(16.5); cell.vertical_alignment=WD_CELL_VERTICAL_ALIGNMENT.TOP
-    tcPr=cell._tc.get_or_add_tcPr(); borders=OxmlElement('w:tcBorders')
-    for edge in ('top','left','bottom','right','insideH','insideV'):
-        el=OxmlElement('w:'+edge); el.set(qn('w:val'),'nil'); borders.append(el)
-    tcPr.append(borders); set_cell_margins(cell,0,0,0,0)
-    # Xóa đoạn mặc định rồi tạo bố cục bìa theo mẫu.
-    p0=cell.paragraphs[0]; p0._element.getparent().remove(p0._element)
-    def line(text='',size=14,bold=False,before=0,after=0,breaks=None):
-        p=cell.add_paragraph(); p.alignment=WD_ALIGN_PARAGRAPH.CENTER; p.paragraph_format.first_line_indent=Cm(0); p.paragraph_format.space_before=Pt(before); p.paragraph_format.space_after=Pt(after); p.paragraph_format.line_spacing=1.15
+    tblPr=table._tbl.tblPr
+    tblW=tblPr.find(qn('w:tblW'))
+    if tblW is None: tblW=OxmlElement('w:tblW'); tblPr.insert(0,tblW)
+    tblW.set(qn('w:w'),'9354'); tblW.set(qn('w:type'),'dxa')
+    borders=tblPr.find(qn('w:tblBorders'))
+    if borders is None: borders=OxmlElement('w:tblBorders'); tblPr.append(borders)
+    for edge,val in [('top','thinThickSmallGap'),('left','thinThickSmallGap'),('bottom','thickThinSmallGap'),('right','thickThinSmallGap')]:
+        el=borders.find(qn('w:'+edge))
+        if el is None: el=OxmlElement('w:'+edge); borders.append(el)
+        el.set(qn('w:val'),val); el.set(qn('w:sz'),'24'); el.set(qn('w:space'),'0'); el.set(qn('w:color'),'000000')
+    heights=[Cm(6.9),Cm(4.5),Cm(11.8),Cm(1.7)]
+    for row,height in zip(table.rows,heights):
+        row.height=height; row.height_rule=WD_ROW_HEIGHT_RULE.EXACTLY
+        cell=row.cells[0]; cell.width=Cm(16.5); set_cell_margins(cell,80,100,60,100)
+        p0=cell.paragraphs[0]; p0._element.getparent().remove(p0._element)
+    def line(cell,text='',size=14,bold=False,italic=False,before=0,after=0,breaks=None,align=WD_ALIGN_PARAGRAPH.CENTER):
+        p=cell.add_paragraph(); p.alignment=align; p.paragraph_format.first_line_indent=Cm(0); p.paragraph_format.space_before=Pt(before); p.paragraph_format.space_after=Pt(after); p.paragraph_format.line_spacing=1.0
         parts=breaks if breaks is not None else [text]
         for i,part in enumerate(parts):
             if i: p.add_run().add_break()
-            r=p.add_run(part); set_font(r,BODY_FONT,size,bold=bold)
+            r=p.add_run(part); set_font(r,BODY_FONT,size,bold=bold,italic=italic)
         return p
-    line('BAN CƠ YẾU CHÍNH PHỦ',14,True)
-    line('HỌC VIỆN KỸ THUẬT MẬT MÃ',14,True)
-    line('¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯',14,False)
-    line('ĐỒ ÁN TỐT NGHIỆP',16,True,before=38)
-    line(size=18,bold=True,before=28,breaks=['NGHIÊN CỨU PHÁT TRIỂN HỆ THỐNG THÔNG TIN','HỖ TRỢ QUẢN LÝ VĂN BẰNG CHỨNG CHỈ','DỰA TRÊN NỀN TẢNG BLOCKCHAIN'])
-    line('Ngành: An toàn thông tin',14,False,before=30)
-    line('Mã số: 7.48.02.02',14,False,after=2)
-    line('Sinh viên thực hiện: Phạm Đức Khải – MSSV: AT190226',14,False,before=28)
-    line('Người hướng dẫn: TS. Trần Trung',14,False,before=20)
-    line('Khoa CNTT – Trường Đại học Điện lực',14,False)
-    line('Hà Nội, 2026',14,True,before=52)
+    c0,c1,c2,c3=[row.cells[0] for row in table.rows]
+    line(c0,'BAN CƠ YẾU CHÍNH PHỦ',14,True,before=4)
+    line(c0,'HỌC VIỆN KỸ THUẬT MẬT MÃ',14,True)
+    line(c0,'¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯',14)
+    p=c0.add_paragraph(); p.alignment=WD_ALIGN_PARAGRAPH.CENTER; p.paragraph_format.space_before=Pt(4); p.paragraph_format.space_after=Pt(0); p.paragraph_format.first_line_indent=Cm(0)
+    p.add_run().add_picture(str(logo_path),width=Cm(2.0))
+    line(c1,'ĐỒ ÁN TỐT NGHIỆP',16,True,before=8,after=12)
+    line(c1,size=18,bold=True,breaks=['NGHIÊN CỨU PHÁT TRIỂN HỆ THỐNG THÔNG TIN','HỖ TRỢ QUẢN LÝ VĂN BẰNG CHỨNG CHỈ','DỰA TRÊN NỀN TẢNG BLOCKCHAIN'])
+    line(c2,'Ngành: An toàn thông tin',14,before=24)
+    line(c2,'Mã số: 7.48.02.02',14,after=12)
+    line(c2,'Sinh viên thực hiện:',14,italic=True,before=18)
+    line(c2,'Phạm Đức Khải – MSSV: AT190226',14,True,after=12)
+    line(c2,'Người hướng dẫn:',14,italic=True,before=12)
+    line(c2,'TS. Trần Trung',14,True)
+    line(c2,'Khoa CNTT – Trường Đại học Điện lực',14)
+    c3.vertical_alignment=WD_CELL_VERTICAL_ALIGNMENT.BOTTOM
+    line(c3,'Hà Nội, 2026',14,True,after=4)
     return table._tbl
+
 
 def main():
     ap=argparse.ArgumentParser(); ap.add_argument('docx'); args=ap.parse_args(); path=Path(args.docx)
@@ -238,14 +255,18 @@ def main():
             level=int(sty.split()[-1]) if sty.split()[-1].isdigit() else 1
             set_run_fonts(p,BODY_FONT,14,bold=True,italic=(level==3))
             if level==1: p.alignment=WD_ALIGN_PARAGRAPH.CENTER
+            if t in ('2.8. Thiết kế dữ liệu ngoài chuỗi','3.10.3. Tài nguyên'):
+                p.paragraph_format.page_break_before=True
             name=f'_h{bid}'; add_bookmark(p,name,bid); bid+=1
             heading_entries.append((t,name,min(level,3),p))
-        elif t.startswith('Hình ') and re.match(r'^Hình\s+\d',t) and not t.endswith('.'):
+        elif re.match(r'^Hình\s+\d+\.\d+\.\s+\S',t):
             p.style=style_by_name(doc,'Tên hình vẽ'); p.alignment=WD_ALIGN_PARAGRAPH.CENTER; set_run_fonts(p,BODY_FONT,14,italic=True)
             name=f'_fig{bid}'; add_bookmark(p,name,bid); bid+=1; image_captions.append((t,name))
-        elif t.startswith('Bảng ') and re.match(r'^Bảng\s+\d',t) and not t.endswith('.'):
+        elif re.match(r'^Bảng\s+(?:\d+\.\d+|PL\d+\.\d+)\.\s+\S',t):
             p.style=style_by_name(doc,'Tên bảng'); p.alignment=WD_ALIGN_PARAGRAPH.CENTER; set_run_fonts(p,BODY_FONT,14,italic=True)
             name=f'_tbl{bid}'; add_bookmark(p,name,bid); bid+=1; table_captions.append((t,name))
+        elif re.match(r'^(?:Hᵢ|KeyGen).*\(1\.[12]\)$',t):
+            set_run_fonts(p,BODY_FONT,14,italic=True); p.alignment=WD_ALIGN_PARAGRAPH.CENTER; p.paragraph_format.first_line_indent=Cm(0)
         elif sty in ('Code','Source Code') or t.startswith(('$ ','npm ','docker ','git ')):
             set_run_fonts(p,'Courier New',9); p.paragraph_format.first_line_indent=Cm(0)
         else:
@@ -272,11 +293,10 @@ def main():
             set_cant_split(row)
             for cell in row.cells:
                 cell.vertical_alignment=WD_CELL_VERTICAL_ALIGNMENT.CENTER; set_cell_margins(cell)
-                if ri==0: shade_cell(cell,'D9E2F3')
                 for p in cell.paragraphs:
-                    p.paragraph_format.first_line_indent=Cm(0); p.paragraph_format.space_before=Pt(0); p.paragraph_format.space_after=Pt(0); p.paragraph_format.line_spacing=1.05
+                    p.paragraph_format.first_line_indent=Cm(0); p.paragraph_format.space_before=Pt(0); p.paragraph_format.space_after=Pt(0); p.paragraph_format.line_spacing=1.3
                     p.alignment=WD_ALIGN_PARAGRAPH.CENTER if ri==0 else WD_ALIGN_PARAGRAPH.LEFT
-                    set_run_fonts(p,BODY_FONT,(10.5 if len(table.columns)<=4 else 9 if len(table.columns)<=6 else 8),bold=True if ri==0 else None)
+                    set_run_fonts(p,BODY_FONT,14,bold=True if ri==0 else None)
     body=doc._element.body; children=list(body)
     final_sect=body.sectPr
     # Tạo bìa độc lập với nội dung tham chiếu; xóa mục lục động do Pandoc tạo.
@@ -284,7 +304,9 @@ def main():
     for ch in children:
         if ch.tag==qn('w:sdt') and 'MỤC LỤC' in paragraph_text(ch): toc_sdt=ch
     if toc_sdt is not None: body.remove(toc_sdt)
-    cover=create_cover_table(doc)
+    logo_path=Path(__file__).resolve().parents[1]/'report-assets'/'logo-hoc-vien-ky-thuat-mat-ma.png'
+    if not logo_path.exists(): raise RuntimeError(f'Không tìm thấy logo bìa: {logo_path}')
+    cover=create_cover_table(doc,logo_path)
     body.remove(cover)
     first_content=None
     for p in doc.paragraphs:

@@ -8,6 +8,7 @@ PYTHON_BIN="${PYTHON_BIN:-python3}"
 UNO_PYTHON="${UNO_PYTHON:-/usr/bin/python3}"
 MD="$ROOT/Bao_cao_DATN_hoan_chinh.md"
 DOCX="$ROOT/Bao_cao_DATN_hoan_chinh.docx"
+TEMPLATE="${CDCS_TEMPLATE:-$ROOT/report-template/CDCS-reference.docx}"
 PDF="$ROOT/Bao_cao_DATN_hoan_chinh.pdf"
 CHECKSUM="$ROOT/SHA256SUMS_BAO_CAO"
 TMP="$(mktemp -d)"
@@ -15,12 +16,12 @@ trap 'rm -rf "$TMP"' EXIT
 
 command -v "$PANDOC_BIN" >/dev/null || { echo "Thiếu pandoc" >&2; exit 1; }
 command -v "$SOFFICE_BIN" >/dev/null || { echo "Thiếu libreoffice" >&2; exit 1; }
-[[ -f "$DOCX" ]] || { echo "Thiếu DOCX tham chiếu: $DOCX" >&2; exit 1; }
+[[ -f "$TEMPLATE" ]] || { echo "Thiếu mẫu CDCS chính thức: $TEMPLATE" >&2; exit 1; }
 
-"$PYTHON_BIN" "$ROOT/scripts/prepare-report-export.py" "$MD" "$DOCX" \
+"$PYTHON_BIN" "$ROOT/scripts/prepare-report-export.py" "$MD" "$TEMPLATE" \
   "$TMP/report.md" "$TMP/reference.docx"
 "$PANDOC_BIN" "$TMP/report.md" \
-  --from=gfm+tex_math_dollars \
+  --from=markdown-implicit_figures+pipe_tables+fenced_code_blocks+tex_math_dollars+link_attributes \
   --to=docx \
   --reference-doc="$TMP/reference.docx" \
   --resource-path="$ROOT" \
@@ -48,9 +49,6 @@ mv "$TMP/Bao_cao_DATN_hoan_chinh.docx" "$DOCX"
 mv "$TMP/Bao_cao_DATN_hoan_chinh.pdf" "$PDF"
 (
   cd "$ROOT"
-  sha256sum Bao_cao_DATN_hoan_chinh.md Bao_cao_DATN_hoan_chinh.docx Bao_cao_DATN_hoan_chinh.pdf Cau_hoi_tu_phan_bien_DATN.txt \
-    report-assets/ch3-06-thoi-gian-batch.png \
-    report-assets/ch3-07-thong-luong-hieu-qua.png \
-    report-assets/ch3-08-tai-nguyen.png > SHA256SUMS_BAO_CAO
+  LC_ALL=C sha256sum Bao_cao_DATN_hoan_chinh.md Bao_cao_DATN_hoan_chinh.docx Bao_cao_DATN_hoan_chinh.pdf Cau_hoi_tu_phan_bien_DATN.txt report-assets/*.png report-template/CDCS-reference.docx > SHA256SUMS_BAO_CAO
   sha256sum -c SHA256SUMS_BAO_CAO
 )

@@ -6,9 +6,17 @@ Em xin trân trọng cảm ơn.
 
 # LỜI NÓI ĐẦU
 
-Trong bối cảnh chuyển đổi số, số hóa hồ sơ và văn bằng giúp nâng cao hiệu quả quản lý nhưng đồng thời đặt ra yêu cầu về tính toàn vẹn, xác thực và khả năng truy vết. Đề tài “Nghiên cứu phát triển hệ thống thông tin hỗ trợ quản lý văn bằng chứng chỉ dựa trên nền tảng Blockchain” nghiên cứu cơ sở lý thuyết, phân tích thiết kế và triển khai thực nghiệm một hệ thống phát hành, quản lý, xác minh và thu hồi văn bằng số.
+Quá trình chuyển đổi số trong giáo dục làm tăng số lượng hồ sơ và văn bằng được tạo, trao đổi và kiểm tra trên môi trường mạng. Cách quản lý tập trung giúp cơ sở đào tạo kiểm soát nghiệp vụ, nhưng bên thứ ba thường phải truy cập cổng tra cứu của đơn vị cấp hoặc liên hệ thủ công để xác minh. Khi cổng dịch vụ gián đoạn, dữ liệu bị sửa trái phép hoặc bản sao văn bằng được tạo ngoài hệ thống, việc đánh giá tính xác thực trở nên khó khăn. Vì vậy, bài toán không chỉ là số hóa tài liệu mà còn phải bảo đảm tính toàn vẹn, nguồn gốc, trạng thái hiệu lực và khả năng truy vết.
 
-# CHƯƠNG I. CƠ SỞ LÝ THUYẾT VỀ CÔNG NGHỆ BLOCKCHAIN
+Các mô hình chứng thư có thể kiểm chứng kết hợp chữ ký số, định danh đơn vị cấp và cơ chế trạng thái đã được nghiên cứu rộng rãi. Blockcerts bổ sung cách neo bằng chứng Merkle lên blockchain, cho phép nhiều chứng thư dùng chung một giao dịch và giúp người nhận tự lưu giữ tài liệu. Hướng tiếp cận này không loại bỏ hệ thống nghiệp vụ của cơ sở đào tạo; dữ liệu cá nhân và quy trình phê duyệt vẫn được quản lý ngoài chuỗi, còn blockchain chỉ lưu bằng chứng tối thiểu phục vụ kiểm tra độc lập.
+
+Đề tài “Nghiên cứu phát triển hệ thống thông tin hỗ trợ quản lý văn bằng chứng chỉ dựa trên nền tảng Blockchain” đặt mục tiêu xây dựng một nguyên mẫu có thể phát hành, quản lý, xác minh và thu hồi văn bằng số. Hệ thống áp dụng quy trình Maker–Checker để tách quyền lập và duyệt, RBAC để kiểm soát API, Merkle batching để phát hành nhiều chứng thư trong một transaction, cổng Holder để sinh viên nhận chứng thư và cổng Verify công khai để kiểm tra tính toàn vẹn cùng trạng thái thu hồi.
+
+Phạm vi thực nghiệm sử dụng Blockcerts V3, Bitcoin Core ở chế độ regtest, backend NestJS, PostgreSQL, Redis và BullMQ 6. Ba cổng giao diện được tách theo nhóm người dùng gồm Admin cho Maker và Checker, Client cho Student, Verify cho người xác minh công khai. Việc đánh giá tập trung vào tính đúng của quy trình, khả năng phục hồi sau lỗi, kiểm soát an toàn và hiệu quả phát hành theo lô. Kết quả regtest không được suy rộng thành tuyên bố sẵn sàng production hoặc hiệu năng của Bitcoin mainnet.
+
+Báo cáo gồm ba chương. Chương I trình bày blockchain, mật mã, Blockcerts và văn bằng số. Chương II phân tích yêu cầu, kiến trúc, dữ liệu, phân quyền, xác minh và thu hồi. Chương III mô tả hiện thực, tái lập, kiểm thử, benchmark và kiểm toán 1.830 chứng thư. Sáu phụ lục cung cấp API, cấu hình, hướng dẫn xử lý lỗi, evidence và truy vết.
+
+# CHƯƠNG I. CƠ SỞ LÝ THUYẾT BLOCKCHAIN
 
 ## 1.1. Tổng quan về công nghệ Blockchain
 
@@ -50,7 +58,7 @@ Giao dịch (Transaction) là đơn vị nguyên tử biểu diễn một yêu c
 
 Các giao dịch đã được sắp thứ tự có thể được đóng gói vào Khối (Block), gồm phần đầu chứa siêu dữ liệu giao thức và phần thân chứa giao dịch [1], [2]. Tùy thiết kế, phần đầu khối có thể bao gồm giá trị băm của khối trước $H_{i-1}$, gốc Merkle $MerkleRoot_i$, dấu thời gian $Timestamp_i$ và dữ liệu phục vụ đồng thuận $Metadata_i$. Mối liên kết mật mã giữa các khối liên tiếp có thể được biểu diễn khái quát như sau:
 
-$$H_i = H(H_{i-1} \parallel MerkleRoot_i \parallel Timestamp_i \parallel Metadata_i) 	ag{1.1}$$
+Hᵢ = H(Hᵢ₋₁ ∥ MerkleRootᵢ ∥ Timestampᵢ ∥ Metadataᵢ)    (1.1)
 
 Trong biểu thức (1.1), toán tử $\parallel$ biểu thị phép nối chuỗi. Đây là mô hình minh họa; tập trường và quy tắc mã hóa byte cụ thể do từng giao thức quy định. Giá trị $H_{i-1}$ tạo liên kết kiểm chứng giữa hai khối liên tiếp.
 
@@ -76,7 +84,7 @@ Cấu trúc cây Merkle cho phép kiểm tra một giao dịch thuộc tập gia
 
 Mật mã khóa công khai và chữ ký số thiết lập cơ chế xác thực nguồn gốc và kiểm soát ủy quyền đối với các giao dịch thay đổi trạng thái sổ cái [1], [5]. Theo NIST FIPS 186-5 [5], một lược đồ chữ ký số có thể được mô tả hình thức qua ba thuật toán: $KeyGen$ sinh cặp khóa bí mật $sk$ và khóa công khai $pk$; $Sign$ tạo chữ ký $\sigma$ cho thông điệp $m$; $Verify$ kiểm tra chữ ký dựa trên $pk$ và $m$:
 
-$$KeyGen(1^{\lambda}) \rightarrow (sk,pk); \quad \sigma = Sign(sk,m); \quad Verify(pk,m,\sigma) \in \{0,1\}. \tag{1.2}$$
+KeyGen(1^λ) → (sk, pk); σ = Sign(sk, m); Verify(pk, m, σ) ∈ {0, 1}.    (1.2)
 
 Không nên diễn giải chữ ký số nói chung như việc "mã hóa giá trị băm bằng khóa bí mật rồi giải mã bằng khóa công khai". Cách mô tả này không phản ánh mô hình của nhiều lược đồ hiện đại. Ở mức tổng quát, thuật toán Verify chỉ trả về kết quả hợp lệ hoặc không hợp lệ dựa trên khóa công khai, thông điệp và chữ ký; nó không khôi phục thông điệp bằng một phép giải mã [5].
 
@@ -242,6 +250,46 @@ Cách phân tách này giảm việc sao chép dữ liệu nhạy cảm nhưng k
 Giá trị kỳ vọng là rút ngắn thời gian xác minh, tăng khả năng phát hiện tài liệu bị sửa và tạo lịch sử trạng thái dùng chung giữa các tổ chức. Công nghệ có thể hỗ trợ ghi nhận phát hành hoặc thay đổi hiệu lực, nhưng không tự quyết định người học đủ điều kiện tốt nghiệp, không chứng minh người xuất trình là chủ văn bằng và không đánh giá chất lượng đào tạo.
 
 Cơ sở đào tạo vẫn chịu trách nhiệm về dữ liệu đầu vào và thẩm quyền phát hành; người vận hành chịu trách nhiệm bảo vệ khóa và hạ tầng; bên xác minh phải diễn giải kết quả đúng phạm vi. Nếu khóa phát hành bị lộ, bản ghi kỹ thuật hợp lệ vẫn có thể được tạo cho đến khi quyền bị thu hồi. Do đó, Blockchain phải được xem là công cụ hỗ trợ kiểm chứng, không phải nguồn phán quyết duy nhất.
+
+
+### 1.7.4. Mô hình Blockcerts V3
+
+Blockcerts tổ chức chứng thư dưới dạng tài liệu JSON-LD có định danh, thông tin người nhận, nội dung thành tích, đơn vị cấp và bằng chứng mật mã. JSON-LD giúp dữ liệu có ngữ cảnh ngữ nghĩa thay vì chỉ là tập cặp khóa–giá trị. Trong phiên bản V3, tài liệu sử dụng cấu trúc tương thích với hệ sinh thái Verifiable Credentials và bộ schema của Blockcerts [9], [11], [12].
+
+Quy trình phát hành bắt đầu bằng tài liệu chưa có proof. Hệ thống chuẩn hóa phần dữ liệu cần bảo vệ, tính target hash cho từng chứng thư và đưa các hash vào cây Merkle. Merkle root đại diện cho toàn bộ lô. Sau khi root được neo lên Bitcoin, mỗi chứng thư được bổ sung đường dẫn Merkle từ leaf của nó tới root và thông tin receipt để verifier tìm giao dịch. Một chứng thư vì vậy có thể tự mang bằng chứng cần thiết mà không buộc cơ sở cấp công bố toàn bộ lô.
+
+Bằng chứng `MerkleProof2019` liên kết nội dung JSON-LD với Merkle root [14]. Verifier tính lại hash từ nội dung nhận được, đi qua các nút proof theo đúng thứ tự và so sánh root thu được với dữ liệu neo trên chuỗi. Nếu một trường được bảo vệ bị thay đổi, target hash thay đổi và proof không còn dẫn tới root ban đầu. Cơ chế phát hiện sửa đổi không phụ thuộc việc tệp được nhận từ cổng Holder, thư điện tử hay kho lưu trữ cá nhân.
+
+Issuer Profile tạo liên kết giữa khóa công khai và danh tính đơn vị cấp. Verifier không chỉ kiểm tra một transaction tồn tại mà còn đối chiếu địa chỉ phát hành, profile và khoảng thời gian khóa có hiệu lực. Khóa riêng không được đưa vào profile. Việc xác minh danh tính tổ chức ở ngoài chuỗi vẫn là một bước quản trị quan trọng; blockchain không tự chứng minh rằng một profile công khai thực sự thuộc cơ sở đào tạo nếu khâu thiết lập ban đầu sai.
+
+Cơ chế thu hồi bổ sung chiều thời gian cho bằng chứng. Tính toàn vẹn cho biết tài liệu không bị sửa so với lúc phát hành, còn danh sách thu hồi phản ánh việc đơn vị cấp tiếp tục hoặc chấm dứt công nhận tài liệu tại thời điểm xác minh. Hai kiểm tra này phải tồn tại song song. Một chứng thư đã thu hồi vẫn có thể có proof và anchor hoàn toàn hợp lệ, nhưng kết quả nghiệp vụ phải là `REVOKED`.
+
+### 1.7.5. Bitcoin `OP_RETURN` và môi trường regtest
+
+Bitcoin cho phép lưu một lượng dữ liệu nhỏ trong output không thể chi tiêu bằng `OP_RETURN`. Blockcerts sử dụng vị trí này để neo giá trị đại diện cho lô thay vì ghi toàn bộ hồ sơ người học lên chuỗi. Cách tiếp cận giảm dung lượng, tránh công bố dữ liệu cá nhân và tận dụng tính khó sửa đổi của lịch sử giao dịch. Dữ liệu ngoài chuỗi vẫn cần được lưu, sao lưu và cung cấp cho Holder.
+
+Một giao dịch neo có thể chứa Merkle root của nhiều chứng thư. Chi phí anchor vì thế chủ yếu tăng theo số transaction chứ không tuyến tính theo số chứng thư trong cùng lô. Tuy nhiên, lô quá lớn làm tăng thời gian chuẩn bị, kích thước artifact, thời gian xử lý lỗi và phạm vi ảnh hưởng nếu job thất bại. Kích thước batch cần được chọn từ số liệu thực nghiệm thay vì giả định batching luôn tốt hơn ở mọi quy mô.
+
+Regtest là chế độ mạng riêng do người thử nghiệm kiểm soát [18]. Khối có thể được tạo theo yêu cầu, coin không có giá trị và kết quả dễ tái lập. Đây là lựa chọn phù hợp để kiểm tra logic phát hành, xác minh, confirmation và thu hồi mà không phát sinh chi phí thật. Đổi lại, regtest không tái hiện độ trễ mempool, biến động phí, cạnh tranh khai thác, độ phân tán nút hoặc rủi ro tổ chức lại chuỗi của mainnet.
+
+Báo cáo do đó chỉ dùng regtest để chứng minh tính đúng của nguyên mẫu và đo hành vi trong môi trường kiểm soát. Các số liệu thời gian không được diễn giải thành cam kết hiệu năng cho Bitcoin mainnet. Việc triển khai thực tế còn cần chính sách số confirmation, quản lý phí, giám sát transaction, dự phòng RPC và bảo vệ khóa bằng hạ tầng chuyên dụng.
+
+### 1.7.6. So sánh các hướng quản lý văn bằng số
+
+Các đặc điểm cần cân nhắc giữa bốn hướng tiếp cận được tổng hợp trong Bảng 1.2.
+
+Bảng 1.2. So sánh các hướng quản lý và xác minh văn bằng
+
+| Hướng tiếp cận | Nguồn tin cậy chính | Khả năng xác minh độc lập | Thu hồi | Rủi ro nổi bật |
+|---|---|---|---|---|
+| Cơ sở dữ liệu tập trung | Cổng trực tuyến của cơ sở cấp | Phụ thuộc cổng còn hoạt động | Cập nhật trực tiếp trong DB | Điểm lỗi tập trung và quyền quản trị lớn |
+| Tệp ký số truyền thống | Chứng thư khóa công khai và chữ ký | Có thể kiểm tra ngoại tuyến nếu đủ chuỗi tin cậy | CRL hoặc OCSP | Quản trị PKI và vòng đời chứng thư số |
+| Verifiable Credentials | Issuer, proof và cơ chế trạng thái | Cao nếu profile và proof truy cập được | Status list hoặc cơ chế tương đương | Khả năng tương tác giữa implementation |
+| Blockcerts trên Bitcoin | Issuer Profile, Merkle proof và anchor | Cao đối với tính toàn vẹn và thời điểm neo | Danh sách thu hồi của issuer | Phụ thuộc profile ngoài chuỗi và quản lý khóa |
+
+Không có phương án nào loại bỏ hoàn toàn niềm tin vào cơ sở cấp. Blockchain thay đổi cách kiểm chứng bằng cách đưa bằng chứng tối thiểu lên một sổ cái khó sửa đổi và cho phép Holder mang theo chứng thư. Cơ sở cấp vẫn chịu trách nhiệm về tính đúng của dữ liệu ban đầu, danh tính issuer, quyền phê duyệt, bảo vệ khóa và quyết định thu hồi.
+
+Đồ án lựa chọn Blockcerts V3 vì phù hợp mục tiêu chứng minh Merkle batching, xác minh công khai và mô hình Holder. PostgreSQL vẫn giữ vai trò quản lý nghiệp vụ và audit; Bitcoin chỉ lưu bằng chứng neo. Đây là kiến trúc kết hợp thay vì thay thế toàn bộ hệ thống quản lý đào tạo bằng blockchain.
 
 ## 1.8. Tổng kết Chương I
 
@@ -428,15 +476,30 @@ Phương án chạy toàn bộ toolchain cho từng hồ sơ gây chi phí khở
 
 Tên người nhận có thể trùng và tên file do tool tạo không nên dùng làm khóa. Mỗi dòng roster nhận một nonce ngẫu nhiên; worker đọc nonce trong output để tìm đúng bản ghi DB. `batchId` dùng cho truy vấn và thực nghiệm, còn `certUid` dùng định danh chứng thư. Nếu mở giới hạn trên 500, cần chia thành nhiều anchor job thay vì ngầm tạo một lô vượt khả năng đã kiểm thử.
 
+
+### 2.6.3. Tách nhóm yêu cầu và lô phát hành
+
+Trong phiên bản đầu của nguyên mẫu, một định danh batch đồng thời được dùng để biểu diễn nhóm phiếu do Maker tạo và lần phát hành do Checker phê duyệt. Mô hình này chỉ phù hợp khi toàn bộ phiếu trong nhóm được duyệt một lần. Khi Checker chọn một phần, lần duyệt tiếp theo có thể tạo bản ghi lô trùng khóa chính. Thiết kế hiện hành tách hai khái niệm có vòng đời khác nhau thành `requestBatchId` và `issuanceBatchId`.
+
+`requestBatchId` được sinh khi Maker gửi nhóm phiếu. Giá trị này ổn định trong toàn bộ vòng đời và cho phép truy ngược các phiếu có cùng nguồn nghiệp vụ. `issuanceBatchId` chỉ được sinh khi một tập phiếu cụ thể thực sự được duyệt. Mỗi lần duyệt từng phần tạo một giá trị mới. Vì vậy một `requestBatchId` có thể liên kết với nhiều `issuanceBatchId`, còn mỗi chứng thư sau khi phát hành chỉ thuộc một lô phát hành xác định.
+
+Quan hệ một–nhiều giữa nhóm yêu cầu và các lần phát hành được thể hiện trên Hình 2.5.
+
+![Quan hệ giữa nhóm yêu cầu và lần phát hành](report-assets/ch2-08-request-va-issuance-batch.png){width=15.8cm}
+
+Hình 2.5. Quan hệ giữa nhóm yêu cầu và lần phát hành
+
+Thiết kế trên giải quyết đồng thời ba yêu cầu. Thứ nhất, khóa chính của bảng lô phát hành không còn bị sử dụng lại. Thứ hai, audit có thể ghi nhận chính xác Checker nào đã duyệt tập phiếu nào ở từng thời điểm. Thứ ba, worker nhận đầu vào bất biến theo `issuanceBatchId`, nên lần chạy lại không vô tình kéo thêm phiếu vừa được duyệt ở thời điểm khác. Migration `1790300000000-SeparateRequestAndIssuanceBatch.ts` chuyển dữ liệu cũ sang mô hình mới và là migration thứ mười trong chuỗi migration hiện hành.
+
 ## 2.7. Thiết kế xác minh và thu hồi
 
 ### 2.7.1. Xác minh
 
-Hình 2.5 trình bày trình tự xác minh công khai và cách tổng hợp các kết quả kiểm tra.
+Hình 2.6 trình bày trình tự xác minh công khai và cách tổng hợp các kết quả kiểm tra.
 
-![Hình 2.5. Trình tự xác minh công khai](report-assets/verification.png)
+![Hình 2.6. Trình tự xác minh công khai](report-assets/verification.png)
 
-Hình 2.5. Trình tự xác minh chứng thư công khai
+Hình 2.6. Trình tự xác minh chứng thư công khai
 
 Verify API tiếp nhận toàn bộ JSON. Backend kiểm tra semantic tối thiểu, sau đó gửi chứng thư đến verifier service. Verifier giải mã `proofValue` bằng `LDMerkleProof2019`, kiểm tra cấu trúc/chứng thư; adapter regtest lấy transaction theo `txid`, kiểm tra đầu vào gắn với issuer, tìm `OP_RETURN`, so Merkle root và yêu cầu ít nhất một confirmation. Nếu lớp mật mã/anchor đạt, backend lấy `certUid` để tra thu hồi. Kết luận gồm `VALID`, `INVALID`, `REVOKED` hoặc `INDETERMINATE`.
 
@@ -448,13 +511,39 @@ Checker chọn bản ghi `issued` và nhập lý do. Backend tạo payload `REVO
 
 Thu hồi có hai dấu vết: transaction Bitcoin và chỉ mục DB/Revocation List. Phiên bản hiện tại kiểm tra nhanh từ DB sau khi đã kiểm tra chứng thư/anchor; nó chưa quét blockchain để tự xây lại trạng thái. Vì vậy backup DB và một indexer phục hồi là yêu cầu cho bản sản xuất.
 
+
+### 2.7.3. Quy tắc hợp nhất kết quả xác minh
+
+Dịch vụ xác minh không chỉ trả một giá trị đúng hoặc sai. Mỗi nhóm kiểm tra có mức chắc chắn khác nhau và phải được hợp nhất theo quy tắc bảo toàn ý nghĩa. Sai cấu trúc chứng thư, target hash không khớp, Merkle proof sai hoặc anchor không chứa Merkle root là bằng chứng xác định để kết luận `INVALID`. Chứng thư có bằng chứng mật mã hợp lệ nhưng xuất hiện trong danh sách thu hồi được kết luận `REVOKED`.
+
+Lỗi mạng, timeout, dịch vụ phụ thuộc tạm thời không phản hồi hoặc dữ liệu xác nhận chưa đủ không chứng minh chứng thư sai. Các trường hợp này được gán `INDETERMINATE`, hiển thị bằng cụm từ “Chưa thể kết luận” và cho phép người dùng thực hiện lại phép kiểm tra. Quy tắc này tránh tạo kết luận âm tính giả khi hạ tầng ngoài hệ thống gián đoạn.
+
+Bốn nhánh kết quả và điều kiện tương ứng được khái quát trên Hình 2.7.
+
+![Quy tắc phân loại kết quả xác minh](report-assets/ch2-09-phan-loai-xac-minh.png){width=15.8cm}
+
+Hình 2.7. Quy tắc phân loại kết quả xác minh
+
+Quy tắc hợp nhất và cách thể hiện trên giao diện được tổng hợp trong Bảng 2.4.
+
+Bảng 2.4. Ma trận hợp nhất kết quả xác minh
+
+| Điều kiện quan sát | Kết quả | Ý nghĩa nghiệp vụ | Hành động giao diện |
+|---|---|---|---|
+| Payload, proof, anchor và trạng thái đều hợp lệ | `VALID` | Chứng thư nguyên vẹn và chưa bị thu hồi | Hiển thị kết quả hợp lệ |
+| Có bằng chứng xác định dữ liệu hoặc anchor sai | `INVALID` | Chứng thư không vượt qua kiểm tra toàn vẹn | Nêu bước kiểm tra thất bại |
+| Bằng chứng hợp lệ nhưng chứng thư đã bị thu hồi | `REVOKED` | Chứng thư không còn hiệu lực sử dụng | Hiển thị lý do và thời điểm thu hồi |
+| Phụ thuộc tạm thời lỗi hoặc chưa đủ dữ liệu | `INDETERMINATE` | Chưa thể đưa ra kết luận chắc chắn | Hiển thị trạng thái riêng và nút thử lại |
+
+Việc phân loại được kiểm thử độc lập tại frontend Verify và dịch vụ xác minh. Sáu ca kiểm thử trạng thái bảo đảm nhãn hiển thị không làm thay đổi ý nghĩa từ backend. Mười ca SSRF kiểm tra các biến thể địa chỉ nội bộ, hostname cục bộ, URL chuyển hướng và địa chỉ không được phép trước khi dịch vụ tải tài nguyên từ chứng thư.
+
 ## 2.8. Thiết kế dữ liệu ngoài chuỗi
 
-Hình 2.6 khái quát các thực thể dữ liệu chính và quan hệ giữa chúng.
+Hình 2.8 khái quát các thực thể dữ liệu chính và quan hệ giữa chúng.
 
-![Hình 2.6. Mô hình dữ liệu](report-assets/erd.png)
+![Hình 2.8. Mô hình dữ liệu](report-assets/erd.png)
 
-Hình 2.6. Mô hình dữ liệu của hệ thống
+Hình 2.8. Mô hình dữ liệu của hệ thống
 
 ### 2.8.1. Bảng `users`
 
@@ -470,9 +559,9 @@ Thiết kế một bảng làm giảm số phép nối và phù hợp nguyên m�
 
 `verification_logs` lưu `certId`, trạng thái, kết quả verifier, kết quả adapter, confirmation, phản hồi thô và thời gian. `audit_logs` lưu action, actor, role, target, detail, txid và thời gian; mỗi dòng còn có `previousHash` và `entryHash` để tạo chuỗi hash SHA-256, cho phép phát hiện sửa/xóa ở giữa chuỗi qua endpoint kiểm tra toàn vẹn. Cơ chế này chỉ mang tính tamper-evident: DBA vẫn có thể viết lại toàn bộ chuỗi hoặc xóa phần đuôi nếu không đối chiếu head hash với kho log ngoài hệ thống. Vì vậy vẫn cần kiểm soát truy cập, backup và hệ thống log append-only độc lập khi triển khai production.
 
-Các thực thể dữ liệu chính được khái quát trong Bảng 2.4.
+Các thực thể dữ liệu chính được khái quát trong Bảng 2.5.
 
-Bảng 2.4. Mô hình dữ liệu chính
+Bảng 2.5. Mô hình dữ liệu chính
 
 | Bảng | Khóa/định danh | Chức năng |
 |---|---|---|
@@ -483,9 +572,9 @@ Bảng 2.4. Mô hình dữ liệu chính
 
 ## 2.9. Thiết kế API và phân quyền
 
-Các nhóm API và quyền truy cập tương ứng được tổng hợp trong Bảng 2.5.
+Các nhóm API và quyền truy cập tương ứng được tổng hợp trong Bảng 2.6.
 
-Bảng 2.5. API chính và quyền
+Bảng 2.6. API chính và quyền
 
 | Phương thức | Endpoint | Quyền | Chức năng |
 |---|---|---|---|
@@ -523,11 +612,42 @@ Helmet thêm security header; throttling giới hạn yêu cầu; CORS dùng all
 
 Thiết kế pilot dùng HTTP bên trong mạng riêng. HTTPS công khai, HSTS, secret manager, HSM/KMS, luân chuyển khóa, backup/restore, HA, giám sát tập trung và kiểm thử xâm nhập nằm ngoài phạm vi phiên bản này, nhưng là điều kiện trước production.
 
+
+### 2.11.1. Ranh giới tin cậy
+
+Hệ thống được chia thành bốn vùng tin cậy. Trình duyệt là vùng không tin cậy, vì người dùng có thể sửa request, lưu trữ cục bộ hoặc mã giao diện. Backend và worker là vùng xử lý đặc quyền, nhưng vẫn phải xác thực mọi đầu vào và không được dựa vào điều kiện ẩn trên giao diện. PostgreSQL là nguồn sự thật của trạng thái nghiệp vụ; Redis chỉ cung cấp cơ chế điều phối hàng đợi. Bitcoin RPC và kho cấu hình Blockcerts thuộc vùng quản trị, không được công khai trực tiếp ra Internet.
+
+Các vùng tin cậy và điểm kiểm soát tại biên được mô tả trên Hình 2.9.
+
+![Ranh giới tin cậy và kiểm soát an toàn](report-assets/ch2-07-ranh-gioi-tin-cay.png){width=15.8cm}
+
+Hình 2.9. Ranh giới tin cậy và kiểm soát an toàn
+
+Tại biên trình duyệt–backend, `ValidationPipe`, DTO và giới hạn kích thước request kiểm soát dữ liệu đầu vào. JWT xác định danh tính, còn `RolesGuard` quyết định quyền dựa trên vai trò tại server. Tại biên backend–worker, job chỉ mang định danh cần thiết; worker đọc lại dữ liệu từ PostgreSQL thay vì tin hoàn toàn vào payload trong Redis. Tại biên worker–Bitcoin, RPC credential chỉ tồn tại trong cấu hình runtime và không xuất hiện trong chứng thư, frontend hoặc artifact công khai.
+
+### 2.11.2. Quản lý bí mật và dữ liệu nhạy cảm
+
+Nhóm bí mật gồm JWT secret, mật khẩu cơ sở dữ liệu, Redis password, Bitcoin RPC password, WIF phát hành và token dùng cho các lượt kiểm thử. Các giá trị này phải được sinh riêng theo môi trường, truyền qua biến môi trường hoặc tệp runtime bị loại khỏi Git. Tệp `.env.example` chỉ mô tả tên biến và giá trị minh họa không có khả năng sử dụng như credential thật.
+
+Báo cáo, log và bộ evidence chỉ giữ định danh kỹ thuật cần cho tái lập. Bất kỳ giá trị nhạy cảm nào cần minh họa đều được thay bằng `[REDACTED]`. Chứng thư công khai chỉ chứa dữ liệu cần cho mục đích xác minh và không chứa khóa riêng. Issuer Profile công bố khóa công khai, định danh đơn vị cấp và endpoint trạng thái; WIF không thuộc cấu trúc profile.
+
+### 2.11.3. Kiểm soát SSRF trong dịch vụ xác minh
+
+Chứng thư Blockcerts có thể tham chiếu tài nguyên ngoài như Issuer Profile hoặc danh sách thu hồi. Nếu backend tải trực tiếp mọi URL do chứng thư cung cấp, kẻ tấn công có thể lợi dụng máy chủ làm điểm truy cập mạng nội bộ. Thiết kế do đó phân tích URL trước khi gửi request, chỉ chấp nhận giao thức được hỗ trợ, từ chối thông tin xác thực nhúng trong URL và chặn các miền hoặc dải địa chỉ không được phép.
+
+Kiểm soát phải được áp dụng lại sau mỗi lần chuyển hướng, vì một URL công khai có thể trả redirect về địa chỉ nội bộ. Phân giải DNS và kết nối mạng được ràng buộc bởi timeout. Kết quả do phụ thuộc mạng thất bại được phân loại là `INDETERMINATE`, không được dùng để kết luận chứng thư `INVALID`.
+
+### 2.11.4. Bảo vệ trạng thái và chống cạnh tranh
+
+Các thao tác thay đổi trạng thái dùng điều kiện ngay trong câu lệnh cập nhật thay vì chỉ đọc trạng thái rồi ghi lại. Chẳng hạn, thao tác từ chối chỉ cập nhật bản ghi đang ở `pending_approval`; nếu số hàng bị ảnh hưởng bằng không, dịch vụ dừng và báo xung đột. Cách làm này ngăn hai request duyệt và từ chối cùng thắng trong khoảng thời gian giữa bước đọc và bước ghi.
+
+Với thu hồi, biến `revocationStarted` phân biệt lỗi tiền điều kiện xảy ra trước khi quy trình bắt đầu với lỗi phát sinh sau khi đã có tác động bên ngoài. Lỗi kiểm tra quyền, trạng thái hoặc dữ liệu không được đổi chứng thư sang trạng thái lỗi và không được gọi Bitcoin RPC. Sau thời điểm broadcast, checkpoint được lưu để lần phục hồi sử dụng lại transaction ID, tránh phát giao dịch thứ hai.
+
 ## 2.12. Tiêu chí chấp nhận và kế hoạch kiểm thử
 
-Các tiêu chí chấp nhận của nguyên mẫu được liệt kê trong Bảng 2.6.
+Các tiêu chí chấp nhận của nguyên mẫu được liệt kê trong Bảng 2.7.
 
-Bảng 2.6. Tiêu chí chấp nhận
+Bảng 2.7. Tiêu chí chấp nhận
 
 | Mã | Tiêu chí | Bằng chứng dự kiến |
 |---|---|---|
@@ -541,18 +661,45 @@ Bảng 2.6. Tiêu chí chấp nhận
 | AC-08 | Revocation List và audit nhất quán | Kịch bản 3 |
 | AC-09 | Build, test, dependency audit và health đạt | B12 preflight/postflight |
 
+
+### 2.12.1. Ma trận truy vết
+
+Mỗi yêu cầu được nối với bốn lớp bằng chứng gồm thiết kế, thành phần hiện thực, phép kiểm thử và artifact. Cách tổ chức này làm giảm nguy cơ báo cáo chỉ mô tả tính năng mà không chứng minh tính năng đã chạy. Một hàng chỉ được đánh dấu đạt khi tồn tại kết quả thực thi phù hợp với phạm vi của yêu cầu.
+
+Mối liên hệ giữa yêu cầu, thành phần và bằng chứng được trình bày trong Bảng 2.8.
+
+Bảng 2.8. Ma trận truy vết thiết kế và kiểm thử
+
+| Nhóm yêu cầu | Thành phần hiện thực | Kiểm thử chính | Bằng chứng |
+|---|---|---|---|
+| Xác thực và RBAC | `auth`, guards và decorator vai trò | Backend Jest, functional E2E | Log test và response API |
+| Maker–Checker | `issuance.service.ts` và cập nhật có điều kiện | Ca duyệt, từ chối và cạnh tranh | Trạng thái DB và audit log |
+| Duyệt từng phần | `requestBatchId`, `issuanceBatchId` và migration 10 | Functional E2E nhiều lần duyệt | Hai lô phát hành không trùng khóa |
+| Phát hành Blockcerts | Worker, cert-tools và cert-issuer | E2E, benchmark | Chứng thư JSON và transaction ID |
+| Phục hồi sau lỗi | Checkpoint của worker | Recovery E2E | Giữ nguyên transaction ID và một block |
+| Xác minh công khai | Verify API và frontend Verify | 16 ca kiểm thử verifier | 10 ca SSRF và 6 ca trạng thái |
+| Thu hồi | Revocation service và danh sách thu hồi | Backend Jest và E2E | Trạng thái `REVOKED`, audit và txid |
+| Quyền Holder | Endpoint theo subject JWT | Functional E2E | Student chỉ thấy chứng thư của mình |
+| Tái lập kết quả | Script, manifest và SHA-256 | Kiểm toán artifact | 35 payload, 37 checksum và 1.830 chứng thư |
+
+### 2.12.2. Nguyên tắc diễn giải bằng chứng
+
+Unit test chứng minh hành vi của đơn vị mã được cô lập theo các dependency mô phỏng; kết quả này không được gọi là kiểm thử toàn hệ thống. Functional E2E chứng minh một chuỗi API và hạ tầng phối hợp trong môi trường tái lập. Recovery E2E tập trung vào điểm lỗi sau broadcast. Benchmark đo thời gian trong cấu hình regtest cụ thể. Full verifier kiểm tra độc lập toàn bộ 1.830 chứng thư đã phát hành.
+
+Các lớp bằng chứng bổ sung cho nhau nhưng không thay thế nhau. Việc build thành công không chứng minh nghiệp vụ đúng. Unit test đạt không chứng minh Bitcoin RPC hoạt động. E2E đạt trên regtest không chứng minh đặc tính của mainnet. Báo cáo giữ nguyên ranh giới này trong phần kết luận để tránh suy rộng quá mức.
+
 ## 2.13. Kết luận Chương 2
 
-Chương 2 đã chuyển cơ sở lý thuyết thành thiết kế cụ thể: ba vai trò, ba cổng web, workflow Maker–Checker, bốn bảng dữ liệu, queue, toolchain Blockcerts V3, Merkle batching, neo/thu hồi qua Bitcoin regtest và xác minh nhiều lớp. Thiết kế không dùng hợp đồng thông minh và không đưa toàn bộ hồ sơ lên chuỗi. Các giới hạn về liên kết Student bằng tên, quản trị khóa, phục hồi trạng thái thu hồi và môi trường regtest được xác định trước để Chương 3 đánh giá đúng phạm vi.
+Chương 2 đã cụ thể hóa cơ sở lý thuyết thành kiến trúc ba cổng, RBAC, quy trình Maker–Checker, Merkle batching, xác minh và thu hồi trên Bitcoin regtest. Thiết kế đặt dữ liệu cá nhân ngoài chuỗi và xác định rõ phạm vi đánh giá cho Chương 3.
 
 
-# CHƯƠNG III. XÂY DỰNG, KIỂM THỬ VÀ ĐÁNH GIÁ HỆ THỐNG
+# CHƯƠNG III. XÂY DỰNG, KIỂM THỬ VÀ ĐÁNH GIÁ
 
 ## 3.1. Môi trường và công nghệ triển khai
 
 ### 3.1.1. Môi trường thực nghiệm
 
-Đợt tái kiểm chứng ngày 30/09/2026 chạy trên Ubuntu Server 22.04.5 LTS, 4 vCPU Intel Xeon Gold 6130 và 19 GiB RAM. Stack được dựng tách biệt trên Bitcoin regtest, PostgreSQL và Redis riêng. Mã nguồn được nhận diện bằng commit nền `9d1080434696c4ef2cae76e8a080cb6c45a27fd3` cùng hash cây nguồn chưa commit `ad860ab6138574639eb9e0bf0b90dabc353a7946719c1d4747f1a61b3f11e852`; các số liệu dưới đây lấy từ artifact của đúng lần chạy này. Regtest cho phép chủ động tạo block mà không dùng tiền thật [18].
+Đợt tái kiểm chứng ngày 30/09/2026 chạy trên Ubuntu Server 22.04.5 LTS, 4 vCPU Intel Xeon Gold 6130 và 19 GiB RAM. Stack được dựng tách biệt trên Bitcoin regtest, PostgreSQL và Redis riêng. Mã nguồn được nhận diện bằng commit `2816de8aac13492b614dbcc6b3b3e1f3eba52bc1`, trạng thái `sourceDirty=false` và fingerprint cây nguồn `6e0cd862daf5641b26995575d8e7ff9d755daf43396191dfc838fc6ffb0997cc`; các số liệu dưới đây lấy từ artifact của đúng lần chạy này. Regtest cho phép chủ động tạo block mà không dùng tiền thật [18].
 
 Các thành phần phần mềm của môi trường thực nghiệm được trình bày trong Bảng 3.1.
 
@@ -669,7 +816,7 @@ Các freeze R1/R2 cũ được giữ để truy vết lịch sử. Đợt ngày 
 
 ### 3.7.1. Mục tiêu và nguyên tắc
 
-Kiểm thử trả lời ba câu hỏi: chứng thư bị sửa có bị phát hiện và Maker có bị chặn tự duyệt hay không; Merkle batching có phát hành đủ 10, 100 và 500 chứng thư với một transaction/lô hay không; thu hồi có đúng quyền, được xác nhận và phản ánh nhất quán ở Verify, Revocation List cùng audit hay không.
+Kiểm thử tập trung vào ba nhóm khẳng định: khả năng phát hiện chứng thư bị sửa và chặn Maker tự duyệt; khả năng Merkle batching phát hành đủ các lô 10, 100 và 500 chứng thư với một transaction cho mỗi lô; tính đúng quyền cùng sự nhất quán của trạng thái thu hồi tại Verify, Revocation List và audit.
 
 Bộ dữ liệu là dữ liệu giả lập, không dùng hồ sơ cá nhân thật. Mỗi kích thước hiệu năng lặp ba lần. Thời gian đo từ lúc Checker duyệt đến khi toàn bộ bản ghi `issued`. Artifact tái kiểm chứng gồm JSON thô, manifest theo lô, kết quả E2E/kiểm toán và SHA-256 checksum. Những lần chạy lỗi trong quá trình sửa script không được đưa vào chín run đạt; mã lỗi vẫn được mô tả trong lịch sử phát triển thay vì tính vào thống kê.
 
@@ -685,13 +832,250 @@ Trong đó `T_batch` là thời gian từ duyệt đến phát hành hoàn tất
 
 Đợt tái kiểm chứng có 12/12 backend test suite với 49/49 test đạt, gồm test hồi quy tiền điều kiện thu hồi, cạnh tranh duyệt/từ chối, duyệt từng phần, hợp nhất tạo Student, RBAC, DTO, outbox/checkpoint/recovery, audit, verifier và issuer profile. Dịch vụ verifier đạt 16/16 ca, gồm 10 ca SSRF và 6 ca phân loại trạng thái. Cả ba frontend build thành công. Kết quả này không đồng nghĩa hệ thống không có lỗ hổng logic hoặc cấu hình. E2E trên stack regtest còn xác nhận hai lần duyệt từng phần của cùng một `requestBatchId` tạo hai `issuanceBatchId` khác nhau, luồng phát hành–xác minh–thu hồi đạt và phục hồi sau lỗi ngay sau broadcast giữ nguyên txid, chỉ tăng một block.
 
-## 3.8. Kết quả Kịch bản 1 – tính toàn vẹn và Maker–Checker
+
+## 3.8. Quy trình triển khai và tái lập chi tiết
+
+Quy trình được chia thành mười ba bước có thứ tự. Mỗi bước xác định đầu vào, thao tác, điểm kiểm soát và bằng chứng đầu ra. Người thực hiện không chuyển sang bước tiếp theo khi điều kiện chấp nhận của bước hiện tại chưa đạt. Mọi lệnh được chạy từ cây mã nguồn đã checkout đúng commit, còn giá trị bí mật chỉ tồn tại trong tệp runtime ngoài Git.
+
+Quan hệ phụ thuộc giữa các bước và cổng kiểm soát được thể hiện trên Hình 3.5.
+
+![Các cổng kiểm soát quy trình tái lập](report-assets/ch3-10-cong-kiem-soat-tai-lap.png){width=15.8cm}
+
+Hình 3.5. Các cổng kiểm soát quy trình tái lập
+
+### 3.8.1. B1 – Kiểm tra điều kiện tiên quyết
+
+Bước đầu xác nhận máy thực nghiệm có Git, Node.js, npm, Docker Engine và Docker Compose. Docker daemon phải hoạt động, tài khoản chạy thử phải có quyền tạo container và dung lượng đĩa phải đủ cho image, volume PostgreSQL, Bitcoin regtest và artifact. Việc ghi phiên bản công cụ vào evidence giúp giải thích sai khác khi tái lập ở thời điểm khác.
+
+```bash
+cd /duong-dan/toi/datn-blockcerts
+git --version
+node --version
+npm --version
+docker --version
+docker compose version
+docker info
+```
+
+Điều kiện hoàn thành bước kiểm tra công cụ được nêu trong Bảng 3.2.
+
+Bảng 3.2. Điều kiện chấp nhận B1
+
+| Hạng mục | Điều kiện đạt | Bằng chứng lưu |
+|---|---|---|
+| Git | Đọc được phiên bản và repository | `git --version`, `git rev-parse HEAD` |
+| Node.js và npm | Chạy được script của dự án | Phiên bản trong log preflight |
+| Docker | Daemon phản hồi | `docker info` có mã thoát bằng không |
+| Compose | Nhận được tệp cấu hình | `docker compose config` thành công |
+| Tài nguyên | Đủ CPU, RAM và đĩa cho thử nghiệm | Snapshot môi trường |
+
+Nếu Docker daemon chưa chạy, quy trình dừng trước khi tạo bất kỳ container nào. Nếu cổng dự kiến đã bị chiếm, phải xác định tiến trình hoặc stack cũ, sau đó giải phóng bằng quy trình dừng của bộ tái lập. Không thay đổi cổng một cách tùy ý vì URL issuer, CORS và endpoint public có liên hệ với cấu hình.
+
+### 3.8.2. B2 – Cố định mốc mã nguồn
+
+Repository được chuyển tới commit dùng cho thực nghiệm. Sau checkout, `git status --short` phải rỗng đối với mã nguồn nghiệp vụ. Script tạo source manifest tính fingerprint trên danh sách tệp được kiểm soát, không đưa artifact sinh ra sau chạy vào dấu vân tay nguồn.
+
+```bash
+git checkout 2816de8aac13492b614dbcc6b3b3e1f3eba52bc1
+git status --short
+git rev-parse HEAD
+python3 experiments/repro/scripts/source-manifest.py
+```
+
+Mốc được dùng trong lượt kiểm chứng cuối là `2816de8aac13492b614dbcc6b3b3e1f3eba52bc1`, trạng thái `sourceDirty=false` và fingerprint `6e0cd862daf5641b26995575d8e7ff9d755daf43396191dfc838fc6ffb0997cc`. Ba giá trị phải xuất hiện cùng nhau trong manifest. Chỉ ghi commit mà không ghi trạng thái sạch là chưa đủ, vì file chưa commit có thể thay đổi hành vi.
+
+### 3.8.3. B3 – Chuẩn bị cấu hình an toàn
+
+Tệp mẫu được sao chép thành cấu hình runtime. Mật khẩu và secret phải được thay bằng giá trị mới, không dùng thông tin cá nhân thật. WIF phát hành được sinh trong mạng regtest và chỉ cấp cho worker. Issuer Profile chỉ nhận khóa công khai tương ứng.
+
+```bash
+cd experiments/repro
+cp .env.repro.example .env.repro
+chmod 600 .env.repro
+```
+
+Các nhóm biến và quy tắc bảo vệ được tổng hợp trong Bảng 3.3.
+
+Bảng 3.3. Nhóm biến cấu hình runtime
+
+| Nhóm | Ví dụ tên biến | Quy tắc |
+|---|---|---|
+| PostgreSQL | `POSTGRES_PASSWORD`, `DATABASE_URL` | Giá trị riêng cho lượt chạy |
+| Redis | `REDIS_PASSWORD`, `REDIS_URL` | Không công bố trong artifact |
+| JWT | `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET` | Độ dài đủ lớn và khác nhau |
+| Bitcoin RPC | `BITCOIN_RPC_USER`, `BITCOIN_RPC_PASSWORD` | Chỉ dùng trong mạng Docker |
+| Blockcerts | issuer URL, revocation URL, WIF | URL phải nhất quán; WIF giữ bí mật |
+| Frontend | API base URL | Không chứa credential |
+
+Preflight quét cấu hình để phát hiện placeholder chưa thay, tệp bí mật bị Git theo dõi và giá trị có khả năng rò rỉ. Trong báo cáo, mọi ví dụ credential đều biểu diễn bằng `[REDACTED]`.
+
+### 3.8.4. B4 – Dựng hạ tầng phụ thuộc
+
+PostgreSQL, Redis và Bitcoin Core regtest được dựng trong stack riêng. Tên project Compose tách biệt với môi trường phát triển để thao tác dừng hoặc xóa volume không ảnh hưởng hệ thống khác. Sau khi container chạy, health check kiểm tra khả năng đáp ứng chứ không chỉ kiểm tra trạng thái tiến trình.
+
+```bash
+cd experiments/repro
+./scripts/prepare.sh
+./scripts/start.sh
+./scripts/health.sh
+```
+
+`prepare.sh` xây dựng image cần thiết, tạo cấu hình runtime, chạy migration và chuẩn bị công cụ Blockcerts. `start.sh` khởi động backend cùng Nginx của bộ tái lập. `health.sh` kiểm tra endpoint backend, PostgreSQL, Redis và Bitcoin RPC. Lượt kiểm chứng chỉ tiếp tục khi tất cả thành phần trả kết quả đạt.
+
+### 3.8.5. B5 – Migration và build
+
+Backend chạy đầy đủ mười migration theo thứ tự. Migration cuối tách `requestBatchId` và `issuanceBatchId`; vì vậy việc chỉ chờ chín migration có thể làm schema không tương thích với mã hiện hành. Script health kiểm tra số migration đã áp dụng và dừng nếu thiếu.
+
+```bash
+cd backend
+npm ci
+npm run migration:run
+npm run build
+cd ../frontend-admin && npm ci && npm run build
+cd ../frontend-client && npm ci && npm run build
+cd ../frontend-verify && npm ci && npm run build
+```
+
+Sản phẩm build và điều kiện chấp nhận được liệt kê trong Bảng 3.4.
+
+Bảng 3.4. Sản phẩm build cần đạt
+
+| Thành phần | Sản phẩm | Điều kiện đạt |
+|---|---|---|
+| Backend | JavaScript biên dịch trong `dist` | TypeScript không lỗi |
+| Admin | Bundle Maker và Checker | Build hoàn tất |
+| Client | Bundle Student | Build hoàn tất |
+| Verify | Bundle xác minh công khai | Build hoàn tất |
+| Migration | Schema PostgreSQL | Đủ 10 migration |
+
+Build của bốn thành phần đã đạt trong lượt tái kiểm chứng. Kết quả này chỉ chứng minh mã có thể biên dịch và đóng gói, không thay thế test nghiệp vụ.
+
+### 3.8.6. B6 – Khởi tạo tài khoản và kiểm tra RBAC
+
+Tài khoản bootstrap Checker được tạo bằng script runtime, sau đó Checker gọi endpoint được bảo vệ để tạo Maker và Student. `/api/auth/register` không phải chức năng đăng ký công khai; request phải có JWT hợp lệ và vai trò Checker. Đường tạo Student sử dụng `AuthService.register()` thống nhất để các trường `recipientName`, `studentCode`, `dateOfBirth`, `email` và `cohort` được lưu đầy đủ.
+
+```bash
+cd experiments/repro
+node scripts/prepare-accounts.mjs
+```
+
+Functional E2E đăng nhập bằng các tài khoản thử nghiệm, gọi endpoint `/api/auth/me` và thử các hành động được phép hoặc bị cấm. Student không được truy cập API quản trị. Maker không được tự duyệt phiếu của mình. Checker có thể duyệt, từ chối, quản lý tài khoản và thu hồi theo thiết kế. Credential bootstrap không được đưa vào báo cáo hoặc evidence công khai.
+
+### 3.8.7. B7 – Tạo nhóm yêu cầu phát hành
+
+Maker lập nhiều phiếu trong một request, mỗi phiếu chứa dữ liệu người nhận và thông tin văn bằng. Backend xác thực DTO, kiểm tra quan hệ Student và tạo `requestBatchId`. Trạng thái ban đầu của từng phiếu là `pending_approval`. Audit ghi actor, hành động và đối tượng mà không ghi token hay mật khẩu.
+
+Các đầu ra cần đối chiếu sau khi tạo nhóm phiếu được nêu trong Bảng 3.5.
+
+Bảng 3.5. Kiểm tra đầu ra B7
+
+| Kiểm tra | Kết quả mong đợi |
+|---|---|
+| Các phiếu cùng request | Có cùng `requestBatchId` |
+| Trạng thái ban đầu | `pending_approval` |
+| Lô phát hành | Chưa có `issuanceBatchId` trước khi duyệt |
+| Audit | Ghi Maker và số lượng phiếu |
+| Dữ liệu Student | Khớp subject đã chọn |
+
+Một phiếu không hợp lệ phải bị từ chối trước khi vào hàng đợi. Việc chỉ dựa vào validation phía frontend không được chấp nhận vì request có thể được tạo trực tiếp qua API.
+
+### 3.8.8. B8 – Duyệt từng phần và phát hành
+
+Checker chọn một tập con đang ở `pending_approval`. Dịch vụ cập nhật có điều kiện và tạo `issuanceBatchId` mới cho tập được duyệt. Các phiếu còn lại giữ `requestBatchId` cũ và có thể được duyệt hoặc từ chối ở lượt sau. Cơ chế này cho phép một nhóm Maker tạo sinh nhiều lô phát hành mà không vi phạm khóa chính.
+
+Worker nhận job theo `issuanceBatchId`, tạo payload chứng thư, tính target hash và dựng cây Merkle. Merkle root được neo bằng một transaction Bitcoin regtest. Sau khi có anchor, worker gắn Merkle proof và receipt vào từng chứng thư, lưu tệp đầu ra và cập nhật cơ sở dữ liệu.
+
+Các checkpoint bắt buộc của worker được mô tả trong Bảng 3.6.
+
+Bảng 3.6. Checkpoint của worker phát hành
+
+| Checkpoint | Dữ liệu tối thiểu | Ý nghĩa phục hồi |
+|---|---|---|
+| Chuẩn bị payload | Danh sách certificate ID | Tái tạo đầu vào xác định |
+| Tạo Merkle tree | Merkle root và proof | Phát hiện thay đổi dữ liệu |
+| Trước broadcast | Raw transaction | Có thể gửi giao dịch đã chuẩn bị |
+| Sau broadcast | Transaction ID | Không tạo giao dịch mới khi chạy lại |
+| Hoàn tất | Vị trí chứng thư và trạng thái DB | Đối chiếu kết quả cuối |
+
+### 3.8.9. B9 – Kiểm tra cổng Holder
+
+Student đăng nhập cổng Client và chỉ nhận chứng thư có recipient liên kết với subject JWT của mình. Backend không chấp nhận `studentId` tùy ý từ query làm nguồn quyết định phạm vi. Functional E2E dùng ít nhất hai Student để chứng minh tài khoản thứ nhất không đọc được chứng thư của tài khoản thứ hai.
+
+Tệp chứng thư tải xuống phải trùng với artifact được lưu cho bản ghi phát hành. Các trường hiển thị gồm người nhận, tên văn bằng, ngày cấp, đơn vị cấp, trạng thái và định danh chứng thư. Giao diện không hiển thị credential, WIF, raw transaction nội bộ hoặc dữ liệu audit không liên quan.
+
+### 3.8.10. B10 – Xác minh công khai
+
+Cổng Verify cho phép tải tệp chứng thư mà không cần tài khoản. Backend hoặc verifier thực hiện tuần tự kiểm tra cấu trúc, target hash, Merkle proof, anchor, Issuer Profile và danh sách thu hồi. Kết quả trả về gồm trạng thái tổng hợp và chi tiết các bước để người dùng phân biệt lỗi nội dung với lỗi phụ thuộc tạm thời.
+
+```bash
+cd frontend-verify
+npm test -- --runInBand
+npm run build
+```
+
+Bộ test verifier có 16 ca, gồm 10 ca SSRF và 6 ca phân loại trạng thái. Trạng thái `INDETERMINATE` được hiển thị là “Chưa thể kết luận” và có thao tác thử lại riêng. Không có nhánh giao diện nào đổi trạng thái này thành `INVALID`.
+
+### 3.8.11. B11 – Thu hồi và kiểm tra sau thu hồi
+
+Checker gửi yêu cầu thu hồi một chứng thư đã phát hành và cung cấp lý do. Dịch vụ kiểm tra quyền, trạng thái hiện tại và dữ liệu anchor trước khi gọi Bitcoin RPC. Nếu lỗi xảy ra ở giai đoạn tiền điều kiện, chứng thư giữ nguyên trạng thái và không có tác động ngoài hệ thống.
+
+Sau khi broadcast, transaction ID và checkpoint được lưu. Khi job được phục hồi, worker sử dụng transaction hiện có thay vì tạo transaction thứ hai. Danh sách thu hồi và trạng thái trong PostgreSQL được cập nhật nhất quán. Phép xác minh tiếp theo trả `REVOKED` và giữ riêng các kết quả `INVALID` hoặc `INDETERMINATE`.
+
+### 3.8.12. B12 – Kiểm thử chức năng, an toàn và phục hồi
+
+Bộ tái lập gom lệnh kiểm thử vào script có mã thoát rõ ràng. Backend Jest chạy tuần tự để log dễ đối chiếu. Functional E2E kiểm tra chuỗi đăng nhập, Maker–Checker, duyệt từng phần, Holder và thu hồi. Recovery E2E tạo điểm lỗi sau broadcast rồi khởi động lại worker.
+
+```bash
+cd experiments/repro
+./scripts/run-tests.sh
+node scripts/functional-e2e.mjs
+node scripts/recovery-e2e.mjs
+```
+
+Kết quả chốt gồm 12 trên 12 suite backend với 49 trên 49 test đạt, 16 trên 16 test verifier đạt, functional E2E đạt và recovery E2E đạt. Ca phục hồi giữ nguyên transaction ID và số block chỉ tăng một lần. Kết quả unit test, frontend test và E2E được báo cáo theo đúng phạm vi, không gộp thành một con số kiểm thử toàn hệ thống.
+
+### 3.8.13. B13 – Benchmark và đóng băng evidence
+
+Benchmark chạy ba kích thước lô 10, 100 và 500; mỗi kích thước lặp ba lần. Trước mỗi run, script tạo dữ liệu thử nghiệm độc lập, ghi thời gian bắt đầu–kết thúc, batch ID, transaction ID, Merkle root và vị trí artifact. Tổng cộng chín run phát hành 1.830 chứng thư trên chín transaction.
+
+```bash
+cd experiments/repro
+node scripts/benchmark.mjs
+node scripts/audit-benchmark-artifacts.mjs
+node scripts/full-verifier-batch.cjs
+python3 scripts/freeze-evidence.py
+```
+
+Kiểm toán sau chạy không chỉ đếm file. Script kiểm tra certificate ID, target hash, Merkle proof, quan hệ batch–transaction và manifest. Bộ full verifier đọc toàn bộ chứng thư bằng `cert-verifier-js`. Sau khi kiểm tra đạt, `freeze-evidence.py` tạo manifest và SHA-256 để phát hiện thay đổi về sau.
+
+Chuỗi truy vết từ commit nguồn tới kết luận báo cáo được thể hiện trên Hình 3.6.
+
+![Chuỗi bằng chứng từ mã nguồn đến kết luận](report-assets/ch3-11-chuoi-bang-chung.png){width=15.8cm}
+
+Hình 3.6. Chuỗi bằng chứng từ mã nguồn đến kết luận
+
+Các chỉ số kiểm soát cuối của bước B13 được tổng hợp trong Bảng 3.7.
+
+Bảng 3.7. Kết quả kiểm soát cuối B13
+
+| Kiểm soát | Kết quả |
+|---|---:|
+| Run benchmark | 9 trên 9 đạt |
+| Chứng thư phát hành | 1.830 |
+| Transaction neo | 9 |
+| Full verifier | 1.830 trên 1.830 `VALID` |
+| Payload manifest | 35 trên 35 khớp |
+| Tệp SHA-256 | 37 trên 37 khớp |
+
+Quy trình chỉ công bố artifact sau khi loại credential và dữ liệu runtime không cần thiết. Kết quả phản ánh nguyên mẫu Bitcoin regtest trên máy 4 vCPU và 19 GiB RAM; không được dùng để khẳng định hiệu năng mainnet hoặc trạng thái sẵn sàng production.
+
+## 3.9. Kết quả Kịch bản 1 – tính toàn vẹn và Maker–Checker
 
 Kịch bản bắt đầu từ chứng thư gốc hợp lệ, lần lượt sửa tên người nhận, tên văn bằng, `proofValue`, transaction id và thử để Maker tự duyệt. Sáu trên sáu ca đạt.
 
-Kết quả kiểm tra tính toàn vẹn và cơ chế Maker–Checker được tổng hợp trong Bảng 3.2.
+Kết quả kiểm tra tính toàn vẹn và cơ chế Maker–Checker được tổng hợp trong Bảng 3.8.
 
-Bảng 3.2. Kết quả Kịch bản 1
+Bảng 3.8. Kết quả Kịch bản 1
 
 | Mã | Ca kiểm thử | Kỳ vọng | Quan sát | Đánh giá |
 |---|---|---|---|---|
@@ -704,21 +1088,21 @@ Bảng 3.2. Kết quả Kịch bản 1
 
 Bốn trường hợp sửa nội dung, proof hoặc txid đều trả `INVALID`; lỗi hạ tầng/RPC trong bộ test riêng mới trả `INDETERMINATE`. Ca S1-06 cho thấy guard Maker–Checker đã chặn đúng hành vi tự duyệt trong phạm vi API và cấu hình được kiểm thử, không chỉ ở giao diện.
 
-Hình 3.5 khái quát trình tự chuẩn bị, thực thi và kiểm toán thực nghiệm.
+Hình 3.7 khái quát trình tự chuẩn bị, thực thi và kiểm toán thực nghiệm.
 
-![Hình 3.5. Tiến trình thực nghiệm Chương 3](report-assets/ch3-05-tien-trinh-thuc-nghiem.png)
+![Hình 3.7. Tiến trình thực nghiệm Chương 3](report-assets/ch3-05-tien-trinh-thuc-nghiem.png)
 
-Hình 3.5. Tiến trình thực nghiệm Chương 3
+Hình 3.7. Tiến trình thực nghiệm Chương 3
 
-## 3.9. Kết quả Kịch bản 2 – hiệu năng Merkle batching
+## 3.10. Kết quả Kịch bản 2 – hiệu năng Merkle batching
 
-### 3.9.1. Kết quả từng lần
+### 3.10.1. Kết quả từng lần
 
-Kết quả của chín lần chạy hiệu năng tái kiểm chứng được trình bày trong Bảng 3.3.
+Kết quả của chín lần chạy hiệu năng tái kiểm chứng được trình bày trong Bảng 3.9.
 
-Bảng 3.3. Chín lần chạy hiệu năng tái kiểm chứng
+Bảng 3.9. Chín lần chạy hiệu năng tái kiểm chứng
 
-| Kích thước | Lần | Duyệt → issued (giây) | Giây/chứng thư | Chứng thư/giây | Thành công | Transaction |
+| Kích thước | Lần | Duyệt → issued (giây) | Giây/chứng thư | Chứng thư/giây | Thành công | Tx |
 |---:|---:|---:|---:|---:|---:|---:|
 | 10 | 1 | 6,106 | 0,6106 | 1,6377 | 10/10 | 1 |
 | 10 | 2 | 6,102 | 0,6102 | 1,6388 | 10/10 | 1 |
@@ -730,13 +1114,13 @@ Bảng 3.3. Chín lần chạy hiệu năng tái kiểm chứng
 | 500 | 2 | 36,112 | 0,0722 | 13,8458 | 500/500 | 1 |
 | 500 | 3 | 35,798 | 0,0716 | 13,9673 | 500/500 | 1 |
 
-### 3.9.2. Giá trị tổng hợp
+### 3.10.2. Giá trị tổng hợp
 
-Các giá trị tổng hợp theo kích thước lô được trình bày trong Bảng 3.4.
+Các giá trị tổng hợp theo kích thước lô được trình bày trong Bảng 3.10.
 
-Bảng 3.4. Tổng hợp theo kích thước batch
+Bảng 3.10. Tổng hợp theo kích thước batch
 
-| Batch | Số lần | Tổng chứng thư | Thành công | Thời gian TB ± SD (giây) | Giây/chứng thư TB | Throughput TB (chứng thư/giây) | Tx/batch |
+| Batch | Số lần | Tổng chứng thư | Thành công | Thời gian TB ± SD (giây) | Giây/chứng thư TB | Thông lượng TB | Tx/batch |
 |---:|---:|---:|---:|---:|---:|---:|---:|
 | 10 | 3 | 30 | 100% | 6,101 ± 0,005 | 0,6101 | 1,6392 | 1,00 |
 | 100 | 3 | 300 | 100% | 10,432 ± 0,082 | 0,1043 | 9,5868 | 1,00 |
@@ -744,21 +1128,21 @@ Bảng 3.4. Tổng hợp theo kích thước batch
 
 Khi batch tăng từ 10 lên 500, kích thước tăng 50 lần nhưng thời gian trung bình tăng khoảng 5,89 lần. Throughput tăng khoảng 8,48 lần; thời gian trung bình mỗi chứng thư giảm khoảng 88,21%. Kết quả phản ánh lợi ích phân bổ chi phí cố định và batching trong môi trường thử nghiệm, không phải cam kết hiệu năng production.
 
-![Hình 3.6. Thời gian phát hành trung bình theo kích thước batch](report-assets/ch3-06-thoi-gian-batch.png)
+![Hình 3.8. Thời gian phát hành trung bình theo kích thước batch](report-assets/ch3-06-thoi-gian-batch.png)
 
-Hình 3.6. Thời gian phát hành trung bình theo kích thước batch
+Hình 3.8. Thời gian phát hành trung bình theo kích thước batch
 
-![Hình 3.7. Thông lượng và thời gian trung bình trên mỗi chứng thư](report-assets/ch3-07-thong-luong-hieu-qua.png)
+![Hình 3.9. Thông lượng và thời gian trung bình trên mỗi chứng thư](report-assets/ch3-07-thong-luong-hieu-qua.png)
 
-Hình 3.7. Thông lượng và thời gian trung bình trên mỗi chứng thư
+Hình 3.9. Thông lượng và thời gian trung bình trên mỗi chứng thư
 
-### 3.9.3. Tài nguyên
+### 3.10.3. Tài nguyên
 
-Mức sử dụng tài nguyên theo kích thước lô được tổng hợp trong Bảng 3.5.
+Mức sử dụng tài nguyên theo kích thước lô được tổng hợp trong Bảng 3.11.
 
-Bảng 3.5. Tài nguyên hệ thống
+Bảng 3.11. Tài nguyên hệ thống
 
-| Batch | CPU TB | CPU cực đại TB | Bộ nhớ dùng TB (MB) | Bộ nhớ cực đại TB (MB) | Backend RSS TB (MB) | Backend RSS cực đại TB (MB) |
+| Batch | CPU TB | CPU cực đại TB | Bộ nhớ dùng TB (MB) | Bộ nhớ cực đại TB (MB) | RSS backend TB (MB) | RSS backend cực đại (MB) |
 |---:|---:|---:|---:|---:|---:|---:|
 | 10 | 29,00% | 42,71% | 2.508,9 | 2.543,7 | 166,9 | 169,4 |
 | 100 | 54,62% | 100,00% | 2.705,6 | 3.042,8 | 201,5 | 205,3 |
@@ -766,17 +1150,17 @@ Bảng 3.5. Tài nguyên hệ thống
 
 CPU và bộ nhớ tăng theo kích thước batch nhưng nằm trong giới hạn máy thử nghiệm. CPU cực đại chạm 100% ở nhóm 100 và 500; bộ nhớ dùng cực đại trung bình của nhóm 500 khoảng 3.323,4 MB. Số liệu chỉ đại diện cấu hình 4 vCPU và concurrency 16 đã nêu.
 
-![Hình 3.8. Mức sử dụng tài nguyên theo kích thước batch](report-assets/ch3-08-tai-nguyen.png)
+![Hình 3.10. Mức sử dụng tài nguyên theo kích thước batch](report-assets/ch3-08-tai-nguyen.png)
 
-Hình 3.8. Mức sử dụng tài nguyên theo kích thước batch
+Hình 3.10. Mức sử dụng tài nguyên theo kích thước batch
 
-### 3.9.4. Kiểm toán artifact
+### 3.10.4. Kiểm toán artifact
 
 Script kiểm toán chạy lại trên dữ liệu vừa sinh và ghi nhận 9/9 run đạt, 1.830/1.830 chứng thư được phát hành, 1.830 certificate ID cùng target hash duy nhất, 1.830/1.830 Merkle proof khớp, 9 lô phát hành tương ứng 9 transaction đã xác nhận và 1.830/1.830 chứng thư được bộ `cert-verifier-js` kết luận `VALID`. Kiểm toán còn đối chiếu checksum từng file với manifest, dữ liệu DB theo `issuanceBatchId` và Merkle root trong `OP_RETURN`. `MANIFEST.json` đối chiếu đúng 35/35 payload của lượt chạy; `SHA256SUMS` kiểm tra đúng 37/37 tệp công bố (gồm manifest và bảng tổng hợp bổ sung) được lưu trong repository.
 
-Kết quả kiểm toán artifact được tổng hợp trong Bảng 3.6.
+Kết quả kiểm toán artifact được tổng hợp trong Bảng 3.12.
 
-Bảng 3.6. Kết quả kiểm toán
+Bảng 3.12. Kết quả kiểm toán
 
 | Chỉ số | Kết quả |
 |---|---:|
@@ -791,11 +1175,11 @@ Bảng 3.6. Kết quả kiểm toán
 
 Tổng 1.830 là tổng lượt/chứng thư của chín run: `3×10 + 3×100 + 3×500`. Không có việc cộng 1.830 chứng thư rồi nhân thêm ba lần; từng run sinh tập ID riêng. Kết quả áp dụng cho cây nguồn và stack regtest được ghi trong artifact, không phải tuyên bố cho mainnet hoặc production. Lượt chạy được thực hiện từ commit nguồn `2816de8aac13492b614dbcc6b3b3e1f3eba52bc1`, trạng thái Git sạch (`sourceDirty=false`), với fingerprint cây nguồn `6e0cd862daf5641b26995575d8e7ff9d755daf43396191dfc838fc6ffb0997cc`; manifest bao phủ cả `benchmark.mjs`, `run-tests.sh`, `audit-benchmark-artifacts.mjs`, `full-verifier-batch.cjs` và `source-manifest.py`.
 
-## 3.10. Kết quả Kịch bản 3 – thu hồi, RBAC và audit
+## 3.11. Kết quả Kịch bản 3 – thu hồi, RBAC và audit
 
-Kết quả kiểm tra thu hồi, phân quyền và audit được tổng hợp trong Bảng 3.7.
+Kết quả kiểm tra thu hồi, phân quyền và audit được tổng hợp trong Bảng 3.13.
 
-Bảng 3.7. Kết quả Kịch bản 3
+Bảng 3.13. Kết quả Kịch bản 3
 
 | Mã | Ca kiểm thử | Kỳ vọng | Quan sát | Đánh giá |
 |---|---|---|---|---|
@@ -810,19 +1194,19 @@ Bảng 3.7. Kết quả Kịch bản 3
 
 Tám trên tám ca đạt. Trong phạm vi môi trường tái kiểm chứng và các ca đã thiết kế, kết quả ghi nhận chỉ Checker thực hiện được thao tác thu hồi; transaction có xác nhận; Verify, Revocation List và audit trả kết quả nhất quán.
 
-Hình 3.9 tổng hợp tỷ lệ đạt của ba nhóm kịch bản kiểm thử đã thực hiện.
+Hình 3.11 tổng hợp tỷ lệ đạt của ba nhóm kịch bản kiểm thử đã thực hiện.
 
-![Hình 3.9. Tổng hợp tỷ lệ đạt của ba kịch bản](report-assets/ch3-09-tong-hop-kich-ban.png)
+![Hình 3.11. Tổng hợp tỷ lệ đạt của ba kịch bản](report-assets/ch3-09-tong-hop-kich-ban.png)
 
-Hình 3.9. Tổng hợp tỷ lệ đạt của ba kịch bản kiểm thử
+Hình 3.11. Tổng hợp tỷ lệ đạt của ba kịch bản kiểm thử
 
-## 3.11. Đánh giá kết quả
+## 3.12. Đánh giá kết quả
 
-### 3.11.1. Mức đáp ứng
+### 3.12.1. Mức đáp ứng
 
-Mức đáp ứng yêu cầu và bằng chứng tương ứng được đối chiếu trong Bảng 3.8.
+Mức đáp ứng yêu cầu và bằng chứng tương ứng được đối chiếu trong Bảng 3.14.
 
-Bảng 3.8. Đối chiếu yêu cầu và bằng chứng
+Bảng 3.14. Đối chiếu yêu cầu và bằng chứng
 
 | Yêu cầu | Bằng chứng | Kết quả |
 |---|---|---|
@@ -835,17 +1219,19 @@ Bảng 3.8. Đối chiếu yêu cầu và bằng chứng
 | Audit actor/action | S3-08 | Đạt |
 | Build/test/health | 49/49 backend test; 16/16 verifier test; 3 frontend; health đạt với 10 migration | Đạt |
 
-### 3.11.2. Hạn chế
+### 3.12.2. Hạn chế
 
 Thứ nhất, regtest không phản ánh phí, độ trễ và kinh tế an ninh của mainnet. Thứ hai, thử nghiệm chạy trên một VPS và ba lần lặp mỗi kích thước; chưa đại diện tải dài hạn hoặc hệ thống phân tán nhiều node. Thứ ba, khóa chưa ở HSM/KMS, chưa có MFA, HTTPS công khai, secret manager và quy trình xoay khóa. Thứ tư, API và worker vẫn cùng tiến trình; worker có quyền Docker gần tương đương quyền quản trị host.
 
 Thứ năm, Revocation List dựa vào DB; chưa có indexer phục hồi toàn bộ từ blockchain. Thứ sáu, audit hash chain phát hiện sửa cục bộ nhưng DBA vẫn có thể viết lại chuỗi hoặc xóa đuôi nếu head hash không được neo ra kho độc lập. Thứ bảy, issuance/revocation đã có checkpoint, idempotency và reconciliation nhưng chưa có fault-injection bằng cách kill worker đúng thời điểm hoặc kiểm thử tải/concurrency quy mô lớn. Thứ tám, SSRF regression test đã bao phủ loopback, private/link-local/metadata IP, DNS kết quả trộn, redirect, timeout/giới hạn dung lượng; chưa thay thế pentest độc lập. Thứ chín, khả năng tương tác với verifier Blockcerts bên ngoài regtest cần tiếp tục đánh giá.
 
-### 3.11.3. Hướng phát triển
+### 3.12.3. Hướng phát triển
 
 Hệ thống đã dùng `studentCode`/khóa ngoại ổn định, transactional outbox và checkpoint/idempotency; bước tiếp theo là tách bảng request/batch/certificate/revocation, bổ sung fault-injection và indexer phục hồi thu hồi, đưa khóa vào HSM/KMS, tách API khỏi worker đặc quyền, thêm MFA, HTTPS/HSTS, backup/restore, giám sát và kiểm thử xâm nhập. Verifier cần phân giải DNS có kiểm soát, từ chối toàn bộ địa chỉ private/link-local/loopback/metadata sau mỗi lần phân giải và sau chuyển hướng, đồng thời chỉ cho phép hostname/scheme/port đã định trước theo khuyến nghị OWASP [23]. Trước mainnet cần kiểm thử testnet, xác định phí, confirmation policy, quyền riêng tư và trách nhiệm pháp lý. Có thể bổ sung verifier độc lập phía người dùng để giảm phụ thuộc dịch vụ trung tâm.
 
-## 3.12. Kết luận Chương 3
+Tài liệu hỗ trợ được tổ chức theo vai trò sử dụng. Danh mục API và quyền truy cập nằm tại Phụ lục 1. Khung cấu hình triển khai nằm tại Phụ lục 2. Quy trình vận hành và xử lý lỗi nằm tại Phụ lục 3. Bộ bằng chứng thực nghiệm được mô tả tại Phụ lục 4. Ma trận truy vết yêu cầu nằm tại Phụ lục 5. Nguồn của hình và biểu đồ nằm tại Phụ lục 6.
+
+## 3.13. Kết luận Chương 3
 
 Chương 3 đã trình bày môi trường, cách hiện thực backend, ba frontend, worker, Blockcerts toolchain, xác minh, thu hồi và hardening B12; đồng thời báo cáo kết quả thực nghiệm có artifact kiểm toán. Kịch bản 1 đạt 6/6, Kịch bản 2 có 9/9 run, 1.830/1.830 proof được đối chiếu và 1.830/1.830 chứng thư được xác minh `VALID`, Kịch bản 3 đạt 8/8. Kết quả cung cấp bằng chứng thực nghiệm rằng nguyên mẫu đáp ứng các yêu cầu đã kiểm thử và batching hoạt động trong môi trường regtest; kết quả không xác nhận tính đúng toàn diện và không được suy rộng thành mức sẵn sàng production.
 
@@ -870,33 +1256,33 @@ Trước khi triển khai thực tế, cần đánh giá pháp lý và quy trìn
 
 # TÀI LIỆU THAM KHẢO
 
-[1] D. Yaga, P. Mell, N. Roby, K. Scarfone, “Blockchain Technology Overview,” NISTIR 8202, National Institute of Standards and Technology, 2018. DOI: 10.6028/NIST.IR.8202. https://doi.org/10.6028/NIST.IR.8202.
+[1] D. Yaga, P. Mell, N. Roby, K. Scarfone, “Blockchain Technology Overview,” NISTIR 8202, National Institute of Standards and Technology, 2018. DOI: 10.6028/NIST.IR.8202.
 
 [2] S. Nakamoto, “Bitcoin: A Peer-to-Peer Electronic Cash System,” 2008. https://bitcoin.org/bitcoin.pdf (truy cập ngày 13/09/2026).
 
 [3] R. C. Merkle, “Secrecy, Authentication, and Public Key Systems,” doctoral dissertation, Stanford University, 1979.
 
-[4] National Institute of Standards and Technology, “Secure Hash Standard (SHS),” FIPS PUB 180-4, 2015. DOI: 10.6028/NIST.FIPS.180-4. https://doi.org/10.6028/NIST.FIPS.180-4.
+[4] National Institute of Standards and Technology, “Secure Hash Standard (SHS),” FIPS PUB 180-4, 2015. DOI: 10.6028/NIST.FIPS.180-4.
 
-[5] National Institute of Standards and Technology, “Digital Signature Standard (DSS),” FIPS PUB 186-5, 2023. DOI: 10.6028/NIST.FIPS.186-5. https://doi.org/10.6028/NIST.FIPS.186-5.
+[5] National Institute of Standards and Technology, “Digital Signature Standard (DSS),” FIPS PUB 186-5, 2023. DOI: 10.6028/NIST.FIPS.186-5.
 
 [6] M. Castro, B. Liskov, “Practical Byzantine Fault Tolerance,” Proceedings of the Third Symposium on Operating Systems Design and Implementation, 1999, pp. 173–186. https://www.usenix.org/conference/osdi-99/practical-byzantine-fault-tolerance.
 
 [7] D. Ongaro, J. Ousterhout, “In Search of an Understandable Consensus Algorithm,” 2014 USENIX Annual Technical Conference, 2014, pp. 305–319. https://www.usenix.org/conference/atc14/technical-sessions/presentation/ongaro.
 
-[8] E. Androulaki và cộng sự, “Hyperledger Fabric: A Distributed Operating System for Permissioned Blockchains,” Proceedings of the Thirteenth EuroSys Conference, 2018. DOI: 10.1145/3190508.3190538. https://doi.org/10.1145/3190508.3190538.
+[8] E. Androulaki và cộng sự, “Hyperledger Fabric: A Distributed Operating System for Permissioned Blockchains,” Proceedings of the Thirteenth EuroSys Conference, 2018. DOI: 10.1145/3190508.3190538.
 
 [9] M. Sporny, D. Longley, D. Chadwick (biên tập), “Verifiable Credentials Data Model v2.0,” W3C Recommendation, 15/05/2025. https://www.w3.org/TR/vc-data-model-2.0/.
 
 [10] T. T. A. Dinh, R. Liu, M. Zhang, G. Chen, B. C. Ooi, J. Wang, “Untangling Blockchain: A Data Processing View of Blockchain Systems,” IEEE Transactions on Knowledge and Data Engineering, vol. 30, no. 7, pp. 1366–1385, 2018. DOI: 10.1109/TKDE.2017.2781227.
 
-[11] Blockcerts, “cert-schema: JSON schemas and context for Blockcerts,” commit 1e390ac, 31/07/2025. https://github.com/blockchain-certificates/cert-schema/tree/1e390ace91fb2b09518e45760168f344ef3a4409 (truy cập ngày 13/09/2026).
+[11] Blockcerts, “cert-schema: JSON schemas and context for Blockcerts,” commit 1e390ac, 31/07/2025. https://github.com/blockchain-certificates/cert-schema (truy cập ngày 13/09/2026).
 
 [12] D. Longley, G. Kellogg, M. Sporny, M. Lanthaler, P.-A. Champin, N. Lindström (biên tập), “JSON-LD 1.1,” W3C Recommendation, 16/07/2020. https://www.w3.org/TR/json-ld11/.
 
 [13] M. Sporny, D. Longley (biên tập), “Verifiable Credential Data Integrity 1.0,” W3C Recommendation, 15/05/2025. https://www.w3.org/TR/vc-data-integrity/.
 
-[14] Blockcerts, “jsonld-signatures-merkleproof2019: MerkleProof2019 suite,” commit 26a9c30, 25/08/2026. https://github.com/blockchain-certificates/jsonld-signatures-merkleproof2019/tree/26a9c3071355a9ccd83b0b90fc375a4d8cf1d4b8 (truy cập ngày 13/09/2026).
+[14] Blockcerts, “jsonld-signatures-merkleproof2019: MerkleProof2019 suite,” commit 26a9c30, 25/08/2026. https://github.com/blockchain-certificates/jsonld-signatures-merkleproof2019 (truy cập ngày 13/09/2026).
 
 [15] M. Jones, J. Bradley, N. Sakimura, “JSON Web Token (JWT),” RFC 7519, Internet Engineering Task Force, 2015. https://www.rfc-editor.org/rfc/rfc7519.
 
@@ -914,34 +1300,254 @@ Trước khi triển khai thực tế, cần đánh giá pháp lý và quy trìn
 
 [22] TypeORM, “TypeORM Documentation — Migrations and Transactions.” https://typeorm.io/docs/advanced-topics/migrations/; https://typeorm.io/docs/advanced-topics/transactions/ (truy cập ngày 13/09/2026).
 
-[23] OWASP Foundation, “Server Side Request Forgery Prevention Cheat Sheet.” https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html (truy cập ngày 13/09/2026).
+[23] OWASP Foundation, “Server Side Request Forgery Prevention Cheat Sheet,” OWASP Cheat Sheet Series (truy cập ngày 13/09/2026).
 
 # PHỤ LỤC
 
-## Phụ lục A. Nhóm API chính
+## Phụ lục 1. Danh mục API và quyền truy cập
 
-| Nhóm | Đường dẫn tiêu biểu | Quyền |
+Phụ lục này tóm tắt bề mặt API dùng trong nguyên mẫu. Quyền được kiểm tra ở backend bằng JWT và `RolesGuard`. Điều kiện hiển thị trên frontend chỉ hỗ trợ trải nghiệm, không phải ranh giới an toàn.
+
+Nhóm API xác thực và tài khoản được trình bày trong Bảng PL1.1.
+
+Bảng PL1.1. API xác thực và tài khoản
+
+| Phương thức | Đường dẫn | Quyền | Mục đích |
+|---|---|---|---|
+| `POST` | `/api/auth/login` | Công khai | Đổi thông tin đăng nhập hợp lệ lấy JWT |
+| `GET` | `/api/auth/me` | Đã đăng nhập | Lấy hồ sơ của subject hiện tại |
+| `POST` | `/api/auth/register` | Checker | Tạo tài khoản theo quy trình quản trị |
+| `GET` | `/api/admin/users` | Checker | Liệt kê tài khoản phục vụ quản trị |
+| `PATCH` | `/api/admin/users/:id` | Checker | Cập nhật trạng thái hoặc hồ sơ cho phép |
+
+Nhóm API nghiệp vụ phát hành được trình bày trong Bảng PL1.2.
+
+Bảng PL1.2. API phát hành, Holder và audit
+
+| Phương thức | Đường dẫn đại diện | Quyền | Mục đích |
+|---|---|---|---|
+| `POST` | `/api/issue/requests` | Maker | Tạo nhóm yêu cầu phát hành |
+| `GET` | `/api/issue/requests` | Maker, Checker | Tra cứu phiếu theo phạm vi vai trò |
+| `POST` | `/api/issue/approve` | Checker | Duyệt một tập phiếu đang chờ |
+| `POST` | `/api/issue/reject` | Checker | Từ chối phiếu bằng cập nhật có điều kiện |
+| `GET` | `/api/issue/batches/:id` | Maker, Checker | Theo dõi lô phát hành |
+| `GET` | `/api/issue/holder/certificates` | Student | Lấy chứng thư của subject hiện tại |
+| `GET` | `/api/audit` | Maker, Checker | Tra cứu log theo quyền và bộ lọc |
+
+Nhóm API công khai và thu hồi được trình bày trong Bảng PL1.3.
+
+Bảng PL1.3. API xác minh, thu hồi và tài nguyên công khai
+
+| Phương thức | Đường dẫn đại diện | Quyền | Mục đích |
+|---|---|---|---|
+| `POST` | `/api/verify` | Công khai | Xác minh chứng thư được tải lên |
+| `POST` | `/api/revoke/:id` | Checker | Khởi tạo quy trình thu hồi |
+| `GET` | `/api/blockcerts/issuers/kma/profile.json` | Công khai | Cung cấp Issuer Profile |
+| `GET` | `/api/blockcerts/issuers/kma/revocation-list.json` | Công khai | Cung cấp danh sách thu hồi |
+| `GET` | `/health` | Công khai | Kiểm tra sức khỏe tối thiểu |
+
+Tên route chi tiết có thể thay đổi khi tái cấu trúc; repository tại commit nguồn là tham chiếu có thẩm quyền. Bảng không thay thế tài liệu Swagger được sinh từ decorator trong mã nguồn.
+
+## Phụ lục 2. Cấu hình triển khai tái lập
+
+### 2.1. Nguyên tắc cấu hình
+
+Cấu hình được chia thành giá trị công khai, giá trị nội bộ và bí mật. URL public của Issuer Profile và revocation list phải thống nhất với nội dung chứng thư. Hostname giữa container dùng tên service Compose, còn trình duyệt dùng địa chỉ do Nginx công bố. Không sử dụng `localhost` trong chứng thư nếu verifier chạy ở môi trường khác.
+
+Các mức nhạy cảm của cấu hình được phân loại trong Bảng PL2.1.
+
+Bảng PL2.1. Phân loại cấu hình
+
+| Nhóm | Phạm vi | Được đưa vào Git | Được đưa vào báo cáo |
+|---|---|---:|---:|
+| Tên service và cổng mẫu | Kiến trúc | Có | Có |
+| URL issuer công khai | Chứng thư | Có thể | Có |
+| Mật khẩu PostgreSQL và Redis | Runtime | Không | Không |
+| JWT secret | Runtime | Không | Không |
+| Bitcoin RPC password | Runtime | Không | Không |
+| WIF phát hành | Worker | Không | Không |
+| Khóa công khai issuer | Public profile | Có | Có |
+
+### 2.2. Khung biến môi trường
+
+Đoạn dưới chỉ thể hiện tên biến. Giá trị thật phải được sinh riêng và không sao chép từ tài liệu.
+
+```dotenv
+NODE_ENV=production
+PORT=4000
+DATABASE_URL=[REDACTED]
+REDIS_URL=[REDACTED]
+JWT_ACCESS_SECRET=[REDACTED]
+JWT_REFRESH_SECRET=[REDACTED]
+BITCOIN_RPC_URL=[REDACTED]
+BITCOIN_RPC_USER=[REDACTED]
+BITCOIN_RPC_PASSWORD=[REDACTED]
+ISSUER_WIF=[REDACTED]
+PUBLIC_BASE_URL=http://127.0.0.1:18088
+```
+
+Tệp runtime được cấp quyền đọc hạn chế. Trước commit cần kiểm tra `git status --short`, vùng staging và mẫu chuỗi nhạy cảm. Nếu credential từng xuất hiện trong Git, chỉ xóa khỏi phiên bản hiện tại là chưa đủ; giá trị phải bị thu hồi hoặc thay mới.
+
+### 2.3. Các service triển khai
+
+Vai trò và dữ liệu bền vững của từng service được trình bày trong Bảng PL2.2.
+
+Bảng PL2.2. Vai trò service
+
+| Service | Vai trò | Dữ liệu bền vững |
 |---|---|---|
-| Xác thực | `POST /api/auth/login`, `GET /api/auth/me` | Công khai/đã đăng nhập |
-| Tài khoản | `/api/admin/users` | Checker |
-| Phát hành | `/api/issue/*` | Maker/Checker theo hành động |
-| Holder | `/api/issue/holder/certificates` | Student |
-| Xác minh | `/api/verify` | Công khai |
-| Thu hồi | `/api/revoke/:id` | Checker |
-| Issuer | `/api/blockcerts/issuers/kma/*` | Công khai |
-| Audit | `/api/audit` | Maker, Checker |
-| Health | `/health` | Công khai |
+| PostgreSQL | Trạng thái nghiệp vụ, người dùng, chứng thư và audit | Volume cơ sở dữ liệu |
+| Redis | Hàng đợi BullMQ 6 và trạng thái job ngắn hạn | Có thể tái tạo từ DB và checkpoint |
+| Bitcoin Core | Blockchain regtest và ví thử nghiệm | Volume chain, wallet |
+| Backend | API xác thực, phát hành, xác minh và thu hồi | Không lưu cục bộ lâu dài |
+| Worker | Điều phối cert-tools, cert-issuer và checkpoint | Workspace của từng job |
+| Nginx | Điểm vào của bộ tái lập | Không có dữ liệu nghiệp vụ |
+| Ba frontend | Admin, Client và Verify | Bundle tĩnh |
 
-## Phụ lục B. Bằng chứng thực nghiệm chính thức
+## Phụ lục 3. Quy trình vận hành và xử lý lỗi
 
-Bộ tái kiểm chứng hiện hành nằm trong `experiments/results/final-revalidation-20260930/`, gồm E2E chức năng/phục hồi, kết quả 12 suite backend, chín run benchmark, bảng tổng hợp, chín manifest, kiểm toán 1.830 chứng thư và `SHA256SUMS`. Artifact cũ trong `experiments/results/` được giữ để truy vết lịch sử nhưng không thay thế kết quả tái kiểm chứng này. Dữ liệu credential, private key, WIF, token, mật khẩu và tài khoản bootstrap không thuộc phạm vi công khai.
+### 3.1. Trình tự chuẩn
 
-## Phụ lục C. Hướng dẫn tái lập tóm tắt
+1. Kiểm tra công cụ và Docker daemon.
+2. Checkout đúng commit và xác nhận cây nguồn sạch.
+3. Tạo cấu hình runtime bằng credential mới.
+4. Chạy `experiments/repro/scripts/prepare.sh`.
+5. Chạy `experiments/repro/scripts/start.sh`.
+6. Chờ `experiments/repro/scripts/health.sh` đạt.
+7. Chạy bộ test chức năng và phục hồi.
+8. Chạy benchmark khi cần tái tạo số liệu hiệu năng.
+9. Kiểm toán artifact bằng hai script kiểm tra.
+10. Đóng băng evidence và tạo SHA-256.
+11. Dừng stack bằng `experiments/repro/scripts/stop.sh`.
 
-1. Tạo biến môi trường từ `.env.example` và thay toàn bộ giá trị bí mật.
-2. Khởi động PostgreSQL, Redis và Bitcoin Core regtest bằng Docker Compose.
-3. Chạy migration của backend; tạo ví regtest và cấp coin thử nghiệm.
-4. Build, khởi động backend/worker và ba frontend; chạy health check.
-5. Tạo tài khoản thử nghiệm không chứa dữ liệu cá nhân thật.
-6. Chạy preflight, đóng băng cấu hình và thực thi các kịch bản.
-7. Kiểm toán Merkle proof, tạo checksum và chỉ công bố artifact đã khử dữ liệu nhạy cảm.
+### 3.2. Backend không kết nối PostgreSQL
+
+Kiểm tra trạng thái container, health và log trước khi thay cấu hình.
+
+```bash
+docker compose ps postgres
+docker compose logs --tail=100 postgres
+```
+
+Ba nguyên nhân thường gặp là password runtime không đồng nhất, volume cũ được tạo bởi cấu hình khác và backend khởi động trước khi PostgreSQL sẵn sàng. Việc xóa volume chỉ thực hiện với stack thử nghiệm và sau khi xác định không cần giữ dữ liệu.
+
+### 3.3. Redis hoặc BullMQ không hoạt động
+
+Backend có thể nhận request nhưng batch đứng ở `queued` khi worker không kết nối Redis hoặc không chạy. Cần đối chiếu `REDIS_URL`, password, tên queue và log worker. Redis chỉ điều phối job; không sửa trạng thái cơ sở dữ liệu bằng tay để bỏ qua worker.
+
+### 3.4. Bitcoin RPC không phản hồi
+
+Kiểm tra container Bitcoin Core, chain đang là regtest, ví đã được nạp và RPC credential giữa client với server khớp. Thiếu coin thử nghiệm làm transaction không thể được tài trợ. Coin regtest được tạo bằng mining trong môi trường cô lập và không có giá trị ngoài thử nghiệm.
+
+### 3.5. Migration chưa đủ
+
+Schema phải có đủ mười migration. Dấu hiệu thiếu migration cuối gồm không có cột tách định danh hoặc lỗi khóa khi duyệt từng phần. Cách xử lý đúng là chạy migration từ mã nguồn cùng commit, không sửa thủ công bảng để vượt qua test.
+
+### 3.6. Phát hành dừng trước broadcast
+
+Khi chưa có transaction ID, worker có thể xây dựng lại payload và transaction từ checkpoint phù hợp. Các file trung gian phải gắn với `issuanceBatchId` để không trộn dữ liệu giữa job. Trạng thái DB phản ánh lỗi có thể thử lại nhưng không tuyên bố chứng thư đã neo.
+
+### 3.7. Phát hành dừng sau broadcast
+
+Khi checkpoint đã có transaction ID, lần chạy lại phải tra cứu và sử dụng giao dịch này. Tạo giao dịch mới sẽ làm sai quan hệ một lô–một anchor và gây khó kiểm toán. Recovery E2E kiểm tra chính xác thuộc tính giữ nguyên transaction ID và chỉ tăng một block.
+
+### 3.8. Verifier trả `INDETERMINATE`
+
+Trạng thái này yêu cầu kiểm tra phụ thuộc tạm thời như issuer URL, revocation URL, Bitcoin RPC, DNS, redirect và timeout. Giao diện giữ nguyên nhãn “Chưa thể kết luận”. Chỉ khi có bằng chứng xác định payload, proof hoặc anchor sai mới chuyển sang `INVALID`.
+
+### 3.9. Checksum không khớp
+
+Một tệp bị thay đổi sau thời điểm đóng băng evidence phải được xem là không còn thuộc bộ bằng chứng đã xác nhận. Cần xác định nguồn thay đổi, chạy lại bước kiểm toán tương ứng và tạo manifest mới. Không chỉnh trực tiếp tệp checksum để làm cho kết quả khớp.
+
+## Phụ lục 4. Bộ bằng chứng thực nghiệm
+
+Bộ tái kiểm chứng chính thức nằm tại `experiments/results/final-revalidation-20260930/`. Artifact cũ trong `experiments/results/` được giữ để truy vết lịch sử nhưng không được dùng thay cho kết quả cuối.
+
+Thành phần và vai trò của bộ evidence được liệt kê trong Bảng PL4.1.
+
+Bảng PL4.1. Thành phần evidence chính
+
+| Thành phần | Nội dung | Vai trò |
+|---|---|---|
+| Functional E2E | Kết quả luồng đăng nhập, Maker–Checker, Holder và duyệt từng phần | Chứng minh tích hợp nghiệp vụ |
+| Recovery E2E | Transaction ID và số block trước, sau phục hồi | Chứng minh không broadcast lặp |
+| Backend Jest | 12 suite, 49 test | Chứng minh hành vi đơn vị |
+| Verifier tests | 16 test | Chứng minh SSRF và phân loại trạng thái |
+| Benchmark runs | Chín run cho batch 10, 100 và 500 | Cơ sở số liệu hiệu năng |
+| Audit benchmark | Kiểm tra ID, hash, proof, batch và transaction | Chứng minh cấu trúc artifact |
+| Full verifier | 1.830 chứng thư `VALID` | Kiểm tra độc lập bằng verifier |
+| Manifest | Mô tả nguồn, cấu hình và payload | Truy vết lượt chạy |
+| SHA-256 | 37 trên 37 tệp khớp | Phát hiện thay đổi evidence |
+
+Các số liệu đã được đối chiếu và được phép sử dụng được chốt trong Bảng PL4.2.
+
+Bảng PL4.2. Số liệu chốt được phép sử dụng
+
+| Chỉ số | Giá trị |
+|---|---:|
+| Backend Jest | 12 trên 12 suite; 49 trên 49 test |
+| Verifier | 16 trên 16 test |
+| Functional E2E | Đạt |
+| Recovery E2E | Đạt |
+| Benchmark | 9 trên 9 run |
+| Tổng chứng thư | 1.830 |
+| Full verifier | 1.830 trên 1.830 `VALID` |
+| Manifest payload | 35 trên 35 khớp |
+| SHA-256 evidence | 37 trên 37 khớp |
+| Thời gian batch 10 | 6,101 ± 0,005 giây |
+| Thời gian batch 100 | 10,432 ± 0,082 giây |
+| Thời gian batch 500 | 35,951 ± 0,128 giây |
+
+Số liệu trên thuộc nguyên mẫu Bitcoin regtest trên máy 4 vCPU và 19 GiB RAM. Không có phép đo mainnet, tải Internet diện rộng, HSM, high availability hoặc kiểm thử xâm nhập độc lập trong phạm vi evidence này.
+
+## Phụ lục 5. Ma trận truy vết yêu cầu và bằng chứng
+
+Tình trạng đáp ứng yêu cầu chức năng được truy vết trong Bảng PL5.1.
+
+Bảng PL5.1. Truy vết yêu cầu chức năng
+
+| Mã | Yêu cầu | Thành phần | Bằng chứng | Kết quả |
+|---|---|---|---|---|
+| FR-01 | Đăng nhập và xác định vai trò | Auth module, JWT strategy | Backend Jest, E2E | Đạt |
+| FR-02 | Checker tạo tài khoản | Register có JWT và `RolesGuard` | E2E tài khoản | Đạt |
+| FR-03 | Maker tạo nhóm phiếu | Issuance controller và service | Functional E2E | Đạt |
+| FR-04 | Checker duyệt hoặc từ chối | Conditional update | Jest và E2E | Đạt |
+| FR-05 | Duyệt từng phần | Hai loại batch ID | E2E hai lần duyệt | Đạt |
+| FR-06 | Phát hành theo lô | Worker và Blockcerts tools | Benchmark, artifact audit | Đạt trong regtest |
+| FR-07 | Student xem chứng thư của mình | Holder endpoint | Functional E2E | Đạt |
+| FR-08 | Xác minh công khai | Verify service và portal | Verifier tests, full verifier | Đạt |
+| FR-09 | Thu hồi | Revocation service | Jest và E2E | Đạt |
+| FR-10 | Audit thao tác | Audit module | DB và functional E2E | Đạt |
+| FR-11 | Phục hồi sau lỗi | Worker checkpoint | Recovery E2E | Đạt |
+
+Tình trạng đáp ứng yêu cầu an toàn và phi chức năng được truy vết trong Bảng PL5.2.
+
+Bảng PL5.2. Truy vết yêu cầu an toàn và phi chức năng
+
+| Mã | Yêu cầu | Kiểm soát | Bằng chứng | Phạm vi kết luận |
+|---|---|---|---|---|
+| NFR-01 | Phân quyền phía server | JWT, RBAC và guard | Unit test, E2E | Vai trò trong nguyên mẫu |
+| NFR-02 | Chống SSRF | Kiểm tra URL, IP và redirect | 10 ca verifier | Các biến thể đã kiểm thử |
+| NFR-03 | Toàn vẹn chứng thư | Hash, Merkle proof và anchor | 1.830 artifact | Bộ benchmark cuối |
+| NFR-04 | Không phát lặp sau lỗi | Checkpoint sau broadcast | Recovery E2E | Kịch bản lỗi được mô phỏng |
+| NFR-05 | Khả năng tái lập | Commit, manifest và checksum | Source manifest, SHA-256 | Môi trường đã công bố |
+| NFR-06 | Hiệu năng theo batch | Benchmark ba kích thước | Chín run | Máy 4 vCPU, 19 GiB RAM |
+| NFR-07 | Bảo vệ bí mật | Tệp runtime ngoài Git, redaction | Quét repository và artifact | Không thay thế secret manager production |
+
+## Phụ lục 6. Danh mục hình và tệp nguồn
+
+Các hình lý thuyết, kiến trúc, quy trình và biểu đồ hiệu năng nằm trong `report-assets/`. Hình benchmark được sinh từ dữ liệu CSV hoặc JSON của bộ evidence cuối. Hình kiến trúc được dựng lại theo module, endpoint và luồng đang tồn tại trong repository. Logo bìa được trích từ mẫu CDCS của nhà trường và chỉ dùng cho tài liệu này.
+
+Nguồn của từng nhóm tài sản hình ảnh được tổng hợp trong Bảng PL6.1.
+
+Bảng PL6.1. Nhóm tài sản hình ảnh
+
+| Nhóm | Tiền tố tệp | Nguồn |
+|---|---|---|
+| Lý thuyết Blockchain | `ch1-` | Mô hình hóa từ tài liệu tham khảo |
+| Thiết kế hệ thống | `ch2-` | Kiến trúc và mã nguồn hiện hành |
+| Triển khai và luồng | `ch3-01` đến `ch3-05` | Quy trình hiện thực |
+| Biểu đồ benchmark | `ch3-06` đến `ch3-09` | Evidence cuối ngày 30 tháng 9 năm 2026 |
+| Kiểm soát tái lập | `ch3-10`, `ch3-11` | Script và manifest hiện hành |
+
+Không có vị trí ảnh trống trong bản xuất. Nếu một ảnh không thể dựng hoặc không có nguồn kiểm chứng, nội dung tương ứng được trình bày bằng bảng và văn bản thay vì chèn khung ảnh không có bằng chứng.
